@@ -21,6 +21,72 @@
       "label": "Site",
       "field_type": "link",
       "link_entity": "site"
+    },
+    {
+      "name": "contact_name",
+      "label": "Contact Name",
+      "field_type": "string"
+    },
+    {
+      "name": "contact_email",
+      "label": "Contact Email",
+      "field_type": "string"
+    },
+    {
+      "name": "contact_phone",
+      "label": "Contact Phone",
+      "field_type": "string"
+    },
+    {
+      "name": "address",
+      "label": "Address",
+      "field_type": "text"
+    },
+    {
+      "name": "vendor_type",
+      "label": "Vendor Type",
+      "field_type": "select",
+      "options": ["Supplier", "Contractor", "Service Provider", "OEM"],
+      "in_list_view": true
+    },
+    {
+      "name": "delivery_rating",
+      "label": "Delivery Rating",
+      "field_type": "float",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "quality_rating",
+      "label": "Quality Rating",
+      "field_type": "float",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "overall_rating",
+      "label": "Overall Rating",
+      "field_type": "float",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "total_orders",
+      "label": "Total Orders",
+      "field_type": "int",
+      "readonly": true
+    },
+    {
+      "name": "on_time_deliveries",
+      "label": "On-Time Deliveries",
+      "field_type": "int",
+      "readonly": true
+    },
+    {
+      "name": "rejected_deliveries",
+      "label": "Rejected Deliveries",
+      "field_type": "int",
+      "readonly": true
     }
   ],
   "rbac": {

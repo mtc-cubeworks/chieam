@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.base_model import BaseModel
 
@@ -16,3 +16,10 @@ class ItemReturn(BaseModel):
     site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None)
     department: Mapped[str] = mapped_column(String(50), ForeignKey("department.id"), nullable=True, default=None)
     cost_code: Mapped[str] = mapped_column(String(50), ForeignKey("cost_code.id"), nullable=True, default=None)
+    # PR-1: Return reason tracking
+    return_reason: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
+    return_reason_notes: Mapped[str] = mapped_column(Text, nullable=True, default=None)
+    # PR-2: Inspection on return
+    inspection_required: Mapped[bool] = mapped_column(Boolean, nullable=True, default=None)
+    inspection_status: Mapped[str] = mapped_column(String(50), nullable=True, default=None)
+    inspection_notes: Mapped[str] = mapped_column(Text, nullable=True, default=None)

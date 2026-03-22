@@ -162,6 +162,45 @@ async def work_order_parts_workflow_hook(ctx):
     return await route_workflow("work_order_parts", ctx.doc, ctx.action, ctx.db, ctx.user)
 
 
+# =============================================================================
+# XW-10: WO Failure Code → Failure Analysis auto-routing
+# =============================================================================
+
+@hook_registry.workflow("work_order")
+async def work_order_failure_rca_hook(ctx):
+    """
+    XW-10: When a WO is completed with a failure_code set,
+    auto-create a Failure Analysis record for RCA.
+    """
+    from app.modules.work_mgmt.workflow_router import route_workflow
+    result = await route_workflow("work_order", ctx.doc, ctx.action, ctx.db, ctx.user)
+
+    if ctx.action in ("complete", "Complete", "close", "Close") and result.get("status") == "success":
+        failure_code = getattr(ctx.doc, "failure_code", None) or getattr(ctx.doc, "failure_class", None)
+        asset_id = getattr(ctx.doc, "asset", None)
+        wo_id = ctx.doc.id if hasattr(ctx.doc, "id") else None
+
+        if failure_code and asset_id:
+            from app.services.document import new_doc, save_doc, get_value
+
+            # Check if FA already exists for this WO
+            existing = await get_value("failure_analysis", {"work_order": wo_id}, "*", ctx.db)
+            if not existing:
+                fa = await new_doc("failure_analysis", ctx.db,
+                    workflow_state="Draft",
+                    work_order=wo_id,
+                    asset=asset_id,
+                    failure_code=failure_code,
+                    failure_mode=getattr(ctx.doc, "description", None),
+                    reported_date=getattr(ctx.doc, "actual_end_date", None),
+                    site=getattr(ctx.doc, "site", None),
+                )
+                if fa:
+                    await save_doc(fa, ctx.db)
+
+    return result
+
+
 def register_hooks():
     """Called by the module loader. Hooks are already registered via decorators above."""
     # Import server action modules to trigger their @server_actions.register decorators

@@ -37,6 +37,16 @@
       "label": "Site",
       "field_type": "link",
       "link_entity": "site"
+    },
+    {
+      "name": "counter_number",
+      "label": "Counter #",
+      "field_type": "int"
+    },
+    {
+      "name": "recount_required",
+      "label": "Recount Required",
+      "field_type": "boolean"
     }
   ],
   "rbac": {

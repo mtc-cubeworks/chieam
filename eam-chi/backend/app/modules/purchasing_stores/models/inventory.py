@@ -32,3 +32,6 @@ class Inventory(BaseModel):
     reserved_inv: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     freeze: Mapped[bool] = mapped_column(Boolean, nullable=True, default=None)
     warn: Mapped[bool] = mapped_column(Boolean, nullable=True, default=None)
+    # IV-4: Lot tracking
+    lot_number: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
+    expiry_date: Mapped[date] = mapped_column(Date, nullable=True, default=None)

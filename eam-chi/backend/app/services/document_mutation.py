@@ -135,6 +135,11 @@ async def apply_workflow_state(
     Never set workflow_state directly — always go through this function so
     that the transition is validated against the workflow configuration in
     the database.
+
+    Integrates SM-1 through SM-6 state machine enhancements:
+    - SM-2: Required field validation before transition
+    - SM-4: Backward transition justification check
+    - SM-6: Enhanced audit logging
     """
     import re
     from app.services.workflow import WorkflowDBService
@@ -151,6 +156,22 @@ async def apply_workflow_state(
         else:
             return {"status": "error", "message": f"No workflow configured for '{entity}'"}
 
+    # SM-2: Validate required fields for this transition
+    from app.services.state_machine_extensions import validate_required_fields
+    req_error = await validate_required_fields(entity, action_slug, doc)
+    if req_error:
+        return req_error
+
+    # SM-4: Check backward transition justification
+    from app.services.state_machine_extensions import is_backward_transition
+    if is_backward_transition(entity, action_slug):
+        justification = getattr(doc, "justification", None) or getattr(doc, "rejection_reason", None)
+        if not justification:
+            return {
+                "status": "error",
+                "message": f"A justification/reason is required for backward transition '{action_slug}'",
+            }
+
     is_valid, target_state, error = await WorkflowDBService.validate_transition(
         db, entity, current_state, action_slug, user=None
     )
@@ -162,6 +183,20 @@ async def apply_workflow_state(
         }
 
     doc.workflow_state = target_state
+
+    # SM-6: Enhanced audit logging
+    try:
+        from app.services.state_machine_extensions import log_enhanced_transition, check_sla_breach
+        sla_breach = await check_sla_breach(entity, doc)
+        justification = getattr(doc, "justification", None) or getattr(doc, "rejection_reason", None)
+        record_id = getattr(doc, "id", None) or getattr(doc, "name", None)
+        if record_id:
+            await log_enhanced_transition(
+                db, entity, record_id, current_state, target_state,
+                action_slug, justification=justification, sla_breach=sla_breach,
+            )
+    except Exception:
+        pass  # Audit logging should not block the transition
 
     if commit:
         await db.flush()

@@ -197,6 +197,34 @@
       "label": "End Date",
       "field_type": "datetime",
       "in_list_view": true
+    },
+    {
+      "name": "sequence",
+      "label": "Sequence",
+      "field_type": "int"
+    },
+    {
+      "name": "predecessor",
+      "label": "Predecessor",
+      "field_type": "link",
+      "link_entity": "work_order_activity"
+    },
+    {
+      "name": "dependency_type",
+      "label": "Dependency Type",
+      "field_type": "select",
+      "options": ["Finish-to-Start", "Start-to-Start", "Finish-to-Finish", "Start-to-Finish"]
+    },
+    {
+      "name": "acceptance_criteria",
+      "label": "Acceptance Criteria",
+      "field_type": "text"
+    },
+    {
+      "name": "completion_status",
+      "label": "Completion Status",
+      "field_type": "select",
+      "options": ["Not Started", "In Progress", "Meets Criteria", "Does Not Meet", "Waived"]
     }
   ],
   "rbac": {

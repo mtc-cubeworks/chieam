@@ -1,0 +1,107 @@
+{
+  "name": "master_data_change",
+  "label": "Master Data Change",
+  "module": "Core EAM",
+  "table_name": "master_data_change",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "MDC-{#####}",
+  "icon": "edit-3",
+  "group": "Administration",
+  "search": true,
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "initial_state": "Draft",
+    "states": ["Draft", "Pending Approval", "Approved", "Applied", "Rejected"],
+    "transitions": [
+      {"from": "Draft", "to": "Pending Approval", "action": "Submit", "label": "Submit for Approval"},
+      {"from": "Pending Approval", "to": "Approved", "action": "Approve", "label": "Approve"},
+      {"from": "Pending Approval", "to": "Rejected", "action": "Reject", "label": "Reject"},
+      {"from": "Approved", "to": "Applied", "action": "Apply", "label": "Apply Change"},
+      {"from": "Rejected", "to": "Draft", "action": "Revise", "label": "Revise"}
+    ]
+  },
+  "fields": [
+    {"name": "workflow_state", "label": "Workflow State", "field_type": "string", "hidden": true},
+    {
+      "name": "entity_type",
+      "label": "Entity Type",
+      "field_type": "select",
+      "options": ["Asset", "Item", "Vendor", "Location", "Employee", "Cost Code"],
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "entity_id",
+      "label": "Entity ID",
+      "field_type": "string",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "change_type",
+      "label": "Change Type",
+      "field_type": "select",
+      "options": ["Create", "Update", "Deactivate", "Reactivate", "Merge"],
+      "in_list_view": true
+    },
+    {
+      "name": "field_name",
+      "label": "Field Name",
+      "field_type": "string"
+    },
+    {
+      "name": "old_value",
+      "label": "Old Value",
+      "field_type": "text"
+    },
+    {
+      "name": "new_value",
+      "label": "New Value",
+      "field_type": "text"
+    },
+    {
+      "name": "requested_by",
+      "label": "Requested By",
+      "field_type": "link",
+      "link_entity": "employee",
+      "in_list_view": true
+    },
+    {
+      "name": "approved_by",
+      "label": "Approved By",
+      "field_type": "link",
+      "link_entity": "employee"
+    },
+    {
+      "name": "requested_date",
+      "label": "Requested Date",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "approved_date",
+      "label": "Approved Date",
+      "field_type": "datetime"
+    },
+    {
+      "name": "justification",
+      "label": "Justification",
+      "field_type": "text",
+      "required": true
+    },
+    {
+      "name": "rejection_reason",
+      "label": "Rejection Reason",
+      "field_type": "text"
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    }
+  ],
+  "rbac": {"SystemManager": ["*"]}
+}

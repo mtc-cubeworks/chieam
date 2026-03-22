@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import Date, ForeignKey, String, Text
+from sqlalchemy import Date, Float, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.base_model import BaseModel
 
@@ -19,3 +19,7 @@ class PurchaseRequest(BaseModel):
     site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None)
     department: Mapped[str] = mapped_column(String(50), ForeignKey("department.id"), nullable=True, default=None)
     cost_code: Mapped[str] = mapped_column(String(50), ForeignKey("cost_code.id"), nullable=True, default=None)
+    # PQ-1: Budget / cost center validation
+    budget_code: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
+    budget_amount: Mapped[float] = mapped_column(Float, nullable=True, default=None)
+    total_amount: Mapped[float] = mapped_column(Float, nullable=True, default=None)

@@ -312,7 +312,177 @@ async def maintenance_order_workflow_hook(ctx):
     return await route_workflow("maintenance_order", ctx.doc, ctx.action, ctx.db, ctx.user)
 
 
+# =============================================================================
+# MW-5: Condition Monitoring — threshold alerting workflow
+# =============================================================================
+
+@hook_registry.after_save("condition_monitoring")
+async def condition_monitoring_after_save(doc, ctx):
+    """
+    MW-5: When a condition monitoring reading is saved, evaluate thresholds
+    and auto-create a maintenance request if critical threshold is breached.
+    """
+    from app.services.document import new_doc, save_doc, get_value
+    from datetime import datetime, timedelta
+
+    reading_value = getattr(doc, "reading_value", None)
+    critical_threshold = getattr(doc, "critical_threshold", None)
+    warning_threshold = getattr(doc, "warning_threshold", None)
+    asset_id = getattr(doc, "asset", None)
+
+    if reading_value is None or not asset_id:
+        return None
+
+    try:
+        reading = float(reading_value)
+    except (ValueError, TypeError):
+        return None
+
+    alert_status = "Normal"
+    if critical_threshold is not None:
+        try:
+            if reading >= float(critical_threshold):
+                alert_status = "Critical"
+        except (ValueError, TypeError):
+            pass
+
+    if alert_status == "Normal" and warning_threshold is not None:
+        try:
+            if reading >= float(warning_threshold):
+                alert_status = "Warning"
+        except (ValueError, TypeError):
+            pass
+
+    # Update alert status
+    if getattr(doc, "alert_status", None) != alert_status:
+        doc.alert_status = alert_status
+        await save_doc(doc, ctx.db, commit=False)
+
+    # Auto-create MR on critical threshold breach
+    if alert_status == "Critical" and not getattr(doc, "maintenance_request", None):
+        mr = await new_doc("maintenance_request", ctx.db,
+            workflow_state="Draft",
+            description=f"Critical condition alert: reading {reading} exceeds threshold {critical_threshold}",
+            asset=asset_id,
+            due_date=(datetime.now() + timedelta(days=1)).date(),
+            site=getattr(doc, "site", None),
+            request_type="Condition Based",
+        )
+        if mr:
+            await save_doc(mr, ctx.db, commit=False)
+            doc.maintenance_request = mr.id
+            await save_doc(doc, ctx.db)
+
+    return None
+
+
+# =============================================================================
+# XW-4: WO Parts Shortage → Auto-generate PR
+# =============================================================================
+
+@hook_registry.after_save("work_order_parts")
+async def wo_parts_auto_pr(doc, ctx):
+    """
+    XW-4: When WO parts are saved and quantity_required > quantity_on_hand,
+    auto-generate a Purchase Request for the shortage.
+    """
+    from app.services.document import get_value, new_doc, save_doc
+
+    item_id = getattr(doc, "item", None)
+    qty_required = float(getattr(doc, "quantity_required", 0) or 0)
+
+    if not item_id or qty_required <= 0:
+        return None
+
+    # Check current inventory
+    item_data = await get_value("item", item_id, "*", ctx.db)
+    if not item_data:
+        return None
+
+    qty_on_hand = float(item_data.get("actual_qty_on_hand", 0) or 0)
+    reserved = float(getattr(doc, "quantity_reserved", 0) or 0)
+    shortage = qty_required - (qty_on_hand - reserved)
+
+    if shortage <= 0:
+        return None
+
+    # Check if PR already exists for this WO part
+    wo_activity_id = getattr(doc, "work_order_activity", None)
+    if not wo_activity_id:
+        return None
+
+    from app.services.document import get_list
+    wo_activity = await get_value("work_order_activity", wo_activity_id, "*", ctx.db)
+    wo_id = wo_activity.get("work_order") if wo_activity else None
+
+    # Create PR for shortage
+    pr = await new_doc("purchase_request", ctx.db,
+        workflow_state="Draft",
+        pr_description=f"Auto-PR for WO parts shortage: {item_data.get('item_name', item_id)}",
+        site=wo_activity.get("site") if wo_activity else None,
+    )
+    if pr:
+        await save_doc(pr, ctx.db, commit=False)
+        pr_line = await new_doc("purchase_request_line", ctx.db,
+            purchase_request=pr.id,
+            item=item_id,
+            item_name=item_data.get("item_name"),
+            qty_required=int(shortage),
+            unit_of_measure=item_data.get("uom"),
+            row_number=1,
+        )
+        if pr_line:
+            await save_doc(pr_line, ctx.db)
+
+    return None
+
+
+# =============================================================================
+# MW-18: Master Data Change workflow
+# =============================================================================
+
+@hook_registry.workflow("master_data_change")
+async def master_data_change_workflow_hook(ctx):
+    """
+    MW-18: When a master data change is approved and action is 'apply',
+    apply the change to the target entity.
+    """
+    from app.services.document import get_doc, save_doc
+
+    doc = ctx.doc
+    action = ctx.action
+
+    if action in ("apply", "Apply"):
+        entity_type = getattr(doc, "entity_type", None)
+        entity_id = getattr(doc, "entity_id", None)
+        field_name = getattr(doc, "field_name", None)
+        new_value = getattr(doc, "new_value", None)
+
+        if entity_type and entity_id and field_name:
+            target_doc = await get_doc(entity_type, entity_id, ctx.db)
+            if target_doc and hasattr(target_doc, field_name):
+                setattr(target_doc, field_name, new_value)
+                await save_doc(target_doc, ctx.db, commit=False)
+
+                from datetime import datetime
+                doc.approved_date = datetime.now()
+                await save_doc(doc, ctx.db)
+
+                return {
+                    "status": "success",
+                    "message": f"Change applied: {entity_type}.{field_name} updated for {entity_id}",
+                }
+            return {"status": "error", "message": f"Target entity {entity_type}/{entity_id} not found or field {field_name} does not exist"}
+        return {"status": "error", "message": "entity_type, entity_id, and field_name are required"}
+
+    return {"status": "success", "message": f"Master data change workflow '{action}' allowed"}
+
+
 def register_hooks():
     """Called by the module loader. Hooks are already registered via decorators above."""
     # Import server action modules to trigger their @server_actions.register decorators
     import app.modules.maintenance_mgmt.apis.maintenance_request_actions  # noqa: F401
+    # MW-7: FMEA server actions (5-Why, Fishbone, RPN)
+    import app.modules.maintenance_mgmt.services.fmea_service  # noqa: F401
+    # MR-5/MW-9: Notification hooks
+    import app.modules.maintenance_mgmt.services.notification_service  # noqa: F401

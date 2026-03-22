@@ -175,6 +175,24 @@
       "field_type": "link",
       "link_entity": "cost_code",
       "hidden": true
+    },
+    {
+      "name": "budget_code",
+      "label": "Budget Code",
+      "field_type": "string"
+    },
+    {
+      "name": "budget_amount",
+      "label": "Budget Amount",
+      "field_type": "float",
+      "readonly": true
+    },
+    {
+      "name": "total_amount",
+      "label": "Total Amount",
+      "field_type": "float",
+      "readonly": true,
+      "in_list_view": true
     }
   ],
   "form_state": {

@@ -29,6 +29,7 @@ from .request_activity_type import RequestActivityType
 from .email_log import EmailLog
 from .scheduled_job_log import ScheduledJobLog
 from .error_log import ErrorLog
+from .master_data_change import MasterDataChange
 
 __all__ = [
     "Organization",
@@ -61,4 +62,5 @@ __all__ = [
     "EmailLog",
     "ScheduledJobLog",
     "ErrorLog",
+    "MasterDataChange",
 ]

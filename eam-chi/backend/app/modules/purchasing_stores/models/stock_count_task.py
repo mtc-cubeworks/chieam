@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.base_model import BaseModel
 
@@ -13,3 +13,6 @@ class StockCountTask(BaseModel):
     bin: Mapped[str] = mapped_column(String(50), ForeignKey("bin.id"), nullable=True, default=None)
     submitted_at: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
     site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None)
+    # SC-3: Multi-counter / recount
+    counter_number: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    recount_required: Mapped[bool] = mapped_column(Boolean, nullable=True, default=None)

@@ -159,6 +159,37 @@
       "in_list_view": false,
       "required": false,
       "unique": false
+    },
+    {
+      "name": "reorder_point",
+      "label": "Reorder Point",
+      "field_type": "int"
+    },
+    {
+      "name": "reorder_quantity",
+      "label": "Reorder Quantity",
+      "field_type": "int"
+    },
+    {
+      "name": "minimum_stock",
+      "label": "Minimum Stock",
+      "field_type": "int"
+    },
+    {
+      "name": "maximum_stock",
+      "label": "Maximum Stock",
+      "field_type": "int"
+    },
+    {
+      "name": "is_lot_tracked",
+      "label": "Lot Tracked",
+      "field_type": "boolean"
+    },
+    {
+      "name": "cycle_count_frequency",
+      "label": "Cycle Count Frequency",
+      "field_type": "select",
+      "options": ["Weekly", "Monthly", "Quarterly", "Semi-Annual", "Annual"]
     }
   ],
   "rbac": {

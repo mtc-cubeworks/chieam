@@ -118,6 +118,65 @@
       "field_type": "link",
       "link_entity": "cost_code",
       "required": false
+    },
+    {
+      "name": "amendment_number",
+      "label": "Amendment #",
+      "field_type": "int",
+      "readonly": true
+    },
+    {
+      "name": "amendment_reason",
+      "label": "Amendment Reason",
+      "field_type": "text"
+    },
+    {
+      "name": "original_po",
+      "label": "Original PO",
+      "field_type": "link",
+      "link_entity": "purchase_order"
+    },
+    {
+      "name": "po_type",
+      "label": "PO Type",
+      "field_type": "select",
+      "options": ["Standard", "Blanket", "Contract"],
+      "in_list_view": true
+    },
+    {
+      "name": "blanket_limit",
+      "label": "Blanket Limit",
+      "field_type": "float",
+      "display_depends_on": "eval:doc.po_type!='Standard'"
+    },
+    {
+      "name": "released_amount",
+      "label": "Released Amount",
+      "field_type": "float",
+      "readonly": true,
+      "display_depends_on": "eval:doc.po_type!='Standard'"
+    },
+    {
+      "name": "contract_start",
+      "label": "Contract Start",
+      "field_type": "date",
+      "display_depends_on": "eval:doc.po_type=='Contract'"
+    },
+    {
+      "name": "contract_end",
+      "label": "Contract End",
+      "field_type": "date",
+      "display_depends_on": "eval:doc.po_type=='Contract'"
+    },
+    {
+      "name": "payment_terms",
+      "label": "Payment Terms",
+      "field_type": "string"
+    },
+    {
+      "name": "delivery_terms",
+      "label": "Delivery Terms",
+      "field_type": "string"
     }
   ],
   "form_state": {

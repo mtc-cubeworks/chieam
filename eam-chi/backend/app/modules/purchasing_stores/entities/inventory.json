@@ -224,6 +224,16 @@
       "in_list_view": 0,
       "required": 0,
       "unique": 0
+    },
+    {
+      "name": "lot_number",
+      "label": "Lot Number",
+      "field_type": "string"
+    },
+    {
+      "name": "expiry_date",
+      "label": "Expiry Date",
+      "field_type": "date"
     }
   ],
   "rbac": {

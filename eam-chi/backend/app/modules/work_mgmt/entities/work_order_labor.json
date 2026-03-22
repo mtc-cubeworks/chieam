@@ -90,6 +90,35 @@
       "field_type": "float",
       "hidden": true,
       "in_list_view": true
+    },
+    {
+      "name": "shift",
+      "label": "Shift",
+      "field_type": "select",
+      "options": ["Day", "Afternoon", "Night", "Rotating"]
+    },
+    {
+      "name": "rate",
+      "label": "Rate",
+      "field_type": "float"
+    },
+    {
+      "name": "rate_type",
+      "label": "Rate Type",
+      "field_type": "select",
+      "options": ["Regular", "Overtime", "Double Time", "Holiday"]
+    },
+    {
+      "name": "overtime_multiplier",
+      "label": "OT Multiplier",
+      "field_type": "float"
+    },
+    {
+      "name": "labor_type",
+      "label": "Labor Type",
+      "field_type": "select",
+      "options": ["Internal", "Contractor", "Vendor"],
+      "in_list_view": true
     }
   ],
   "rbac": {

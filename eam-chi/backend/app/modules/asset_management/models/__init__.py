@@ -24,6 +24,7 @@ from .asset_maintenance_history import AssetMaintenanceHistory
 from .warranty_claim import WarrantyClaim
 from .meter import Meter
 from .meter_reading import MeterReading
+from .asset_transfer import AssetTransfer
 
 __all__ = [
     "LocationType",
@@ -51,6 +52,7 @@ __all__ = [
     "WarrantyClaim",
     "Meter",
     "MeterReading",
+    "AssetTransfer",
 ]
 from .equipment_availability import EquipmentAvailability
 from .equipment_availability_details import EquipmentAvailabilityDetails

@@ -20,6 +20,7 @@ from .failure_analysis import FailureAnalysis
 from .corrective_action import CorrectiveAction
 from .inspection_route import InspectionRoute
 from .inspection_point import InspectionPoint
+from .condition_monitoring import ConditionMonitoring
 
 __all__ = [
     "Checklist",
@@ -43,4 +44,5 @@ __all__ = [
     "CorrectiveAction",
     "InspectionRoute",
     "InspectionPoint",
+    "ConditionMonitoring",
 ]

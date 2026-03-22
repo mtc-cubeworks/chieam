@@ -96,6 +96,34 @@
       "field_type": "link",
       "link_entity": "cost_code",
       "required": false
+    },
+    {
+      "name": "return_reason",
+      "label": "Return Reason",
+      "field_type": "select",
+      "options": ["Excess Material", "Wrong Part", "Defective", "Job Complete", "Not Needed", "Other"],
+      "in_list_view": true
+    },
+    {
+      "name": "return_reason_notes",
+      "label": "Reason Notes",
+      "field_type": "text"
+    },
+    {
+      "name": "inspection_required",
+      "label": "Inspection Required",
+      "field_type": "boolean"
+    },
+    {
+      "name": "inspection_status",
+      "label": "Inspection Status",
+      "field_type": "select",
+      "options": ["Pending", "Passed", "Failed", "Conditionally Accepted"]
+    },
+    {
+      "name": "inspection_notes",
+      "label": "Inspection Notes",
+      "field_type": "text"
     }
   ],
   "rbac": {

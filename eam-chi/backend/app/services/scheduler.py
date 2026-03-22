@@ -651,6 +651,107 @@ async def daily_kpi_calculation():
                        error_tb=traceback.format_exc(), cron_expression="0 7 * * *")
 
 
+async def daily_cycle_count_scheduling():
+    """
+    IV-6: Auto-generate Stock Counts for items with cycle_count_frequency set.
+    Checks each item's last count date and creates new stock counts when due.
+    Runs daily at 4:00 AM.
+    """
+    from app.services.document import new_doc, save_doc
+    from app.services.document_query import _get_model
+
+    logger.info("📋 Running daily cycle count scheduling...")
+    started_at = datetime.now()
+
+    frequency_days = {
+        "Daily": 1,
+        "Weekly": 7,
+        "Bi-Weekly": 14,
+        "Monthly": 30,
+        "Quarterly": 90,
+        "Semi-Annual": 180,
+        "Annual": 365,
+    }
+
+    async with async_session_maker() as db:
+        try:
+            item_model = _get_model("item")
+            sc_model = _get_model("stock_count")
+
+            if not item_model:
+                return
+
+            # Get items with cycle_count_frequency set
+            result = await db.execute(
+                select(item_model).where(
+                    item_model.cycle_count_frequency.isnot(None)
+                )
+            )
+            items = result.scalars().all()
+
+            created = 0
+            today = date.today()
+
+            for item in items:
+                freq = getattr(item, "cycle_count_frequency", None)
+                if not freq or freq not in frequency_days:
+                    continue
+
+                days = frequency_days[freq]
+
+                # Check last stock count for this item
+                if sc_model:
+                    last_sc_result = await db.execute(
+                        select(sc_model)
+                        .where(sc_model.workflow_state.notin_(["cancelled", "Cancelled"]))
+                        .order_by(sc_model.created_at.desc())
+                        .limit(1)
+                    )
+                    last_sc = last_sc_result.scalar_one_or_none()
+
+                    if last_sc:
+                        last_date = getattr(last_sc, "created_at", None)
+                        if last_date:
+                            if hasattr(last_date, "date"):
+                                last_date = last_date.date()
+                            if isinstance(last_date, date) and (today - last_date).days < days:
+                                continue
+
+                # Create stock count
+                sc = await new_doc("stock_count", db,
+                    workflow_state="Draft",
+                    description=f"Cycle Count: {item.item_name or item.id} ({freq})",
+                    site=getattr(item, "site", None),
+                )
+                if sc:
+                    await save_doc(sc, db, commit=False)
+
+                    # Create stock count task for this item
+                    sct = await new_doc("stock_count_task", db,
+                        stock_count=sc.id,
+                        item=item.id,
+                        store=getattr(item, "default_store", None),
+                    )
+                    if sct:
+                        await save_doc(sct, db, commit=False)
+
+                    created += 1
+
+            if created:
+                await db.commit()
+            logger.info(f"📋 Cycle count scheduling complete. Created {created} stock count(s)")
+            await _log_job("daily_cycle_count_scheduling", "Daily Cycle Count Scheduling",
+                           started_at, "Success", records_created=created,
+                           cron_expression="0 4 * * *")
+
+        except Exception as e:
+            logger.error(f"❌ Cycle count scheduling failed: {e}")
+            await db.rollback()
+            await _log_job("daily_cycle_count_scheduling", "Daily Cycle Count Scheduling",
+                           started_at, "Error", error_message=str(e),
+                           error_tb=traceback.format_exc(), cron_expression="0 4 * * *")
+
+
 async def _send_escalation_notifications(flagged_count: int):
     """Send escalation email for SLA-breached records."""
     try:
@@ -741,11 +842,21 @@ def start_scheduler():
         replace_existing=True,
     )
 
+    # IV-6: Cycle count scheduling - runs at 4:00 AM
+    scheduler.add_job(
+        daily_cycle_count_scheduling,
+        CronTrigger(hour=4, minute=0),
+        id="daily_cycle_count_scheduling",
+        name="Daily Cycle Count Scheduling",
+        replace_existing=True,
+    )
+
     scheduler.start()
     logger.info("📅 Scheduler started:")
     logger.info("  - PM calendar: Daily at 1:00 AM")
     logger.info("  - Interval check: Daily at 2:00 AM")
     logger.info("  - Reorder check: Daily at 3:00 AM")
+    logger.info("  - Cycle count scheduling: Daily at 4:00 AM")
     logger.info("  - SLA monitoring: Every 4 hours at :30")
     logger.info("  - Overdue WO check: Daily at 6:00 AM")
     logger.info("  - KPI calculation: Daily at 7:00 AM")

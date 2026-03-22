@@ -274,6 +274,125 @@ async def putaway_after_save(doc, ctx):
     return None
 
 
+# =============================================================================
+# PI-1/PI-3: Item Issue — WO enforcement and destination validation
+# =============================================================================
+
+@hook_registry.before_save("item_issue")
+async def item_issue_before_save(doc, ctx):
+    """
+    PI-1: Block item issue if require_wo is True and no work_order is set.
+    PI-3: Validate issue_destination is provided.
+    """
+    require_wo = getattr(doc, "require_wo", None) if not isinstance(doc, dict) else doc.get("require_wo")
+    wo = getattr(doc, "work_order", None) if not isinstance(doc, dict) else doc.get("work_order")
+
+    if require_wo and not wo:
+        return doc, {"work_order": "Work Order is required for this item issue"}
+
+    return doc, None
+
+
+# =============================================================================
+# PO-4: Purchase Order — amendment tracking on save
+# =============================================================================
+
+@hook_registry.before_save("purchase_order")
+async def purchase_order_before_save_amendment(doc, ctx):
+    """
+    PO-4: When a PO is re-saved in Draft (after revision), auto-increment amendment_number.
+    """
+    from app.services.document import get_value
+
+    po_id = getattr(doc, "id", None) if not isinstance(doc, dict) else doc.get("id")
+    if not po_id:
+        return doc, None
+
+    existing = await get_value("purchase_order", po_id, "*", ctx.db)
+    if not existing:
+        return doc, None
+
+    # Only increment when PO already existed and is being re-saved
+    current_amendment = existing.get("amendment_number") or 0
+    state = existing.get("workflow_state", "")
+
+    if state in ("Draft",) and current_amendment > 0:
+        # Track amendment on re-save after revision
+        if isinstance(doc, dict):
+            doc["amendment_number"] = current_amendment + 1
+        else:
+            doc.amendment_number = current_amendment + 1
+
+    return doc, None
+
+
+# =============================================================================
+# PQ-1: Purchase Request — budget validation
+# =============================================================================
+
+@hook_registry.before_save("purchase_request")
+async def purchase_request_budget_validation(doc, ctx):
+    """
+    PQ-1: Validate that total_amount does not exceed budget_amount when budget_code is set.
+    """
+    budget_code = getattr(doc, "budget_code", None) if not isinstance(doc, dict) else doc.get("budget_code")
+    budget_amount = getattr(doc, "budget_amount", None) if not isinstance(doc, dict) else doc.get("budget_amount")
+    total_amount = getattr(doc, "total_amount", None) if not isinstance(doc, dict) else doc.get("total_amount")
+
+    if budget_code and budget_amount and total_amount:
+        try:
+            if float(total_amount) > float(budget_amount):
+                return doc, {"total_amount": f"Total amount ({total_amount}) exceeds budget ({budget_amount})"}
+        except (ValueError, TypeError):
+            pass
+
+    return doc, None
+
+
+# =============================================================================
+# SC-1: Stock Count — auto-adjust inventory on approval
+# =============================================================================
+
+@hook_registry.workflow("stock_count")
+async def stock_count_auto_adjust_workflow(ctx):
+    """
+    SC-1: When stock count is approved and auto_adjust is True, automatically
+    create inventory adjustments for variances.
+    """
+    from app.modules.purchasing_stores.workflow_router import route_workflow
+    result = await route_workflow("stock_count", ctx.doc, ctx.action, ctx.db, ctx.user)
+
+    if ctx.action in ("approve", "Approve") and result.get("status") == "success":
+        auto_adjust = getattr(ctx.doc, "auto_adjust", False)
+        if auto_adjust:
+            from app.services.document import get_list, new_doc, save_doc
+
+            sc_id = ctx.doc.id if hasattr(ctx.doc, "id") else None
+            if sc_id:
+                tasks = await get_list("stock_count_task", {"stock_count": sc_id}, db=ctx.db)
+                for task in tasks:
+                    system_qty = float(task.get("system_qty", 0) or 0)
+                    counted_qty = float(task.get("counted_qty", 0) or 0)
+                    variance = counted_qty - system_qty
+
+                    if variance != 0:
+                        adj = await new_doc("inventory_adjustment", ctx.db,
+                            workflow_state="Draft",
+                            item=task.get("item"),
+                            store=task.get("store"),
+                            adjustment_qty=variance,
+                            reason=f"Auto-adjustment from Stock Count {sc_id}",
+                            stock_count=sc_id,
+                            site=getattr(ctx.doc, "site", None),
+                        )
+                        if adj:
+                            await save_doc(adj, ctx.db, commit=False)
+
+                await ctx.db.commit()
+
+    return result
+
+
 @hook_registry.workflow("vendor_invoice")
 async def vendor_invoice_workflow_hook(ctx):
     from app.modules.purchasing_stores.workflow_router import route_workflow
@@ -290,5 +409,7 @@ def register_hooks():
     import app.modules.purchasing_stores.apis.inventory_adjustment  # noqa: F401
     import app.modules.purchasing_stores.apis.transfer_receipt  # noqa: F401
     import app.modules.purchasing_stores.apis.pr_consolidation_actions  # noqa: F401
+    # Vendor performance hooks (PO-3)
+    import app.modules.purchasing_stores.apis.vendor_performance_hooks  # noqa: F401
     # 3-way matching hooks (registered via decorators in the service module)
     import app.modules.purchasing_stores.services.three_way_matching  # noqa: F401

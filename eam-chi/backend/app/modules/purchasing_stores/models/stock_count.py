@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.base_model import BaseModel
 
@@ -16,3 +16,8 @@ class StockCount(BaseModel):
     abc_code: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
     freeze_policy: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
     snapshot_at: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
+    # SC-1: Variance threshold & auto-adjustment
+    variance_threshold_pct: Mapped[float] = mapped_column(Float, nullable=True, default=None)
+    auto_adjust: Mapped[bool] = mapped_column(Boolean, nullable=True, default=None)
+    # SC-2: Blind count
+    blind_count: Mapped[bool] = mapped_column(Boolean, nullable=True, default=None)

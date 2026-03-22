@@ -20,3 +20,11 @@ class WorkOrderLabor(BaseModel):
     end_datetime: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)
     total_hours_used: Mapped[float] = mapped_column(Float, nullable=True, default=None)
     estimated_hours: Mapped[float] = mapped_column(Float, nullable=True, default=None)
+    # LA-2: Shift / availability
+    shift: Mapped[str] = mapped_column(String(50), nullable=True, default=None)
+    # LA-3: Overtime / rate differentiation
+    rate: Mapped[float] = mapped_column(Float, nullable=True, default=None)
+    rate_type: Mapped[str] = mapped_column(String(50), nullable=True, default=None)
+    overtime_multiplier: Mapped[float] = mapped_column(Float, nullable=True, default=None)
+    # LA-4: Contractor vs. internal
+    labor_type: Mapped[str] = mapped_column(String(50), nullable=True, default=None)

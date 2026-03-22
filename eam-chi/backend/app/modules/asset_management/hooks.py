@@ -163,6 +163,51 @@ async def incident_workflow_hook(ctx):
     return await route_workflow("incident", ctx.doc, ctx.action, ctx.db, ctx.user)
 
 
+# =============================================================================
+# MW-11: Asset Transfer Workflow
+# =============================================================================
+
+@hook_registry.workflow("asset_transfer")
+async def asset_transfer_workflow_hook(ctx):
+    """
+    Asset Transfer workflow: on 'Received' action, update asset's
+    location, site, and department to the transfer destination.
+    """
+    from app.services.document import get_doc, save_doc
+
+    doc = ctx.doc
+    action = ctx.action
+
+    if action in ("receive", "Receive"):
+        asset_id = getattr(doc, "asset", None)
+        if asset_id:
+            asset_doc = await get_doc("asset", asset_id, ctx.db)
+            if asset_doc:
+                to_site = getattr(doc, "to_site", None)
+                to_loc = getattr(doc, "to_location", None)
+                to_dept = getattr(doc, "to_department", None)
+                changed = False
+                if to_site:
+                    asset_doc.site = to_site
+                    changed = True
+                if to_loc:
+                    asset_doc.location = to_loc
+                    changed = True
+                if to_dept:
+                    asset_doc.department = to_dept
+                    changed = True
+                if changed:
+                    await save_doc(asset_doc, ctx.db)
+
+        from datetime import datetime
+        doc.received_date = datetime.now()
+        await save_doc(doc, ctx.db)
+
+        return {"status": "success", "message": "Asset transfer received. Asset location updated."}
+
+    return {"status": "success", "message": f"Asset transfer workflow '{action}' allowed"}
+
+
 def register_hooks():
     """Called by the module loader. Hooks are already registered via decorators above."""
     # Import server action modules to trigger their @server_actions.register decorators
@@ -170,3 +215,4 @@ def register_hooks():
     import app.modules.asset_management.apis.breakdown  # noqa: F401
     import app.modules.asset_management.apis.position  # noqa: F401
     import app.modules.asset_management.apis.equipment_schedule  # noqa: F401
+    import app.modules.asset_management.apis.asset_clone_actions  # noqa: F401

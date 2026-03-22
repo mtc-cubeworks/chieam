@@ -24,3 +24,12 @@ class Item(BaseModel):
     is_serialized: Mapped[bool] = mapped_column(Boolean, nullable=True, default=None)
     inspection_required: Mapped[bool] = mapped_column(Boolean, nullable=True, default=None)
     is_equipment: Mapped[bool] = mapped_column(Boolean, nullable=True, default=None)
+    # IV-1: Min-max levels
+    reorder_point: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    reorder_quantity: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    minimum_stock: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    maximum_stock: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    # IV-4: Lot tracking flag
+    is_lot_tracked: Mapped[bool] = mapped_column(Boolean, nullable=True, default=None)
+    # IV-6: Cycle count frequency
+    cycle_count_frequency: Mapped[str] = mapped_column(String(50), nullable=True, default=None)

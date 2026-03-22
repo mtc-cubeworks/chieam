@@ -1,0 +1,115 @@
+{
+  "name": "asset_transfer",
+  "label": "Asset Transfer",
+  "module": "Asset Management",
+  "table_name": "asset_transfer",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "AT-{#####}",
+  "icon": "shuffle",
+  "group": "Asset Operations",
+  "search": true,
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "initial_state": "Draft",
+    "states": ["Draft", "Pending Approval", "Approved", "In Transit", "Received", "Cancelled"],
+    "transitions": [
+      {"from": "Draft", "to": "Pending Approval", "action": "Submit", "label": "Submit for Approval"},
+      {"from": "Pending Approval", "to": "Approved", "action": "Approve", "label": "Approve"},
+      {"from": "Pending Approval", "to": "Cancelled", "action": "Cancel", "label": "Cancel"},
+      {"from": "Approved", "to": "In Transit", "action": "Ship", "label": "Mark In Transit"},
+      {"from": "In Transit", "to": "Received", "action": "Receive", "label": "Confirm Receipt"}
+    ]
+  },
+  "fields": [
+    {"name": "workflow_state", "label": "Workflow State", "field_type": "string", "hidden": true},
+    {
+      "name": "asset",
+      "label": "Asset",
+      "field_type": "link",
+      "link_entity": "asset",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "transfer_type",
+      "label": "Transfer Type",
+      "field_type": "select",
+      "options": ["Inter-Site", "Inter-Department", "Relocation", "Loan", "Disposal Transfer"],
+      "in_list_view": true
+    },
+    {
+      "name": "from_site",
+      "label": "From Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "in_list_view": true
+    },
+    {
+      "name": "to_site",
+      "label": "To Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "in_list_view": true
+    },
+    {
+      "name": "from_location",
+      "label": "From Location",
+      "field_type": "link",
+      "link_entity": "location"
+    },
+    {
+      "name": "to_location",
+      "label": "To Location",
+      "field_type": "link",
+      "link_entity": "location"
+    },
+    {
+      "name": "from_department",
+      "label": "From Department",
+      "field_type": "link",
+      "link_entity": "department"
+    },
+    {
+      "name": "to_department",
+      "label": "To Department",
+      "field_type": "link",
+      "link_entity": "department"
+    },
+    {
+      "name": "transferred_by",
+      "label": "Transferred By",
+      "field_type": "link",
+      "link_entity": "employee"
+    },
+    {
+      "name": "received_by",
+      "label": "Received By",
+      "field_type": "link",
+      "link_entity": "employee"
+    },
+    {
+      "name": "transfer_date",
+      "label": "Transfer Date",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "received_date",
+      "label": "Received Date",
+      "field_type": "datetime"
+    },
+    {
+      "name": "reason",
+      "label": "Reason",
+      "field_type": "text"
+    },
+    {
+      "name": "notes",
+      "label": "Notes",
+      "field_type": "text"
+    }
+  ],
+  "rbac": {"SystemManager": ["*"]}
+}

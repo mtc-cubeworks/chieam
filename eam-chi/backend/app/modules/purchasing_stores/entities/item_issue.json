@@ -99,6 +99,23 @@
       "field_type": "link",
       "link_entity": "cost_code",
       "required": false
+    },
+    {
+      "name": "work_order",
+      "label": "Work Order",
+      "field_type": "link",
+      "link_entity": "work_order"
+    },
+    {
+      "name": "issue_destination",
+      "label": "Issue Destination",
+      "field_type": "select",
+      "options": ["Direct to Job", "Storeroom", "Department"]
+    },
+    {
+      "name": "require_wo",
+      "label": "Require Work Order",
+      "field_type": "boolean"
     }
   ],
   "rbac": {

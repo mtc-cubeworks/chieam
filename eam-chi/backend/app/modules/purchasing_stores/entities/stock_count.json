@@ -148,6 +148,21 @@
       "field_type": "datetime",
       "readonly": true,
       "display_depends_on": "eval:doc.workflow_state!='Planned'"
+    },
+    {
+      "name": "variance_threshold_pct",
+      "label": "Variance Threshold %",
+      "field_type": "float"
+    },
+    {
+      "name": "auto_adjust",
+      "label": "Auto-Adjust Within Threshold",
+      "field_type": "boolean"
+    },
+    {
+      "name": "blind_count",
+      "label": "Blind Count",
+      "field_type": "boolean"
     }
   ],
   "rbac": {

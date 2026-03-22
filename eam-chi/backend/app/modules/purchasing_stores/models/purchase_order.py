@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import Date, Float, ForeignKey, String
+from sqlalchemy import Date, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.base_model import BaseModel
 
@@ -17,3 +17,15 @@ class PurchaseOrder(BaseModel):
     site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None)
     department: Mapped[str] = mapped_column(String(50), ForeignKey("department.id"), nullable=True, default=None)
     cost_code: Mapped[str] = mapped_column(String(50), ForeignKey("cost_code.id"), nullable=True, default=None)
+    # PO-4: Amendment trail
+    amendment_number: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
+    amendment_reason: Mapped[str] = mapped_column(Text, nullable=True, default=None)
+    original_po: Mapped[str] = mapped_column(String(50), ForeignKey("purchase_order.id"), nullable=True, default=None)
+    # PO-5: Blanket / contract PO
+    po_type: Mapped[str] = mapped_column(String(50), nullable=True, default=None)
+    blanket_limit: Mapped[float] = mapped_column(Float, nullable=True, default=None)
+    released_amount: Mapped[float] = mapped_column(Float, nullable=True, default=None)
+    contract_start: Mapped[date] = mapped_column(Date, nullable=True, default=None)
+    contract_end: Mapped[date] = mapped_column(Date, nullable=True, default=None)
+    payment_terms: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
+    delivery_terms: Mapped[str] = mapped_column(String(100), nullable=True, default=None)

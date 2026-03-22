@@ -1,0 +1,112 @@
+{
+  "name": "condition_monitoring",
+  "label": "Condition Monitoring",
+  "module": "Maintenance",
+  "table_name": "condition_monitoring",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "CM-{#####}",
+  "icon": "activity",
+  "group": "Predictive Maintenance",
+  "search": true,
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "initial_state": "Active",
+    "states": ["Active", "Warning", "Critical", "Resolved"],
+    "transitions": [
+      {"from": "Active", "to": "Warning", "action": "Warn", "label": "Raise Warning"},
+      {"from": "Active", "to": "Critical", "action": "Escalate", "label": "Escalate to Critical"},
+      {"from": "Warning", "to": "Critical", "action": "Escalate", "label": "Escalate to Critical"},
+      {"from": "Warning", "to": "Resolved", "action": "Resolve", "label": "Resolve"},
+      {"from": "Critical", "to": "Resolved", "action": "Resolve", "label": "Resolve"}
+    ]
+  },
+  "fields": [
+    {"name": "workflow_state", "label": "Workflow State", "field_type": "string", "hidden": true},
+    {
+      "name": "asset",
+      "label": "Asset",
+      "field_type": "link",
+      "link_entity": "asset",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "sensor",
+      "label": "Sensor",
+      "field_type": "link",
+      "link_entity": "sensor"
+    },
+    {
+      "name": "monitoring_type",
+      "label": "Monitoring Type",
+      "field_type": "select",
+      "options": ["Vibration", "Temperature", "Pressure", "Oil Analysis", "Ultrasonic", "Thermography", "Current/Voltage"],
+      "in_list_view": true
+    },
+    {
+      "name": "reading_value",
+      "label": "Reading Value",
+      "field_type": "float",
+      "in_list_view": true
+    },
+    {
+      "name": "reading_unit",
+      "label": "Unit",
+      "field_type": "string"
+    },
+    {
+      "name": "reading_timestamp",
+      "label": "Reading Time",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "baseline_value",
+      "label": "Baseline Value",
+      "field_type": "float"
+    },
+    {
+      "name": "warning_threshold",
+      "label": "Warning Threshold",
+      "field_type": "float"
+    },
+    {
+      "name": "critical_threshold",
+      "label": "Critical Threshold",
+      "field_type": "float"
+    },
+    {
+      "name": "alert_status",
+      "label": "Alert Status",
+      "field_type": "select",
+      "options": ["Normal", "Warning", "Critical", "Alarm"],
+      "in_list_view": true
+    },
+    {
+      "name": "trend_direction",
+      "label": "Trend",
+      "field_type": "select",
+      "options": ["Stable", "Increasing", "Decreasing", "Erratic"]
+    },
+    {
+      "name": "analysis_notes",
+      "label": "Analysis Notes",
+      "field_type": "text"
+    },
+    {
+      "name": "maintenance_request",
+      "label": "Maintenance Request",
+      "field_type": "link",
+      "link_entity": "maintenance_request"
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    }
+  ],
+  "rbac": {"SystemManager": ["*"]}
+}
