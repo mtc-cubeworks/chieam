@@ -132,6 +132,149 @@
       "field_type": "link",
       "link_entity": "cost_code",
       "required": false
+    },
+    {
+      "name": "job_plan",
+      "label": "Job Plan",
+      "field_type": "link",
+      "link_entity": "job_plan"
+    },
+    {
+      "name": "scheduled_start",
+      "label": "Scheduled Start",
+      "field_type": "datetime"
+    },
+    {
+      "name": "scheduled_end",
+      "label": "Scheduled End",
+      "field_type": "datetime"
+    },
+    {
+      "name": "actual_start",
+      "label": "Actual Start",
+      "field_type": "datetime",
+      "readonly": true
+    },
+    {
+      "name": "actual_end",
+      "label": "Actual End",
+      "field_type": "datetime",
+      "readonly": true
+    },
+    {
+      "name": "estimated_cost",
+      "label": "Estimated Cost",
+      "field_type": "float"
+    },
+    {
+      "name": "approval_level",
+      "label": "Approval Level",
+      "field_type": "string",
+      "readonly": true
+    },
+    {
+      "name": "approved_by",
+      "label": "Approved By",
+      "field_type": "link",
+      "link_entity": "employee",
+      "readonly": true
+    },
+    {
+      "name": "total_labor_cost",
+      "label": "Total Labor Cost",
+      "field_type": "float",
+      "readonly": true
+    },
+    {
+      "name": "total_equipment_cost",
+      "label": "Total Equipment Cost",
+      "field_type": "float",
+      "readonly": true
+    },
+    {
+      "name": "total_parts_cost",
+      "label": "Total Parts Cost",
+      "field_type": "float",
+      "readonly": true
+    },
+    {
+      "name": "total_cost",
+      "label": "Total Cost",
+      "field_type": "float",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "safety_permit",
+      "label": "Safety Permit",
+      "field_type": "link",
+      "link_entity": "safety_permit"
+    },
+    {
+      "name": "loto_required",
+      "label": "LOTO Required",
+      "field_type": "boolean",
+      "default": false
+    },
+    {
+      "name": "downtime_start",
+      "label": "Downtime Start",
+      "field_type": "datetime",
+      "readonly": true
+    },
+    {
+      "name": "downtime_end",
+      "label": "Downtime End",
+      "field_type": "datetime",
+      "readonly": true
+    },
+    {
+      "name": "downtime_hours",
+      "label": "Downtime Hours",
+      "field_type": "float",
+      "readonly": true
+    },
+    {
+      "name": "cause_code",
+      "label": "Cause Code",
+      "field_type": "string"
+    },
+    {
+      "name": "remedy_code",
+      "label": "Remedy Code",
+      "field_type": "string"
+    },
+    {
+      "name": "failure_notes",
+      "label": "Failure Notes",
+      "field_type": "text"
+    },
+    {
+      "name": "technician_findings",
+      "label": "Technician Findings",
+      "field_type": "text"
+    },
+    {
+      "name": "work_performed",
+      "label": "Work Performed",
+      "field_type": "text"
+    },
+    {
+      "name": "recommendations",
+      "label": "Recommendations",
+      "field_type": "text"
+    },
+    {
+      "name": "follow_up_work_order",
+      "label": "Follow-up Work Order",
+      "field_type": "link",
+      "link_entity": "work_order"
+    },
+    {
+      "name": "parent_work_order",
+      "label": "Parent Work Order",
+      "field_type": "link",
+      "link_entity": "work_order"
     }
   ],
   "rbac": {
@@ -144,6 +287,16 @@
       "entity": "work_order_activity",
       "fk_field": "work_order",
       "label": "Activities"
+    },
+    {
+      "entity": "safety_permit",
+      "fk_field": "work_order",
+      "label": "Safety Permits"
+    },
+    {
+      "entity": "tool_checkout",
+      "fk_field": "work_order",
+      "label": "Tool Checkouts"
     }
   ],
   "form_state": {

@@ -1,5 +1,5 @@
 from datetime import date
-from sqlalchemy import Date, Float, ForeignKey, String, Text
+from sqlalchemy import Boolean, Date, Float, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.base_model import BaseModel
 
@@ -28,3 +28,10 @@ class MaintenanceRequest(BaseModel):
     property: Mapped[str] = mapped_column(String(50), ForeignKey("property.id"), nullable=True, default=None)
     maintenance_interval_property: Mapped[str] = mapped_column(String(50), ForeignKey("maintenance_interval.id"), nullable=True, default=None)
     running_interval_value: Mapped[float] = mapped_column(Float, nullable=True, default=None)
+    # MR-2: SLA Timer
+    sla_response_due: Mapped[date] = mapped_column(Date, nullable=True, default=None)
+    sla_resolution_due: Mapped[date] = mapped_column(Date, nullable=True, default=None)
+    sla_status: Mapped[str] = mapped_column(String(50), nullable=True, default=None)
+    is_overdue: Mapped[bool] = mapped_column(Boolean, nullable=True, default=False)
+    # MR-6: Categorization
+    request_category: Mapped[str] = mapped_column(String(100), nullable=True, default=None)

@@ -7,6 +7,78 @@ from app.application.hooks.registry import hook_registry
 
 
 # =============================================================================
+# Before-Save Hooks
+# =============================================================================
+
+# Priority matrix: asset criticality × request severity → calculated priority
+_PRIORITY_MATRIX = {
+    # (criticality, severity) → priority
+    ("A", "Critical"): "Emergency",
+    ("A", "High"): "Urgent",
+    ("A", "Medium"): "High",
+    ("A", "Low"): "Medium",
+    ("B", "Critical"): "Urgent",
+    ("B", "High"): "High",
+    ("B", "Medium"): "Medium",
+    ("B", "Low"): "Low",
+    ("C", "Critical"): "High",
+    ("C", "High"): "Medium",
+    ("C", "Medium"): "Low",
+    ("C", "Low"): "Low",
+}
+
+
+@hook_registry.before_save("maintenance_request")
+async def maintenance_request_before_save(doc, ctx):
+    """
+    MR-1: Auto-calculate priority from asset criticality × request severity.
+    MR-4: Detect duplicate open MRs for the same asset.
+    """
+    from app.services.document import get_value, get_list
+
+    asset_id = getattr(doc, "asset", None) if not isinstance(doc, dict) else doc.get("asset")
+    severity = getattr(doc, "severity", None) if not isinstance(doc, dict) else doc.get("severity")
+
+    # --- MR-1: Priority auto-calculation ---
+    if asset_id and severity:
+        asset_data = await get_value("asset", asset_id, "*", ctx.db)
+        if asset_data:
+            criticality = asset_data.get("criticality") or "C"
+            calculated_priority = _PRIORITY_MATRIX.get(
+                (criticality, severity), "Medium"
+            )
+            if isinstance(doc, dict):
+                doc["priority"] = calculated_priority
+            else:
+                doc.priority = calculated_priority
+
+    # --- MR-4: Duplicate detection ---
+    if asset_id:
+        doc_id = getattr(doc, "id", None) if not isinstance(doc, dict) else doc.get("id")
+        open_mrs = await get_list(
+            "maintenance_request",
+            {"asset": asset_id},
+            db=ctx.db,
+        )
+        for mr in open_mrs:
+            if mr.get("id") == doc_id:
+                continue
+            state = mr.get("workflow_state", "")
+            if state in ("completed", "closed", "cancelled", "Completed", "Closed", "Cancelled"):
+                continue
+            # Found an open MR for the same asset — flag as potential duplicate
+            if isinstance(doc, dict):
+                doc["is_duplicate"] = True
+                doc["duplicate_of"] = mr.get("id")
+            else:
+                doc.is_duplicate = True
+                doc.duplicate_of = mr.get("id")
+            break
+
+    return doc, None
+
+
+# =============================================================================
 # After-Save Hooks
 # =============================================================================
 

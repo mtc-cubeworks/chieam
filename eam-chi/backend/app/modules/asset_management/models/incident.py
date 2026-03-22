@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from sqlalchemy import Date, DateTime, ForeignKey, String, Text
+from sqlalchemy import Boolean, Date, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 from app.core.base_model import BaseModel
 
@@ -23,3 +23,11 @@ class Incident(BaseModel):
     preventive_actions: Mapped[str] = mapped_column(Text, nullable=True, default=None)
     assigned_to: Mapped[str] = mapped_column(String(50), ForeignKey("employee.id"), nullable=True, default=None)
     closed_date: Mapped[date] = mapped_column(Date, nullable=True, default=None)
+    # IN-4: Safety Incident Subtype
+    incident_subtype: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
+    # IN-5: Regulatory Reporting
+    osha_recordable: Mapped[bool] = mapped_column(Boolean, nullable=True, default=False)
+    regulatory_status: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
+    reporting_deadline: Mapped[date] = mapped_column(Date, nullable=True, default=None)
+    # IN-1/IN-2: RCA/CAPA Linkage
+    failure_analysis: Mapped[str] = mapped_column(String(50), ForeignKey("failure_analysis.id"), nullable=True, default=None)

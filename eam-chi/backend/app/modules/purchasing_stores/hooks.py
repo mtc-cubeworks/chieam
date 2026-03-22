@@ -274,6 +274,12 @@ async def putaway_after_save(doc, ctx):
     return None
 
 
+@hook_registry.workflow("vendor_invoice")
+async def vendor_invoice_workflow_hook(ctx):
+    from app.modules.purchasing_stores.workflow_router import route_workflow
+    return await route_workflow("vendor_invoice", ctx.doc, ctx.action, ctx.db, ctx.user)
+
+
 def register_hooks():
     """Called by the module loader. Hooks are already registered via decorators above."""
     # Import server action modules to trigger their @server_actions.register decorators
@@ -284,3 +290,5 @@ def register_hooks():
     import app.modules.purchasing_stores.apis.inventory_adjustment  # noqa: F401
     import app.modules.purchasing_stores.apis.transfer_receipt  # noqa: F401
     import app.modules.purchasing_stores.apis.pr_consolidation_actions  # noqa: F401
+    # 3-way matching hooks (registered via decorators in the service module)
+    import app.modules.purchasing_stores.services.three_way_matching  # noqa: F401

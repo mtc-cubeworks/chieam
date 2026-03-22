@@ -18,6 +18,7 @@ from .work_order_parts_reservation import WorkOrderPartsReservation
 from .job_plan import JobPlan
 from .job_plan_task import JobPlanTask
 from .safety_permit import SafetyPermit
+from .tool_checkout import ToolCheckout
 
 __all__ = [
     "CategoryOfFailure",
@@ -39,4 +40,5 @@ __all__ = [
     "JobPlan",
     "JobPlanTask",
     "SafetyPermit",
+    "ToolCheckout",
 ]

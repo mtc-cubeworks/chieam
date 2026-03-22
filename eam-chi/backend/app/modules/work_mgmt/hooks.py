@@ -168,3 +168,4 @@ def register_hooks():
     import app.modules.work_mgmt.apis.work_order_activity_actions  # noqa: F401
     import app.modules.work_mgmt.apis.parts_reservation_actions  # noqa: F401
     import app.modules.work_mgmt.apis.job_plan_actions  # noqa: F401
+    import app.modules.work_mgmt.apis.follow_up_wo_actions  # noqa: F401

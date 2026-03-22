@@ -1,0 +1,24 @@
+{
+  "name": "vendor_invoice_line",
+  "label": "Vendor Invoice Line",
+  "module": "Purchasing and Stores",
+  "table_name": "vendor_invoice_line",
+  "title_field": "item",
+  "in_sidebar": 0,
+  "naming": "VINVL-{#####}",
+  "icon": "list",
+  "group": "Invoicing",
+  "search": true,
+  "fields": [
+    {"name": "vendor_invoice", "label": "Vendor Invoice", "field_type": "link", "link_entity": "vendor_invoice", "in_list_view": true, "required": true},
+    {"name": "purchase_order_line", "label": "PO Line", "field_type": "link", "link_entity": "purchase_order_line"},
+    {"name": "item", "label": "Item", "field_type": "link", "link_entity": "item", "in_list_view": true},
+    {"name": "description", "label": "Description", "field_type": "text"},
+    {"name": "quantity_invoiced", "label": "Quantity Invoiced", "field_type": "float", "in_list_view": true},
+    {"name": "unit_price", "label": "Unit Price", "field_type": "float", "in_list_view": true},
+    {"name": "line_total", "label": "Line Total", "field_type": "float", "readonly": true},
+    {"name": "row_number", "label": "Row #", "field_type": "int"},
+    {"name": "match_status", "label": "Match Status", "field_type": "select", "options": ["Not Matched", "Matched", "Variance"], "readonly": true}
+  ],
+  "rbac": {"SystemManager": ["*"]}
+}

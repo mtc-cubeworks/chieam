@@ -1,0 +1,44 @@
+{
+  "name": "vendor_invoice",
+  "label": "Vendor Invoice",
+  "module": "Purchasing and Stores",
+  "table_name": "vendor_invoice",
+  "title_field": "invoice_number",
+  "in_sidebar": 1,
+  "naming": "VINV-{#####}",
+  "icon": "file-text",
+  "group": "Invoicing",
+  "search": true,
+  "workflow": {
+    "states": ["Draft", "Submitted", "Matched", "Approved", "Paid", "Disputed"],
+    "default_state": "Draft",
+    "transitions": [
+      {"action": "Submit", "from": "Draft", "to": "Submitted"},
+      {"action": "Match", "from": "Submitted", "to": "Matched"},
+      {"action": "Approve", "from": "Matched", "to": "Approved"},
+      {"action": "Mark Paid", "from": "Approved", "to": "Paid"},
+      {"action": "Dispute", "from": "Submitted", "to": "Disputed"},
+      {"action": "Dispute", "from": "Matched", "to": "Disputed"},
+      {"action": "Resolve", "from": "Disputed", "to": "Submitted"}
+    ]
+  },
+  "fields": [
+    {"name": "vendor", "label": "Vendor", "field_type": "link", "link_entity": "vendor", "in_list_view": true, "required": true},
+    {"name": "purchase_order", "label": "Purchase Order", "field_type": "link", "link_entity": "purchase_order", "in_list_view": true},
+    {"name": "invoice_number", "label": "Invoice Number", "field_type": "string", "in_list_view": true},
+    {"name": "invoice_date", "label": "Invoice Date", "field_type": "date", "in_list_view": true},
+    {"name": "due_date", "label": "Due Date", "field_type": "date"},
+    {"name": "total_amount", "label": "Total Amount", "field_type": "float", "in_list_view": true},
+    {"name": "tax_amount", "label": "Tax Amount", "field_type": "float"},
+    {"name": "currency", "label": "Currency", "field_type": "link", "link_entity": "currency"},
+    {"name": "payment_terms", "label": "Payment Terms", "field_type": "string"},
+    {"name": "match_status", "label": "Match Status", "field_type": "select", "options": ["Not Matched", "Partial Match", "Full Match", "Variance"], "readonly": true},
+    {"name": "match_variance", "label": "Match Variance", "field_type": "float", "readonly": true},
+    {"name": "notes", "label": "Notes", "field_type": "text"},
+    {"name": "site", "label": "Site", "field_type": "link", "link_entity": "site"}
+  ],
+  "rbac": {"SystemManager": ["*"]},
+  "links": [
+    {"entity": "vendor_invoice_line", "fk_field": "vendor_invoice", "label": "Invoice Lines"}
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "name": "tool_checkout",
+  "label": "Tool Checkout",
+  "module": "Work Management",
+  "table_name": "tool_checkout",
+  "title_field": "tool",
+  "in_sidebar": 1,
+  "naming": "TC-{#####}",
+  "icon": "tool",
+  "group": "Tools",
+  "search": true,
+  "workflow": {
+    "states": ["Draft", "Checked Out", "Returned", "Overdue"],
+    "default_state": "Draft",
+    "transitions": [
+      {"action": "Check Out", "from": "Draft", "to": "Checked Out"},
+      {"action": "Return", "from": "Checked Out", "to": "Returned"},
+      {"action": "Mark Overdue", "from": "Checked Out", "to": "Overdue"},
+      {"action": "Return", "from": "Overdue", "to": "Returned"}
+    ]
+  },
+  "fields": [
+    {"name": "tool", "label": "Tool/Equipment", "field_type": "link", "link_entity": "asset", "in_list_view": true, "required": true},
+    {"name": "checked_out_to", "label": "Checked Out To", "field_type": "link", "link_entity": "employee", "in_list_view": true},
+    {"name": "work_order", "label": "Work Order", "field_type": "link", "link_entity": "work_order"},
+    {"name": "checkout_date", "label": "Checkout Date", "field_type": "datetime", "in_list_view": true},
+    {"name": "expected_return_date", "label": "Expected Return", "field_type": "date", "in_list_view": true},
+    {"name": "actual_return_date", "label": "Actual Return", "field_type": "datetime"},
+    {"name": "condition_at_checkout", "label": "Condition at Checkout", "field_type": "select", "options": ["Good", "Fair", "Needs Maintenance"]},
+    {"name": "condition_at_return", "label": "Condition at Return", "field_type": "select", "options": ["Good", "Fair", "Damaged", "Needs Calibration"]},
+    {"name": "calibration_due_date", "label": "Calibration Due Date", "field_type": "date"},
+    {"name": "notes", "label": "Notes", "field_type": "text"},
+    {"name": "site", "label": "Site", "field_type": "link", "link_entity": "site"}
+  ],
+  "rbac": {"SystemManager": ["*"]}
+}

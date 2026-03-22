@@ -153,6 +153,21 @@
       "entity": "sensor",
       "fk_field": "asset",
       "label": "Sensor"
+    },
+    {
+      "entity": "meter",
+      "fk_field": "asset",
+      "label": "Meters"
+    },
+    {
+      "entity": "warranty_claim",
+      "fk_field": "asset",
+      "label": "Warranty Claims"
+    },
+    {
+      "entity": "asset_maintenance_history",
+      "fk_field": "asset",
+      "label": "Maintenance History"
     }
   ],
   "fields": [
@@ -312,6 +327,111 @@
       "field_type": "boolean",
       "default": false,
       "description": "When enabled, asset installation creates an Asset Position directly without a formal Maintenance Request."
+    },
+    {
+      "name": "lifecycle_state",
+      "label": "Lifecycle State",
+      "field_type": "select",
+      "options": ["Planning", "Procurement", "Commissioning", "Active", "Idle", "Decommissioned", "Disposed"],
+      "default": "Active",
+      "in_list_view": true
+    },
+    {
+      "name": "parent_asset",
+      "label": "Parent Asset",
+      "field_type": "link",
+      "link_entity": "asset"
+    },
+    {
+      "name": "functional_location",
+      "label": "Functional Location",
+      "field_type": "link",
+      "link_entity": "location"
+    },
+    {
+      "name": "criticality",
+      "label": "Criticality",
+      "field_type": "select",
+      "options": ["A - Critical", "B - Important", "C - General"],
+      "in_list_view": true
+    },
+    {
+      "name": "risk_score",
+      "label": "Risk Score",
+      "field_type": "int"
+    },
+    {
+      "name": "warranty_start",
+      "label": "Warranty Start",
+      "field_type": "date"
+    },
+    {
+      "name": "warranty_end",
+      "label": "Warranty End",
+      "field_type": "date"
+    },
+    {
+      "name": "warranty_vendor",
+      "label": "Warranty Vendor",
+      "field_type": "link",
+      "link_entity": "vendor"
+    },
+    {
+      "name": "manufacturer",
+      "label": "Manufacturer",
+      "field_type": "string"
+    },
+    {
+      "name": "manufacturer_part_number",
+      "label": "Manufacturer Part #",
+      "field_type": "string"
+    },
+    {
+      "name": "rated_capacity",
+      "label": "Rated Capacity",
+      "field_type": "string"
+    },
+    {
+      "name": "rated_power",
+      "label": "Rated Power",
+      "field_type": "string"
+    },
+    {
+      "name": "weight",
+      "label": "Weight (kg)",
+      "field_type": "float"
+    },
+    {
+      "name": "technical_specs",
+      "label": "Technical Specifications",
+      "field_type": "text"
+    },
+    {
+      "name": "depreciation_method",
+      "label": "Depreciation Method",
+      "field_type": "select",
+      "options": ["Straight Line", "Declining Balance", "Units of Production", "None"]
+    },
+    {
+      "name": "useful_life_years",
+      "label": "Useful Life (Years)",
+      "field_type": "int"
+    },
+    {
+      "name": "salvage_value",
+      "label": "Salvage Value",
+      "field_type": "float"
+    },
+    {
+      "name": "accumulated_depreciation",
+      "label": "Accumulated Depreciation",
+      "field_type": "float",
+      "readonly": true
+    },
+    {
+      "name": "commissioning_date",
+      "label": "Commissioning Date",
+      "field_type": "date"
     }
   ],
   "form_state": {

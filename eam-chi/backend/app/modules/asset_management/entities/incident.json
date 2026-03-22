@@ -24,6 +24,11 @@
       "entity": "work_order",
       "fk_field": "incident",
       "label": "Work Orders"
+    },
+    {
+      "entity": "failure_analysis",
+      "fk_field": "incident",
+      "label": "Failure Analyses"
     }
   ],
   "fields": [
@@ -167,6 +172,35 @@
       "name": "closed_date",
       "label": "Closed Date",
       "field_type": "date"
+    },
+    {
+      "name": "incident_subtype",
+      "label": "Incident Subtype",
+      "field_type": "select",
+      "options": ["Environmental", "Safety", "Equipment Failure", "Process Upset", "Near Miss"]
+    },
+    {
+      "name": "osha_recordable",
+      "label": "OSHA Recordable",
+      "field_type": "boolean",
+      "default": false
+    },
+    {
+      "name": "regulatory_status",
+      "label": "Regulatory Status",
+      "field_type": "select",
+      "options": ["Not Applicable", "Pending Review", "Report Filed", "Closed"]
+    },
+    {
+      "name": "reporting_deadline",
+      "label": "Reporting Deadline",
+      "field_type": "date"
+    },
+    {
+      "name": "failure_analysis",
+      "label": "Failure Analysis",
+      "field_type": "link",
+      "link_entity": "failure_analysis"
     }
   ],
   "rbac": {

@@ -280,6 +280,38 @@
       "label": "Running Interval",
       "field_type": "float",
       "hidden": true
+    },
+    {
+      "name": "sla_response_due",
+      "label": "SLA Response Due",
+      "field_type": "date",
+      "readonly": true
+    },
+    {
+      "name": "sla_resolution_due",
+      "label": "SLA Resolution Due",
+      "field_type": "date",
+      "readonly": true
+    },
+    {
+      "name": "sla_status",
+      "label": "SLA Status",
+      "field_type": "select",
+      "options": ["On Track", "At Risk", "Breached"],
+      "readonly": true
+    },
+    {
+      "name": "is_overdue",
+      "label": "Overdue",
+      "field_type": "boolean",
+      "readonly": true
+    },
+    {
+      "name": "request_category",
+      "label": "Category",
+      "field_type": "select",
+      "options": ["Corrective", "Emergency", "Safety", "Modification", "Inspection", "Condition Based", "Preventive"],
+      "in_list_view": true
     }
   ],
   "rbac": {
