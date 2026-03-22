@@ -1,0 +1,24 @@
+{
+  "name": "job_plan_task",
+  "label": "Job Plan Task",
+  "module": "Work Management",
+  "table_name": "job_plan_task",
+  "title_field": "task_description",
+  "in_sidebar": 0,
+  "naming": "JPT-{#####}",
+  "icon": "list",
+  "group": "Planning",
+  "search": true,
+  "fields": [
+    {"name": "job_plan", "label": "Job Plan", "field_type": "link", "link_entity": "job_plan", "in_list_view": true, "required": true},
+    {"name": "sequence", "label": "Sequence", "field_type": "integer", "in_list_view": true},
+    {"name": "task_description", "label": "Task Description", "field_type": "text", "in_list_view": true, "required": true},
+    {"name": "craft_required", "label": "Craft Required", "field_type": "string"},
+    {"name": "estimated_hours", "label": "Estimated Hours", "field_type": "float"},
+    {"name": "item", "label": "Material/Part", "field_type": "link", "link_entity": "item"},
+    {"name": "quantity", "label": "Quantity", "field_type": "float"},
+    {"name": "instructions", "label": "Detailed Instructions", "field_type": "text"},
+    {"name": "safety_notes", "label": "Safety Notes", "field_type": "text"}
+  ],
+  "rbac": {"SystemManager": ["*"]}
+}

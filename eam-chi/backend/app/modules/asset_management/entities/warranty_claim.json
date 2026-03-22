@@ -1,0 +1,40 @@
+{
+  "name": "warranty_claim",
+  "label": "Warranty Claim",
+  "module": "Asset Management",
+  "table_name": "warranty_claim",
+  "title_field": "asset",
+  "in_sidebar": 1,
+  "naming": "WC-{#####}",
+  "icon": "award",
+  "group": "Warranty",
+  "search": true,
+  "workflow": {
+    "states": ["Draft", "Submitted", "Under Review", "Approved", "Rejected", "Credited", "Closed"],
+    "default_state": "Draft",
+    "transitions": [
+      {"action": "Submit", "from": "Draft", "to": "Submitted"},
+      {"action": "Review", "from": "Submitted", "to": "Under Review"},
+      {"action": "Approve", "from": "Under Review", "to": "Approved"},
+      {"action": "Reject", "from": "Under Review", "to": "Rejected"},
+      {"action": "Credit Received", "from": "Approved", "to": "Credited"},
+      {"action": "Close", "from": "Credited", "to": "Closed"},
+      {"action": "Close", "from": "Rejected", "to": "Closed"},
+      {"action": "Resubmit", "from": "Rejected", "to": "Submitted"}
+    ]
+  },
+  "fields": [
+    {"name": "asset", "label": "Asset", "field_type": "link", "link_entity": "asset", "in_list_view": true, "required": true},
+    {"name": "vendor", "label": "Vendor", "field_type": "link", "link_entity": "vendor", "in_list_view": true},
+    {"name": "work_order", "label": "Work Order", "field_type": "link", "link_entity": "work_order"},
+    {"name": "claim_date", "label": "Claim Date", "field_type": "date", "in_list_view": true},
+    {"name": "warranty_start", "label": "Warranty Start", "field_type": "date"},
+    {"name": "warranty_end", "label": "Warranty End", "field_type": "date"},
+    {"name": "failure_description", "label": "Failure Description", "field_type": "text"},
+    {"name": "claim_amount", "label": "Claim Amount", "field_type": "float", "in_list_view": true},
+    {"name": "credited_amount", "label": "Credited Amount", "field_type": "float"},
+    {"name": "vendor_reference", "label": "Vendor Reference #", "field_type": "string"},
+    {"name": "resolution_notes", "label": "Resolution Notes", "field_type": "text"}
+  ],
+  "rbac": {"SystemManager": ["*"]}
+}

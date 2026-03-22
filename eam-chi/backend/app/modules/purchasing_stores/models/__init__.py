@@ -31,6 +31,7 @@ from .stock_count_task import StockCountTask
 from .stock_ledger_entry import StockLedgerEntry
 from .transfer import Transfer
 from .transfer_receipt import TransferReceipt
+from .service_contract import ServiceContract
 
 __all__ = [
     "UnitOfMeasure",
@@ -65,6 +66,7 @@ __all__ = [
     "StockLedgerEntry",
     "Transfer",
     "TransferReceipt",
+    "ServiceContract",
 ]
 from .sales_order import SalesOrder
 from .sales_order_item import SalesOrderItem

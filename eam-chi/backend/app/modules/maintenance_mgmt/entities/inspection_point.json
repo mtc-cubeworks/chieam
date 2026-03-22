@@ -1,0 +1,25 @@
+{
+  "name": "inspection_point",
+  "label": "Inspection Point",
+  "module": "Maintenance Management",
+  "table_name": "inspection_point",
+  "title_field": "asset",
+  "in_sidebar": 0,
+  "naming": "IP-{#####}",
+  "icon": "crosshair",
+  "group": "Inspections",
+  "search": true,
+  "fields": [
+    {"name": "inspection_route", "label": "Inspection Route", "field_type": "link", "link_entity": "inspection_route", "in_list_view": true, "required": true},
+    {"name": "sequence", "label": "Sequence", "field_type": "integer", "in_list_view": true},
+    {"name": "asset", "label": "Asset", "field_type": "link", "link_entity": "asset", "in_list_view": true},
+    {"name": "location", "label": "Location", "field_type": "link", "link_entity": "location"},
+    {"name": "measurement_type", "label": "Measurement Type", "field_type": "select", "options": ["Visual", "Reading", "Pass-Fail"], "in_list_view": true},
+    {"name": "parameter_name", "label": "Parameter Name", "field_type": "string"},
+    {"name": "expected_value", "label": "Expected Value", "field_type": "string"},
+    {"name": "tolerance", "label": "Tolerance (+/-)", "field_type": "float"},
+    {"name": "unit_of_measure", "label": "Unit of Measure", "field_type": "string"},
+    {"name": "instructions", "label": "Instructions", "field_type": "text"}
+  ],
+  "rbac": {"SystemManager": ["*"]}
+}

@@ -1,0 +1,28 @@
+{
+  "name": "job_plan",
+  "label": "Job Plan",
+  "module": "Work Management",
+  "table_name": "job_plan",
+  "title_field": "job_plan_name",
+  "in_sidebar": 1,
+  "naming": "JP-{#####}",
+  "icon": "clipboard",
+  "group": "Planning",
+  "search": true,
+  "fields": [
+    {"name": "job_plan_name", "label": "Job Plan Name", "field_type": "string", "in_list_view": true, "required": true},
+    {"name": "description", "label": "Description", "field_type": "text"},
+    {"name": "work_order_type", "label": "Work Order Type", "field_type": "select", "options": ["Preventive", "Corrective", "Emergency", "Inspection", "Overhaul"], "in_list_view": true},
+    {"name": "asset_class", "label": "Asset Class", "field_type": "link", "link_entity": "asset_class"},
+    {"name": "craft", "label": "Primary Craft", "field_type": "string"},
+    {"name": "estimated_hours", "label": "Estimated Hours", "field_type": "float", "in_list_view": true},
+    {"name": "estimated_cost", "label": "Estimated Cost", "field_type": "float"},
+    {"name": "safety_procedures", "label": "Safety Procedures", "field_type": "text"},
+    {"name": "checklist", "label": "Checklist", "field_type": "link", "link_entity": "checklist"},
+    {"name": "active", "label": "Active", "field_type": "boolean", "default": true}
+  ],
+  "rbac": {"SystemManager": ["*"]},
+  "links": [
+    {"entity": "job_plan_task", "fk_field": "job_plan", "label": "Tasks"}
+  ]
+}

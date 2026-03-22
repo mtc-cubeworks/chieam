@@ -468,6 +468,8 @@ async def sla_monitoring_check():
 
             if flagged:
                 await db.commit()
+                # Send escalation email notifications for overdue items
+                await _send_escalation_notifications(flagged)
             logger.info(f"⏱️ SLA check complete. Flagged {flagged} overdue record(s)")
             await _log_job("sla_monitoring_check", "SLA Monitoring Check",
                            started_at, "Success", records_updated=flagged,
@@ -647,6 +649,40 @@ async def daily_kpi_calculation():
         await _log_job("daily_kpi_calculation", "Daily KPI Calculation",
                        started_at, "Error", error_message=str(e),
                        error_tb=traceback.format_exc(), cron_expression="0 7 * * *")
+
+
+async def _send_escalation_notifications(flagged_count: int):
+    """Send escalation email for SLA-breached records."""
+    try:
+        from app.infrastructure.email.smtp_service import SmtpEmailService
+        from app.domain.protocols.email_service import EmailMessage
+
+        email_service = SmtpEmailService()
+        # Get admin/manager emails from system settings
+        from app.services.document import get_value
+        async with async_session_maker() as db:
+            settings = await get_value("system_settings", None, "*", db)
+            admin_email = settings.get("admin_email") if settings else None
+
+        if not admin_email:
+            logger.warning("No admin email configured for escalation notifications")
+            return
+
+        message = EmailMessage(
+            to=[admin_email],
+            subject=f"[EAM-CHI] SLA Escalation: {flagged_count} overdue record(s)",
+            body=(
+                f"This is an automated escalation notification.\n\n"
+                f"{flagged_count} record(s) have breached their SLA thresholds "
+                f"and require immediate attention.\n\n"
+                f"Please review overdue Maintenance Requests and Work Orders "
+                f"in the EAM system."
+            ),
+        )
+        await email_service.send(message)
+        logger.info(f"📧 Escalation email sent for {flagged_count} overdue records")
+    except Exception as e:
+        logger.warning(f"Failed to send escalation email: {e}")
 
 
 def start_scheduler():

@@ -170,6 +170,25 @@ async def work_order_workflow(doc: Any, action: str, db: AsyncSession, user: Any
                     await save_doc(asset_doc, db, commit=False)
 
             await db.commit()
+            
+            # Auto-create Failure Analysis if failure codes are present
+            if wo_doc and (
+                _get_attr(wo_doc, "cause_code")
+                or _get_attr(wo_doc, "category_of_failure")
+            ):
+                fa = await _new_doc("failure_analysis", db,
+                    work_order=wo_id,
+                    asset=wo_activities[0].get("work_item") if wo_activities else None,
+                    category_of_failure=_get_attr(wo_doc, "category_of_failure"),
+                    cause_code=_get_attr(wo_doc, "cause_code"),
+                    remedy_code=_get_attr(wo_doc, "remedy_code"),
+                    analysis_date=_dt.now().date(),
+                    site=_get_attr(wo_doc, "site"),
+                    workflow_state="Draft",
+                )
+                if fa:
+                    await save_doc(fa, db)
+
             return {"status": "success", "message": "Work Order completed"}
 
         elif action == "Reopen":

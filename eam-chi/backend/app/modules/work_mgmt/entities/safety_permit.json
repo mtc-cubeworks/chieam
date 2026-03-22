@@ -1,0 +1,40 @@
+{
+  "name": "safety_permit",
+  "label": "Safety Permit",
+  "module": "Work Management",
+  "table_name": "safety_permit",
+  "title_field": "permit_type",
+  "in_sidebar": 1,
+  "naming": "SP-{#####}",
+  "icon": "shield",
+  "group": "Safety",
+  "search": true,
+  "workflow": {
+    "states": ["Draft", "Requested", "Approved", "Active", "Expired", "Cancelled"],
+    "default_state": "Draft",
+    "transitions": [
+      {"action": "Submit Request", "from": "Draft", "to": "Requested"},
+      {"action": "Approve", "from": "Requested", "to": "Approved"},
+      {"action": "Activate", "from": "Approved", "to": "Active"},
+      {"action": "Expire", "from": "Active", "to": "Expired"},
+      {"action": "Cancel", "from": "Requested", "to": "Cancelled"},
+      {"action": "Cancel", "from": "Approved", "to": "Cancelled"},
+      {"action": "Renew", "from": "Expired", "to": "Draft"}
+    ]
+  },
+  "fields": [
+    {"name": "permit_type", "label": "Permit Type", "field_type": "select", "options": ["LOTO", "Hot Work", "Confined Space", "Excavation", "Working at Height", "Electrical"], "in_list_view": true, "required": true},
+    {"name": "work_order", "label": "Work Order", "field_type": "link", "link_entity": "work_order", "in_list_view": true},
+    {"name": "asset", "label": "Asset", "field_type": "link", "link_entity": "asset"},
+    {"name": "location", "label": "Location", "field_type": "link", "link_entity": "location"},
+    {"name": "requested_by", "label": "Requested By", "field_type": "link", "link_entity": "employee", "in_list_view": true},
+    {"name": "approved_by", "label": "Approved By", "field_type": "link", "link_entity": "employee"},
+    {"name": "valid_from", "label": "Valid From", "field_type": "datetime", "in_list_view": true},
+    {"name": "valid_to", "label": "Valid To", "field_type": "datetime", "in_list_view": true},
+    {"name": "hazards_identified", "label": "Hazards Identified", "field_type": "text"},
+    {"name": "precautions", "label": "Precautions Required", "field_type": "text"},
+    {"name": "emergency_procedures", "label": "Emergency Procedures", "field_type": "text"},
+    {"name": "site", "label": "Site", "field_type": "link", "link_entity": "site"}
+  ],
+  "rbac": {"SystemManager": ["*"]}
+}

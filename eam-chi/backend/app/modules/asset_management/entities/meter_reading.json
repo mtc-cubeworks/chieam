@@ -1,0 +1,23 @@
+{
+  "name": "meter_reading",
+  "label": "Meter Reading",
+  "module": "Asset Management",
+  "table_name": "meter_reading",
+  "title_field": "meter",
+  "in_sidebar": 0,
+  "naming": "MRD-{#####}",
+  "icon": "bar-chart",
+  "group": "Meters",
+  "search": true,
+  "fields": [
+    {"name": "meter", "label": "Meter", "field_type": "link", "link_entity": "meter", "in_list_view": true, "required": true},
+    {"name": "reading_value", "label": "Reading Value", "field_type": "float", "in_list_view": true, "required": true},
+    {"name": "reading_date", "label": "Reading Date", "field_type": "datetime", "in_list_view": true},
+    {"name": "delta", "label": "Delta (Change)", "field_type": "float"},
+    {"name": "work_order", "label": "Work Order", "field_type": "link", "link_entity": "work_order"},
+    {"name": "recorded_by", "label": "Recorded By", "field_type": "link", "link_entity": "employee", "in_list_view": true},
+    {"name": "notes", "label": "Notes", "field_type": "text"},
+    {"name": "source", "label": "Source", "field_type": "select", "options": ["Manual", "Sensor", "Work Order"]}
+  ],
+  "rbac": {"SystemManager": ["*"]}
+}

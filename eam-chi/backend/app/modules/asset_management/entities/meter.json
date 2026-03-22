@@ -1,0 +1,27 @@
+{
+  "name": "meter",
+  "label": "Meter",
+  "module": "Asset Management",
+  "table_name": "meter",
+  "title_field": "meter_name",
+  "in_sidebar": 1,
+  "naming": "MTR-{#####}",
+  "icon": "activity",
+  "group": "Meters",
+  "search": true,
+  "fields": [
+    {"name": "meter_name", "label": "Meter Name", "field_type": "string", "in_list_view": true},
+    {"name": "meter_type", "label": "Meter Type", "field_type": "select", "options": ["Runtime Hours", "Odometer", "Cycles", "Production Count", "Energy"], "in_list_view": true, "required": true},
+    {"name": "asset", "label": "Asset", "field_type": "link", "link_entity": "asset", "in_list_view": true, "required": true},
+    {"name": "unit_of_measure", "label": "Unit of Measure", "field_type": "string"},
+    {"name": "last_reading", "label": "Last Reading", "field_type": "float", "in_list_view": true},
+    {"name": "last_reading_date", "label": "Last Reading Date", "field_type": "datetime"},
+    {"name": "rollover_point", "label": "Rollover Point", "field_type": "float"},
+    {"name": "average_daily_usage", "label": "Avg Daily Usage", "field_type": "float"},
+    {"name": "active", "label": "Active", "field_type": "boolean", "default": true}
+  ],
+  "rbac": {"SystemManager": ["*"]},
+  "links": [
+    {"entity": "meter_reading", "fk_field": "meter", "label": "Readings"}
+  ]
+}

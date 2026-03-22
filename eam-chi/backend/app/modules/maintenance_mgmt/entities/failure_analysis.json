@@ -1,0 +1,40 @@
+{
+  "name": "failure_analysis",
+  "label": "Failure Analysis",
+  "module": "Maintenance Management",
+  "table_name": "failure_analysis",
+  "title_field": "work_order",
+  "in_sidebar": 1,
+  "naming": "FA-{#####}",
+  "icon": "search",
+  "group": "Failure Analysis",
+  "search": true,
+  "workflow": {
+    "states": ["Draft", "In Analysis", "Review", "Closed"],
+    "default_state": "Draft",
+    "transitions": [
+      {"action": "Start Analysis", "from": "Draft", "to": "In Analysis"},
+      {"action": "Submit for Review", "from": "In Analysis", "to": "Review"},
+      {"action": "Close", "from": "Review", "to": "Closed"},
+      {"action": "Reopen", "from": "Closed", "to": "In Analysis"}
+    ]
+  },
+  "fields": [
+    {"name": "work_order", "label": "Work Order", "field_type": "link", "link_entity": "work_order", "in_list_view": true},
+    {"name": "incident", "label": "Incident", "field_type": "link", "link_entity": "incident"},
+    {"name": "asset", "label": "Asset", "field_type": "link", "link_entity": "asset", "in_list_view": true},
+    {"name": "category_of_failure", "label": "Failure Category", "field_type": "link", "link_entity": "category_of_failure", "in_list_view": true},
+    {"name": "cause_code", "label": "Cause Code", "field_type": "string"},
+    {"name": "remedy_code", "label": "Remedy Code", "field_type": "string"},
+    {"name": "analysis_method", "label": "Analysis Method", "field_type": "select", "options": ["5-Why", "Fishbone", "Fault Tree", "FMEA", "Other"]},
+    {"name": "root_cause_description", "label": "Root Cause Description", "field_type": "text"},
+    {"name": "contributing_factors", "label": "Contributing Factors", "field_type": "text"},
+    {"name": "analysis_date", "label": "Analysis Date", "field_type": "date", "in_list_view": true},
+    {"name": "analyst", "label": "Analyst", "field_type": "link", "link_entity": "employee"},
+    {"name": "site", "label": "Site", "field_type": "link", "link_entity": "site"}
+  ],
+  "rbac": {"SystemManager": ["*"]},
+  "links": [
+    {"entity": "corrective_action", "fk_field": "failure_analysis", "label": "Corrective Actions"}
+  ]
+}

@@ -16,6 +16,10 @@ from .maintenance_request import MaintenanceRequest
 from .service_request import ServiceRequest
 from .sensor import Sensor
 from .sensor_data import SensorData
+from .failure_analysis import FailureAnalysis
+from .corrective_action import CorrectiveAction
+from .inspection_route import InspectionRoute
+from .inspection_point import InspectionPoint
 
 __all__ = [
     "Checklist",
@@ -35,4 +39,8 @@ __all__ = [
     "ServiceRequest",
     "Sensor",
     "SensorData",
+    "FailureAnalysis",
+    "CorrectiveAction",
+    "InspectionRoute",
+    "InspectionPoint",
 ]

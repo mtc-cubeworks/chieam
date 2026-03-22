@@ -1,0 +1,37 @@
+{
+  "name": "corrective_action",
+  "label": "Corrective Action",
+  "module": "Maintenance Management",
+  "table_name": "corrective_action",
+  "title_field": "failure_analysis",
+  "in_sidebar": 1,
+  "naming": "CAPA-{#####}",
+  "icon": "check-circle",
+  "group": "Failure Analysis",
+  "search": true,
+  "workflow": {
+    "states": ["Draft", "Assigned", "In Progress", "Verification", "Closed"],
+    "default_state": "Draft",
+    "transitions": [
+      {"action": "Assign", "from": "Draft", "to": "Assigned"},
+      {"action": "Start", "from": "Assigned", "to": "In Progress"},
+      {"action": "Submit for Verification", "from": "In Progress", "to": "Verification"},
+      {"action": "Verify & Close", "from": "Verification", "to": "Closed"},
+      {"action": "Reopen", "from": "Closed", "to": "In Progress"}
+    ]
+  },
+  "fields": [
+    {"name": "failure_analysis", "label": "Failure Analysis", "field_type": "link", "link_entity": "failure_analysis", "in_list_view": true},
+    {"name": "action_type", "label": "Action Type", "field_type": "select", "options": ["Corrective", "Preventive", "Containment"], "in_list_view": true},
+    {"name": "description", "label": "Description", "field_type": "text"},
+    {"name": "priority", "label": "Priority", "field_type": "select", "options": ["Critical", "High", "Medium", "Low"]},
+    {"name": "assigned_to", "label": "Assigned To", "field_type": "link", "link_entity": "employee", "in_list_view": true},
+    {"name": "due_date", "label": "Due Date", "field_type": "date", "in_list_view": true},
+    {"name": "completion_date", "label": "Completion Date", "field_type": "date"},
+    {"name": "verification_date", "label": "Verification Date", "field_type": "date"},
+    {"name": "verified_by", "label": "Verified By", "field_type": "link", "link_entity": "employee"},
+    {"name": "verification_notes", "label": "Verification Notes", "field_type": "text"},
+    {"name": "work_order", "label": "Work Order", "field_type": "link", "link_entity": "work_order"}
+  ],
+  "rbac": {"SystemManager": ["*"]}
+}

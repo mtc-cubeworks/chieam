@@ -15,6 +15,9 @@ from .work_order_labor_actual_hours import WorkOrderLaborActualHours
 from .work_order_labor_assignment import WorkOrderLaborAssignment
 from .work_order_parts import WorkOrderParts
 from .work_order_parts_reservation import WorkOrderPartsReservation
+from .job_plan import JobPlan
+from .job_plan_task import JobPlanTask
+from .safety_permit import SafetyPermit
 
 __all__ = [
     "CategoryOfFailure",
@@ -33,4 +36,7 @@ __all__ = [
     "WorkOrderLaborAssignment",
     "WorkOrderParts",
     "WorkOrderPartsReservation",
+    "JobPlan",
+    "JobPlanTask",
+    "SafetyPermit",
 ]

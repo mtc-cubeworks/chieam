@@ -1,0 +1,40 @@
+{
+  "name": "service_contract",
+  "label": "Service Contract",
+  "module": "Purchasing and Stores",
+  "table_name": "service_contract",
+  "title_field": "vendor",
+  "in_sidebar": 1,
+  "naming": "SC-{#####}",
+  "icon": "file-text",
+  "group": "Contracts",
+  "search": true,
+  "workflow": {
+    "states": ["Draft", "Under Review", "Active", "Expired", "Terminated"],
+    "default_state": "Draft",
+    "transitions": [
+      {"action": "Submit for Review", "from": "Draft", "to": "Under Review"},
+      {"action": "Approve & Activate", "from": "Under Review", "to": "Active"},
+      {"action": "Expire", "from": "Active", "to": "Expired"},
+      {"action": "Terminate", "from": "Active", "to": "Terminated"},
+      {"action": "Renew", "from": "Expired", "to": "Draft"},
+      {"action": "Reject", "from": "Under Review", "to": "Draft"}
+    ]
+  },
+  "fields": [
+    {"name": "vendor", "label": "Vendor", "field_type": "link", "link_entity": "vendor", "in_list_view": true, "required": true},
+    {"name": "contract_type", "label": "Contract Type", "field_type": "select", "options": ["Full Service", "Parts Only", "Labor Only", "Annual Maintenance", "On-Call"], "in_list_view": true},
+    {"name": "description", "label": "Description", "field_type": "text"},
+    {"name": "start_date", "label": "Start Date", "field_type": "date", "in_list_view": true},
+    {"name": "end_date", "label": "End Date", "field_type": "date", "in_list_view": true},
+    {"name": "annual_value", "label": "Annual Value", "field_type": "float"},
+    {"name": "total_contract_value", "label": "Total Contract Value", "field_type": "float"},
+    {"name": "payment_terms", "label": "Payment Terms", "field_type": "string"},
+    {"name": "sla_response_hours", "label": "SLA Response Hours", "field_type": "float"},
+    {"name": "sla_resolution_hours", "label": "SLA Resolution Hours", "field_type": "float"},
+    {"name": "auto_renew", "label": "Auto Renew", "field_type": "boolean"},
+    {"name": "renewal_notice_days", "label": "Renewal Notice (Days)", "field_type": "integer"},
+    {"name": "notes", "label": "Notes", "field_type": "text"}
+  ],
+  "rbac": {"SystemManager": ["*"]}
+}

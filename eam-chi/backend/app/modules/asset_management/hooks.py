@@ -107,6 +107,50 @@ async def equipment_schedule_after_save(doc, ctx):
 # Workflow Hooks - All routed through central workflow_router
 # =============================================================================
 
+@hook_registry.after_save("meter_reading")
+async def meter_reading_after_save(doc, ctx):
+    """
+    When a meter reading is saved:
+    1. Calculate delta from previous reading
+    2. Update parent meter's last_reading and last_reading_date
+    3. Check if meter-based PM threshold is reached
+    """
+    from app.services.document import get_doc, get_value, get_list, save_doc, new_doc
+    from datetime import datetime, timedelta
+
+    meter_id = getattr(doc, "meter", None)
+    reading_value = getattr(doc, "reading_value", None)
+    if not meter_id or reading_value is None:
+        return
+
+    reading_value = float(reading_value)
+
+    # Get meter and update last reading
+    meter_doc = await get_doc("meter", meter_id, ctx.db)
+    if not meter_doc:
+        return
+
+    prev_reading = float(getattr(meter_doc, "last_reading", 0) or 0)
+    rollover = float(getattr(meter_doc, "rollover_point", 0) or 0)
+
+    # Calculate delta (handle rollover)
+    if rollover > 0 and reading_value < prev_reading:
+        delta = (rollover - prev_reading) + reading_value
+    else:
+        delta = reading_value - prev_reading
+
+    # Set delta on reading doc
+    if delta != (getattr(doc, "delta", None) or 0):
+        doc.delta = round(delta, 2)
+        await save_doc(doc, ctx.db, commit=False)
+
+    # Update meter
+    meter_doc.last_reading = reading_value
+    meter_doc.last_reading_date = getattr(doc, "reading_date", None) or datetime.now()
+    await save_doc(meter_doc, ctx.db, commit=False)
+    await ctx.db.commit()
+
+
 @hook_registry.workflow("asset")
 async def asset_workflow_hook(ctx):
     from app.modules.asset_management.workflow_router import route_workflow

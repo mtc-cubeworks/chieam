@@ -21,6 +21,9 @@ from .breakdown import Breakdown
 from .disposed import Disposed
 from .sub_asset import SubAsset
 from .asset_maintenance_history import AssetMaintenanceHistory
+from .warranty_claim import WarrantyClaim
+from .meter import Meter
+from .meter_reading import MeterReading
 
 __all__ = [
     "LocationType",
@@ -45,6 +48,9 @@ __all__ = [
     "Disposed",
     "SubAsset",
     "AssetMaintenanceHistory",
+    "WarrantyClaim",
+    "Meter",
+    "MeterReading",
 ]
 from .equipment_availability import EquipmentAvailability
 from .equipment_availability_details import EquipmentAvailabilityDetails

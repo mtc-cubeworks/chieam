@@ -84,6 +84,53 @@ async def sensor_data_after_save(doc, ctx):
             prop_doc.property_value = value_str
             await save_doc(prop_doc, ctx.db, commit=False)
 
+    # --- Threshold Alerting ---
+    # Check sensor min/max thresholds and create alert MRs
+    sensor_min = sensor.get("min_threshold")
+    sensor_max = sensor.get("max_threshold")
+    threshold_breached = False
+
+    if sensor_min is not None:
+        try:
+            if reading < float(sensor_min):
+                threshold_breached = True
+        except (ValueError, TypeError):
+            pass
+
+    if sensor_max is not None:
+        try:
+            if reading > float(sensor_max):
+                threshold_breached = True
+        except (ValueError, TypeError):
+            pass
+
+    if threshold_breached and asset_id:
+        # Check if an open alert MR already exists for this sensor
+        existing_alert = await get_value(
+            "maintenance_request",
+            {"asset": asset_id, "request_type": "Sensor Alert"},
+            "*",
+            ctx.db,
+        )
+        if not existing_alert or existing_alert.get("workflow_state") in (
+            "completed", "closed", "cancelled",
+        ):
+            from datetime import datetime, timedelta
+            alert_mr = await new_doc("maintenance_request", ctx.db,
+                workflow_state="Draft",
+                description=(
+                    f"Sensor Alert: {sensor.get('sensor_name', sensor_id)} "
+                    f"reading {reading} outside threshold "
+                    f"[{sensor_min or '-∞'}, {sensor_max or '∞'}]"
+                ),
+                asset=asset_id,
+                due_date=(datetime.now() + timedelta(days=1)).date(),
+                site=sensor.get("site"),
+                request_type="Sensor Alert",
+            )
+            if alert_mr:
+                await save_doc(alert_mr, ctx.db)
+
     # Check maintenance conditions linked to this sensor
     conditions = await get_list(
         "maintenance_condition", {"sensor": sensor_id}, db=ctx.db

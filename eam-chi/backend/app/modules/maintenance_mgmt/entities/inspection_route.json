@@ -1,0 +1,26 @@
+{
+  "name": "inspection_route",
+  "label": "Inspection Route",
+  "module": "Maintenance Management",
+  "table_name": "inspection_route",
+  "title_field": "route_name",
+  "in_sidebar": 1,
+  "naming": "IR-{#####}",
+  "icon": "map",
+  "group": "Inspections",
+  "search": true,
+  "fields": [
+    {"name": "route_name", "label": "Route Name", "field_type": "string", "in_list_view": true, "required": true},
+    {"name": "description", "label": "Description", "field_type": "text"},
+    {"name": "frequency", "label": "Frequency", "field_type": "select", "options": ["Daily", "Shift", "Weekly", "Bi-Weekly", "Monthly"], "in_list_view": true},
+    {"name": "site", "label": "Site", "field_type": "link", "link_entity": "site", "in_list_view": true},
+    {"name": "department", "label": "Department", "field_type": "link", "link_entity": "department"},
+    {"name": "assigned_to", "label": "Assigned To", "field_type": "link", "link_entity": "employee"},
+    {"name": "estimated_duration", "label": "Estimated Duration (min)", "field_type": "float"},
+    {"name": "active", "label": "Active", "field_type": "boolean", "default": true}
+  ],
+  "rbac": {"SystemManager": ["*"]},
+  "links": [
+    {"entity": "inspection_point", "fk_field": "inspection_route", "label": "Inspection Points"}
+  ]
+}
