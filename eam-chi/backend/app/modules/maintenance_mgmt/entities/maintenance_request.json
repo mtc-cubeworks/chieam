@@ -1,0 +1,303 @@
+{
+  "name": "maintenance_request",
+  "label": "Maintenance Request",
+  "module": "Maintenance Management",
+  "table_name": "maintenance_request",
+  "title_field": "description",
+  "in_sidebar": 1,
+  "naming": "MTREQ-{#####}",
+  "icon": "alert-circle",
+  "group": "Maintenance Requests",
+  "search": true,
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "initial_state": "Draft",
+    "states": [
+      "Draft",
+      "Pending Approval",
+      "Approved",
+      "Release",
+      "Completed"
+    ],
+    "transitions": [
+      {
+        "from": "Draft",
+        "to": "Pending Approval",
+        "action": "Submit_for_Approval",
+        "label": "Submit for Approval"
+      },
+      {
+        "from": "Draft",
+        "to": "Release",
+        "action": "Submit_for_Emergency",
+        "label": "Submit for Emergency"
+      },
+      {
+        "from": "Pending Approval",
+        "to": "Approved",
+        "action": "Approve",
+        "label": "Approve"
+      },
+      {
+        "from": "Approved",
+        "to": "Release",
+        "action": "Submit_for_Resolution",
+        "label": "Submit for Resolution"
+      },
+      {
+        "from": "Release",
+        "to": "Completed",
+        "action": "Complete",
+        "label": "Complete"
+      },
+      {
+        "from": "Completed",
+        "to": "Release",
+        "action": "Reopen",
+        "label": "Reopen"
+      }
+    ]
+  },
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "requestor",
+      "label": "Requestor",
+      "field_type": "link",
+      "link_entity": "employee",
+      "in_list_view": true
+    },
+    {
+      "name": "requested_date",
+      "label": "Requested Date",
+      "field_type": "date",
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "in_list_view": true
+    },
+    {
+      "name": "priority",
+      "label": "Priority",
+      "field_type": "select",
+      "options": [
+        "Low",
+        "Medium",
+        "High",
+        "Emergency"
+      ],
+      "in_list_view": true
+    },
+    {
+      "name": "asset",
+      "label": "Asset",
+      "field_type": "link",
+      "link_entity": "asset",
+      "in_list_view": true,
+      "show_when": {
+        "workflow_state": [
+          "pending_approval",
+          "approved",
+          "release",
+          "completed"
+        ]
+      }
+    },
+    {
+      "name": "request_type",
+      "label": "Request Type",
+      "field_type": "query_link",
+      "query": {
+        "key": "request_activity_type"
+      },
+      "show_when": {
+        "workflow_state": [
+          "pending_approval",
+          "approved",
+          "release",
+          "completed"
+        ]
+      }
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "fetch_from": "asset.location",
+      "show_when": {
+        "workflow_state": [
+          "pending_approval",
+          "approved",
+          "release",
+          "completed"
+        ]
+      }
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "fetch_from": "asset.site",
+      "show_when": {
+        "workflow_state": [
+          "draft",
+          "pending_approval",
+          "approved",
+          "release",
+          "completed"
+        ]
+      }
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department",
+      "fetch_from": "asset.department",
+      "show_when": {
+        "workflow_state": [
+          "draft",
+          "pending_approval",
+          "approved",
+          "release",
+          "completed"
+        ]
+      }
+    },
+    {
+      "name": "position",
+      "label": "Position",
+      "field_type": "link",
+      "link_entity": "position",
+      "show_when": {
+        "workflow_state": [
+          "pending_approval",
+          "approved",
+          "release",
+          "completed"
+        ]
+      }
+    },
+    {
+      "name": "incident",
+      "label": "Incident",
+      "field_type": "link",
+      "link_entity": "incident",
+      "show_when": {
+        "workflow_state": [
+          "pending_approval",
+          "approved",
+          "release",
+          "completed"
+        ]
+      }
+    },
+    {
+      "name": "planned_maintenance_activity",
+      "label": "Planned Activity",
+      "field_type": "link",
+      "link_entity": "planned_maintenance_activity",
+      "show_when": {
+        "workflow_state": [
+          "pending_approval",
+          "approved",
+          "release",
+          "completed"
+        ]
+      }
+    },
+    {
+      "name": "due_date",
+      "label": "Due Date",
+      "field_type": "date",
+      "show_when": {
+        "workflow_state": [
+          "pending_approval",
+          "approved",
+          "release",
+          "completed"
+        ]
+      }
+    },
+    {
+      "name": "next_maintenance_request",
+      "label": "Next Request",
+      "field_type": "link",
+      "link_entity": "maintenance_request",
+      "show_when": {
+        "workflow_state": [
+          "release",
+          "completed"
+        ]
+      }
+    },
+    {
+      "name": "closed_date",
+      "label": "Closed Date",
+      "field_type": "date",
+      "readonly": true,
+      "show_when": {
+        "workflow_state": [
+          "completed"
+        ]
+      }
+    },
+    {
+      "name": "work_order_activity",
+      "label": "Work Order Activity",
+      "field_type": "link",
+      "link_entity": "work_order_activity",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "property",
+      "label": "Property",
+      "field_type": "link",
+      "link_entity": "property",
+      "hidden": true
+    },
+    {
+      "name": "maintenance_interval_property",
+      "label": "Interval Property",
+      "field_type": "link",
+      "link_entity": "maintenance_interval",
+      "hidden": true
+    },
+    {
+      "name": "running_interval_value",
+      "label": "Running Interval",
+      "field_type": "float",
+      "hidden": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [],
+  "form_state": {
+    "editable_when": {
+      "workflow_state": [
+        "draft",
+        "pending_approval",
+        "approved"
+      ]
+    }
+  },
+  "prefill": {
+    "requested_date": "today"
+  }
+}

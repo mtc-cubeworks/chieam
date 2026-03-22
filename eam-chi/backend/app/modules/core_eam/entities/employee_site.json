@@ -1,0 +1,52 @@
+{
+  "name": "employee_site",
+  "label": "Employee Site",
+  "module": "Enterprise",
+  "table_name": "employee_site",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "EMPS-{#####}",
+  "icon": "user-check",
+  "group": "Employees",
+  "fields": [
+    {
+      "name": "employee",
+      "label": "Employee",
+      "field_type": "link",
+      "link_entity": "employee",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "default",
+      "label": "Default",
+      "field_type": "boolean"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ],
+    "AssetManager": [
+      "read",
+      "select",
+      "export"
+    ]
+  }
+}

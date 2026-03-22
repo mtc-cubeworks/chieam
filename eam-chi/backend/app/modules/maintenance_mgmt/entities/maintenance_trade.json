@@ -1,0 +1,45 @@
+{
+  "name": "maintenance_trade",
+  "label": "Maintenance Trade",
+  "module": "Maintenance Management",
+  "table_name": "maintenance_trade",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "MTTRD-{#####}",
+  "icon": "users",
+  "group": "Maintenance Configuration",
+  "search": true,
+  "fields": [
+    {
+      "name": "maintenance_activity",
+      "label": "Activity",
+      "field_type": "link",
+      "link_entity": "maintenance_activity",
+      "in_list_view": true
+    },
+    {
+      "name": "trade",
+      "label": "Trade",
+      "field_type": "link",
+      "link_entity": "trade",
+      "in_list_view": true
+    },
+    {
+      "name": "required_qty",
+      "label": "Qty",
+      "field_type": "int",
+      "in_list_view": true
+    },
+    {
+      "name": "required_hours",
+      "label": "Hours",
+      "field_type": "float",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

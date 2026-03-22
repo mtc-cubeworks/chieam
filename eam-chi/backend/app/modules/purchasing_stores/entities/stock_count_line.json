@@ -1,0 +1,109 @@
+{
+  "name": "stock_count_line",
+  "label": "Stock Count Line",
+  "module": "Procurement",
+  "table_name": "stock_count_line",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "is_child_table": true,
+  "naming": "SCL-{#####}",
+  "icon": "list",
+  "group": "Stock Control",
+  "fields": [
+    {
+      "name": "stock_count",
+      "label": "Stock Count",
+      "field_type": "link",
+      "link_entity": "stock_count",
+      "required": false
+    },
+    {
+      "name": "inventory",
+      "label": "Inventory",
+      "field_type": "link",
+      "link_entity": "inventory"
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "asset_tag",
+      "label": "Asset Tag",
+      "field_type": "string"
+    },
+    {
+      "name": "serial_nos",
+      "label": "Serial Numbers",
+      "field_type": "string"
+    },
+    {
+      "name": "bin",
+      "label": "Bin",
+      "field_type": "link",
+      "link_entity": "bin"
+    },
+    {
+      "name": "zone",
+      "label": "Zone",
+      "field_type": "link",
+      "link_entity": "zone",
+      "in_list_view": true
+    },
+    {
+      "name": "uom",
+      "label": "UoM",
+      "field_type": "link",
+      "link_entity": "unit_of_measure",
+      "readonly": true,
+      "fetch_from": "inventory.unit_of_measure"
+    },
+    {
+      "name": "snapshot_qty",
+      "label": "Snapshot Qty",
+      "field_type": "int",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "counted_qty",
+      "label": "Counted Qty",
+      "field_type": "int",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "variance_qty",
+      "label": "Variance Qty",
+      "field_type": "int",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "variance_value",
+      "label": "Variance Value",
+      "field_type": "float",
+      "readonly": true
+    },
+    {
+      "name": "variance_reason",
+      "label": "Variance Reason",
+      "field_type": "link",
+      "link_entity": "reason_code"
+    },
+    {
+      "name": "is_reconciled",
+      "label": "Is Reconciled",
+      "field_type": "boolean"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

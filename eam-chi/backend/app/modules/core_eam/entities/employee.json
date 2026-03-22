@@ -1,0 +1,73 @@
+{
+  "name": "employee",
+  "label": "Employee",
+  "module": "Enterprise",
+  "table_name": "employee",
+  "title_field": "employee_name",
+  "in_sidebar": 1,
+  "naming": "EMP-{#####}",
+  "icon": "user",
+  "group": "Employees",
+  "search": true,
+  "links": [
+    {
+      "entity": "employee_site",
+      "fk_field": "employee",
+      "label": "Site Assignments"
+    },
+    {
+      "entity": "labor",
+      "fk_field": "employee",
+      "label": "Labor"
+    },
+    {
+      "entity": "maintenance_request",
+      "fk_field": "requestor",
+      "label": "Maintenance Requests"
+    },
+    {
+      "entity": "purchase_request",
+      "fk_field": "requestor",
+      "label": "Purchase Requests"
+    },
+    {
+      "entity": "asset",
+      "fk_field": "assigned_to",
+      "label": "Assets"
+    }
+  ],
+  "fields": [
+    {
+      "name": "user",
+      "label": "User",
+      "field_type": "link",
+      "link_entity": "users",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "employee_name",
+      "label": "Employee Name",
+      "field_type": "string",
+      "hidden": false,
+      "readonly": false
+    },
+    {
+      "name": "position",
+      "label": "Position",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "form_state": {},
+  "search_fields": [
+    "employee_name",
+    "position"
+  ]
+}

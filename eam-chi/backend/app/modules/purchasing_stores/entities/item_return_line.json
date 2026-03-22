@@ -1,0 +1,59 @@
+{
+  "name": "item_return_line",
+  "label": "Item Return Line",
+  "module": "Procurement",
+  "table_name": "item_return_line",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "is_child_table": true,
+  "naming": "IRL-{#####}",
+  "icon": "list",
+  "group": "Inventory Operations",
+  "fields": [
+    {
+      "name": "item_return",
+      "label": "Item Return",
+      "field_type": "link",
+      "link_entity": "item_return",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "work_order_parts",
+      "label": "WO Parts",
+      "field_type": "link",
+      "link_entity": "work_order_parts"
+    },
+    {
+      "name": "work_order_equipment",
+      "label": "WO Equipment",
+      "field_type": "link",
+      "link_entity": "work_order_equipment"
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "quantity_returned",
+      "label": "Qty Returned",
+      "field_type": "int",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "unit_cost",
+      "label": "Unit Cost",
+      "field_type": "float"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

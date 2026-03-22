@@ -1,0 +1,63 @@
+{
+  "name": "bin",
+  "label": "Bin",
+  "module": "Procurement",
+  "table_name": "bin",
+  "title_field": "bin_name",
+  "in_sidebar": 1,
+  "naming": "BIN-{#####}",
+  "icon": "box",
+  "group": "Warehouse Structure",
+  "search": true,
+  "fields": [
+    {
+      "name": "rack_name",
+      "label": "Rack",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "shelf_name",
+      "label": "Shelf",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "bin_name",
+      "label": "Bin Number",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "store",
+      "label": "Store",
+      "field_type": "link",
+      "link_entity": "store",
+      "in_list_view": true
+    },
+    {
+      "name": "store_name",
+      "label": "Store Name",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "inventory",
+      "fk_field": "bin_location",
+      "label": "Inventory"
+    }
+  ]
+}

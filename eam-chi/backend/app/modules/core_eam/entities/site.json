@@ -1,0 +1,177 @@
+{
+  "name": "site",
+  "label": "Site",
+  "module": "Enterprise",
+  "table_name": "site",
+  "title_field": "site_name",
+  "in_sidebar": 1,
+  "naming": "SITE-{####}",
+  "icon": "map-pin",
+  "group": "Organization Structure",
+  "search": true,
+  "links": [
+    {
+      "entity": "department",
+      "fk_field": "site",
+      "label": "Department"
+    },
+    {
+      "entity": "cost_code",
+      "fk_field": "site",
+      "label": "Cost Code"
+    },
+    {
+      "entity": "location",
+      "fk_field": "site",
+      "label": "Sub-Location"
+    },
+    {
+      "entity": "system",
+      "fk_field": "site",
+      "label": "Sub-System"
+    },
+    {
+      "entity": "position",
+      "fk_field": "site",
+      "label": "Position"
+    },
+    {
+      "entity": "asset",
+      "fk_field": "site",
+      "label": "Asset"
+    },
+    {
+      "entity": "maintenance_request",
+      "fk_field": "site",
+      "label": "Maintenance Requests"
+    },
+    {
+      "entity": "store",
+      "fk_field": "site",
+      "label": "Store"
+    },
+    {
+      "entity": "zone",
+      "fk_field": "site",
+      "label": "Zone"
+    },
+    {
+      "entity": "bin",
+      "fk_field": "site",
+      "label": "Bin"
+    },
+    {
+      "entity": "inventory",
+      "fk_field": "site",
+      "label": "Inventory"
+    },
+    {
+      "entity": "item_issue",
+      "fk_field": "site",
+      "label": "Item Issue"
+    },
+    {
+      "entity": "item_return",
+      "fk_field": "site",
+      "label": "Item Return"
+    },
+    {
+      "entity": "stock_count",
+      "fk_field": "site",
+      "label": "Stock Count"
+    },
+    {
+      "entity": "inventory_adjustment",
+      "fk_field": "site",
+      "label": "Inventory Adjustments"
+    },
+    {
+      "entity": "purchase_request",
+      "fk_field": "site",
+      "label": "Purchase Requests"
+    },
+    {
+      "entity": "purchase_request_line",
+      "fk_field": "site",
+      "label": "PR Lines"
+    },
+    {
+      "entity": "purchase_return",
+      "fk_field": "site",
+      "label": "Purchase Return"
+    },
+    {
+      "entity": "work_order",
+      "fk_field": "site",
+      "label": "Work Orders"
+    },
+    {
+      "entity": "work_order_activity",
+      "fk_field": "site",
+      "label": "WO Activities"
+    }
+  ],
+  "fields": [
+    {
+      "name": "site_name",
+      "label": "Site Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site_code",
+      "label": "Site Code",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "organization",
+      "label": "Organization",
+      "field_type": "link",
+      "link_entity": "organization",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "organization_name",
+      "label": "Organization Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "default_cost_code",
+      "label": "Default Cost Code",
+      "field_type": "link",
+      "link_entity": "cost_code"
+    },
+    {
+      "name": "site_manager",
+      "label": "Site Manager",
+      "field_type": "link",
+      "link_entity": "employee"
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "link_entity": "location"
+    },
+    {
+      "name": "location_name",
+      "label": "Location Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "children": [],
+  "form_state": {}
+}

@@ -1,0 +1,48 @@
+{
+  "name": "work_order_activity_logs",
+  "label": "Work Order Activity Logs",
+  "module": "Work Management",
+  "table_name": "work_order_activity_logs",
+  "title_field": "log",
+  "in_sidebar": 1,
+  "naming": "WOLOG-{#####}",
+  "icon": "file-text",
+  "group": "Work Execution",
+  "search": true,
+  "fields": [
+    {
+      "name": "work_order_activity",
+      "label": "Activity",
+      "field_type": "link",
+      "link_entity": "work_order_activity",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "work_order_activity_name",
+      "label": "Activity Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "date",
+      "label": "Date",
+      "field_type": "date",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "log",
+      "label": "Log",
+      "field_type": "text",
+      "required": false,
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

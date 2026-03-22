@@ -1,0 +1,51 @@
+{
+  "name": "organization",
+  "label": "Organization",
+  "module": "Enterprise",
+  "table_name": "organization",
+  "title_field": "organization_name",
+  "in_sidebar": 1,
+  "naming": "ORG-U-{#####}",
+  "icon": "building-2",
+  "group": "Organization Structure",
+  "search": true,
+  "fields": [
+    {
+      "name": "organization_name",
+      "label": "Organization Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "legal_name",
+      "label": "Legal Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "organizational_code",
+      "label": "Organizational Code",
+      "field_type": "string"
+    },
+    {
+      "name": "is_active",
+      "label": "Is Active",
+      "field_type": "boolean",
+      "default": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "site",
+      "fk_field": "organization",
+      "label": "Sites"
+    }
+  ]
+}

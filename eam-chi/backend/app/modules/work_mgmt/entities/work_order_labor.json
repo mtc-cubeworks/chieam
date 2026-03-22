@@ -1,0 +1,107 @@
+{
+  "name": "work_order_labor",
+  "label": "Work Order Labor",
+  "module": "Work Management",
+  "table_name": "work_order_labor",
+  "title_field": "laborer",
+  "in_sidebar": 1,
+  "naming": "WOLBR-{#####}",
+  "icon": "users",
+  "group": "Work Resources",
+  "search": true,
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "work_order_activity",
+      "label": "Activity",
+      "field_type": "link",
+      "link_entity": "work_order_activity",
+      "required": false
+    },
+    {
+      "name": "work_order_activity_desc",
+      "label": "Activity Desc",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "trade",
+      "label": "Trade",
+      "field_type": "link",
+      "link_entity": "trade",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "trade_name",
+      "label": "Trade Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "labor",
+      "label": "Labor",
+      "field_type": "link",
+      "link_entity": "labor",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "laborer",
+      "label": "Laborer",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "lead",
+      "label": "Lead",
+      "field_type": "boolean",
+      "in_list_view": true
+    },
+    {
+      "name": "start_datetime",
+      "label": "Start",
+      "field_type": "datetime",
+      "required": false
+    },
+    {
+      "name": "end_datetime",
+      "label": "End",
+      "field_type": "datetime"
+    },
+    {
+      "name": "total_hours_used",
+      "label": "Hours Used",
+      "field_type": "float",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "estimated_hours",
+      "label": "Est. Hours",
+      "field_type": "float",
+      "hidden": true,
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "work_order_labor_actual_hours",
+      "fk_field": "wo_labor_id",
+      "label": "Actual Hours"
+    }
+  ]
+}

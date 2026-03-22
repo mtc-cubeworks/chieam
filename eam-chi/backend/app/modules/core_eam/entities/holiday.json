@@ -1,0 +1,44 @@
+{
+  "name": "holiday",
+  "label": "Holiday",
+  "module": "Enterprise",
+  "table_name": "holiday",
+  "title_field": "holiday_name",
+  "in_sidebar": 1,
+  "naming": "HOL-{#####}",
+  "icon": "party-popper",
+  "group": "Scheduling",
+  "fields": [
+    {
+      "name": "holiday_name",
+      "label": "Holiday Name",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "holiday_date",
+      "label": "Date",
+      "field_type": "date",
+      "in_list_view": true
+    },
+    {
+      "name": "applicable_to_labor_grp",
+      "label": "Labor Group",
+      "field_type": "link",
+      "link_entity": "labor_group",
+      "in_list_view": true
+    },
+    {
+      "name": "specific_labor",
+      "label": "Specific Labor",
+      "field_type": "link",
+      "link_entity": "labor",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

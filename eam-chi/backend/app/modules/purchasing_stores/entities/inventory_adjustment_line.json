@@ -1,0 +1,108 @@
+{
+  "name": "inventory_adjustment_line",
+  "label": "Inventory Adjustment Line",
+  "module": "Procurement",
+  "table_name": "inventory_adjustment_line",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "is_child_table": true,
+  "naming": "INVADJL-{#####}",
+  "icon": "list",
+  "group": "Inventory Operations",
+  "fields": [
+    {
+      "name": "inventory_adjustment",
+      "label": "Adjustment",
+      "field_type": "link",
+      "link_entity": "inventory_adjustment",
+      "required": false
+    },
+    {
+      "name": "inventory",
+      "label": "Inventory",
+      "field_type": "link",
+      "link_entity": "inventory"
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "asset_tag",
+      "label": "Asset Tag",
+      "field_type": "string"
+    },
+    {
+      "name": "serial_nos",
+      "label": "Serial Number",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "bin",
+      "label": "Bin",
+      "field_type": "link",
+      "link_entity": "bin"
+    },
+    {
+      "name": "zone",
+      "label": "Zone",
+      "field_type": "link",
+      "link_entity": "zone"
+    },
+    {
+      "name": "uom",
+      "label": "UoM",
+      "field_type": "link",
+      "link_entity": "unit_of_measure",
+      "readonly": true,
+      "fetch_from": "inventory.unit_of_measure"
+    },
+    {
+      "name": "current_qty",
+      "label": "Current Qty",
+      "field_type": "int",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "adjusted_qty",
+      "label": "Adjustment Qty",
+      "field_type": "int",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "current_rate",
+      "label": "Current Rate",
+      "field_type": "float"
+    },
+    {
+      "name": "delta_value",
+      "label": "Delta Value",
+      "field_type": "float",
+      "required": false
+    },
+    {
+      "name": "inventory_adjustment_account",
+      "label": "Adjustment Account",
+      "field_type": "link",
+      "link_entity": "account"
+    },
+    {
+      "name": "inventory_account",
+      "label": "Inventory Account",
+      "field_type": "link",
+      "link_entity": "account"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "name": "email_log",
+  "label": "Email Log",
+  "module": "Enterprise",
+  "table_name": "email_log",
+  "title_field": "subject",
+  "in_sidebar": 0,
+  "naming": "EML-{#####}",
+  "icon": "mail",
+  "group": "System Configuration",
+  "search": true,
+  "fields": [
+    {
+      "name": "subject",
+      "label": "Subject",
+      "field_type": "string",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "recipients",
+      "label": "Recipients",
+      "field_type": "text",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "cc",
+      "label": "CC",
+      "field_type": "text"
+    },
+    {
+      "name": "bcc",
+      "label": "BCC",
+      "field_type": "text"
+    },
+    {
+      "name": "from_address",
+      "label": "From Address",
+      "field_type": "string"
+    },
+    {
+      "name": "entity_name",
+      "label": "Entity",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "record_id",
+      "label": "Record ID",
+      "field_type": "string"
+    },
+    {
+      "name": "event_type",
+      "label": "Event Type",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "field_type": "string",
+      "required": true,
+      "in_list_view": true,
+      "options": ["Success", "Error"]
+    },
+    {
+      "name": "error_message",
+      "label": "Error Message",
+      "field_type": "text",
+      "display_depends_on": "eval:doc.status=='Error'"
+    },
+    {
+      "name": "error_traceback",
+      "label": "Error Traceback",
+      "field_type": "text",
+      "display_depends_on": "eval:doc.status=='Error'"
+    },
+    {
+      "name": "html_body",
+      "label": "HTML Body",
+      "field_type": "text"
+    },
+    {
+      "name": "recipient_count",
+      "label": "Recipient Count",
+      "field_type": "int"
+    },
+    {
+      "name": "sent_at",
+      "label": "Sent At",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "sent_by",
+      "label": "Sent By",
+      "field_type": "string"
+    }
+  ],
+  "rbac": {
+    "SystemManager": ["*"]
+  }
+}

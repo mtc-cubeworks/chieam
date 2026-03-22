@@ -1,0 +1,82 @@
+{
+  "name": "item_issue_line",
+  "label": "Item Issue Line",
+  "module": "Procurement",
+  "table_name": "item_issue_line",
+  "title_field": "item_name",
+  "in_sidebar": 0,
+  "is_child_table": true,
+  "naming": "IIL-{#####}",
+  "icon": "list",
+  "group": "Inventory Operations",
+  "fields": [
+    {
+      "name": "item_issue",
+      "label": "Item Issue",
+      "field_type": "link",
+      "link_entity": "item_issue",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "work_order_parts",
+      "label": "WO Parts",
+      "field_type": "link",
+      "link_entity": "work_order_parts"
+    },
+    {
+      "name": "work_order_equipment",
+      "label": "WO Equipment",
+      "field_type": "link",
+      "link_entity": "work_order_equipment"
+    },
+    {
+      "name": "inventory",
+      "label": "Inventory",
+      "field_type": "link",
+      "link_entity": "inventory",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "item_name",
+      "label": "Item Name",
+      "field_type": "string"
+    },
+    {
+      "name": "store",
+      "label": "Store",
+      "field_type": "link",
+      "link_entity": "store"
+    },
+    {
+      "name": "bin",
+      "label": "Bin",
+      "field_type": "link",
+      "link_entity": "bin"
+    },
+    {
+      "name": "zone",
+      "label": "Zone",
+      "field_type": "link",
+      "link_entity": "zone"
+    },
+    {
+      "name": "quantity_issued",
+      "label": "Qty Issued",
+      "field_type": "int",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "unit_cost",
+      "label": "Unit Cost",
+      "field_type": "float"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

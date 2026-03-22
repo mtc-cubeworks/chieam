@@ -1,0 +1,28 @@
+{
+  "name": "location_type",
+  "label": "Location Type",
+  "module": "Asset Management",
+  "table_name": "location_type",
+  "title_field": "name",
+  "in_sidebar": 1,
+  "naming": "LT-{####}",
+  "icon": "folder",
+  "group": "Asset Classification",
+  "fields": [
+    {
+      "name": "name",
+      "label": "Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ],
+    "AssetManager": [
+      "read"
+    ]
+  }
+}

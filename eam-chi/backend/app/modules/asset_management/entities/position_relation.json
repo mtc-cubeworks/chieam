@@ -1,0 +1,144 @@
+{
+  "name": "position_relation",
+  "label": "Position Relation",
+  "module": "Asset Management",
+  "table_name": "position_relation",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "naming": "REL-{####}",
+  "icon": "git-branch",
+  "group": "Asset Structure",
+  "fields": [
+    {
+      "name": "position_a",
+      "label": "Position A",
+      "field_type": "link",
+      "link_entity": "position",
+      "in_list_view": true
+    },
+    {
+      "name": "position_a_description",
+      "label": "Position A Description",
+      "field_type": "string",
+      "readonly": true
+    },
+    {
+      "name": "position_relation_type",
+      "label": "Relation Type",
+      "field_type": "select",
+      "options": [
+        {
+          "label": "Connected to",
+          "value": "Connected to"
+        },
+        {
+          "label": "is Parent of",
+          "value": "is Parent of"
+        },
+        {
+          "label": "Linked to",
+          "value": "Linked to"
+        },
+        {
+          "label": "Feeds into",
+          "value": "Feeds into"
+        },
+        {
+          "label": "Transfers into",
+          "value": "Transfers into"
+        },
+        {
+          "label": "Mixes and transfers to",
+          "value": "Mixes and transfers to"
+        },
+        {
+          "label": "Pumps through",
+          "value": "Pumps through"
+        },
+        {
+          "label": "Delivers into",
+          "value": "Delivers into"
+        },
+        {
+          "label": "Recirculates back to",
+          "value": "Recirculates back to"
+        },
+        {
+          "label": "Routes to",
+          "value": "Routes to"
+        },
+        {
+          "label": "Generates gas to",
+          "value": "Generates gas to"
+        },
+        {
+          "label": "Releases gas to",
+          "value": "Releases gas to"
+        },
+        {
+          "label": "Supports digestion with",
+          "value": "Supports digestion with"
+        },
+        {
+          "label": "Pushes gas into",
+          "value": "Pushes gas into"
+        },
+        {
+          "label": "Blows gas to",
+          "value": "Blows gas to"
+        },
+        {
+          "label": "Cools then routes to",
+          "value": "Cools then routes to"
+        },
+        {
+          "label": "Purifies then flows into",
+          "value": "Purifies then flows into"
+        },
+        {
+          "label": "Supplies gas to",
+          "value": "Supplies gas to"
+        },
+        {
+          "label": "Discharges digestate to",
+          "value": "Discharges digestate to"
+        },
+        {
+          "label": "Triggers pump from",
+          "value": "Triggers pump from"
+        },
+        {
+          "label": "Pumps to",
+          "value": "Pumps to"
+        },
+        {
+          "label": "Drains filtrate to",
+          "value": "Drains filtrate to"
+        },
+        {
+          "label": "Transfers liquid to",
+          "value": "Transfers liquid to"
+        }
+      ],
+      "in_list_view": true
+    },
+    {
+      "name": "position_b",
+      "label": "Position B",
+      "field_type": "link",
+      "link_entity": "position",
+      "in_list_view": true
+    },
+    {
+      "name": "position_b_description",
+      "label": "Position B Description",
+      "field_type": "string",
+      "readonly": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

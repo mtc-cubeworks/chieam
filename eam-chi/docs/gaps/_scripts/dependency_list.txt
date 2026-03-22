@@ -1,0 +1,138 @@
+
+============================================================
+MODULE: core_eam
+============================================================
+
+account: — (standalone)
+annual_budget: cost_code
+contractor: — (standalone)
+cost_code: site
+department: site, employee, cost_code, account, account
+employee: users (system)
+employee_site: employee, site, department
+error_log: — (standalone)
+holiday: labor_group, labor
+labor: labor_group, employee, contractor, location
+labor_availability: labor
+labor_availability_details: labor_availability
+labor_group: — (standalone)
+leave_application: labor, leave_type
+leave_type: — (standalone)
+manufacturer: — (standalone)
+model: manufacturer
+note: — (standalone)
+note_seen_by: note, users (system)
+organization: — (standalone)
+request_activity_type: — (standalone)
+site: organization, cost_code, employee, location
+trade: — (standalone)
+trade_availability: trade
+trade_labor: trade, labor
+work_schedule: labor_group, labor
+work_schedule_details: work_schedule
+
+============================================================
+MODULE: asset_management
+============================================================
+
+asset: asset_class, location, site, department, employee, inventory [ro], system, position, item [ro]
+asset_class: self (parent_asset_class)
+asset_class_availability: asset_class
+asset_class_property: asset_class, property, unit_of_measure [ro]
+asset_position: position, asset
+asset_property: asset, property, unit_of_measure [ro]
+breakdown: equipment
+disposed: asset, site
+equipment: equipment_group, employee, location, site, inventory, purchase_request_line
+equipment_group: — (standalone)
+incident: location, asset, users (system), site, department, employee
+incident_employee: incident, employee
+location: location_type, self (parent_location), site
+location_type: — (standalone)
+position: asset_class, system, location, site, asset [ro]
+position_relation: position, position
+property: unit_of_measure, property_type
+property_type: — (standalone)
+sub_asset: asset, asset
+system: system_type, self (parent_system), location, site
+system_type: — (standalone)
+
+============================================================
+MODULE: maintenance_mgmt
+============================================================
+
+checklist: — (standalone)
+checklist_details: checklist
+maintenance_activity: — (standalone)
+maintenance_calendar: planned_maintenance_activity, maintenance_plan [ro], maintenance_activity [ro], property
+maintenance_condition: planned_maintenance_activity, maintenance_plan [ro], maintenance_activity [ro], sensor, property
+maintenance_equipment: maintenance_activity, equipment
+maintenance_interval: planned_maintenance_activity, maintenance_plan [ro], maintenance_activity [ro], unit_of_measure, property, property
+maintenance_order: work_order [ro]
+maintenance_order_detail: maintenance_order [ro], maintenance_request, asset [ro]
+maintenance_parts: maintenance_activity, item
+maintenance_plan: asset_class, manufacturer, model
+maintenance_request: employee, asset, location, site, department, position, incident, planned_maintenance_activity, self (next_maintenance_request), work_order_activity [ro], property, maintenance_interval
+maintenance_trade: maintenance_activity, trade
+planned_maintenance_activity: maintenance_plan, maintenance_activity, checklist, request_activity_type
+sensor: asset, asset_property, site
+sensor_data: sensor
+service_request: asset, site, location, work_order, incident
+
+============================================================
+MODULE: purchasing_stores
+============================================================
+
+bin: store, site
+currency: — (standalone)
+inspection: employee, site, inventory
+inventory: workflow_states (system), employee, site, location, store, zone, bin, item, unit_of_measure [ro], asset
+inventory_adjustment: stock_count [ro], location, store, site, account
+inventory_adjustment_line: inventory_adjustment, inventory, item, bin, zone, unit_of_measure [ro], account, account
+item: item_class, account, inventory_adjustment, vendor, asset_class, unit_of_measure
+item_class: asset_class, self (parent_item_class), unit_of_measure, account
+item_issue: employee, work_order_activity, site, department, cost_code
+item_issue_line: item_issue, work_order_parts, work_order_equipment, inventory, store, bin, zone
+item_return: employee, work_order_activity, site, department, cost_code
+item_return_line: item_return, work_order_parts, work_order_equipment, item
+purchase_order: vendor, site, department, cost_code
+purchase_order_line: purchase_order, purchase_request_line, item, site, department, cost_code
+purchase_receipt: purchase_order_line, purchase_request_line [ro], item [ro], location, site, department, cost_code, account
+purchase_request: employee, work_order_activity, maintenance_request, site, department, cost_code
+purchase_request_line: purchase_request, item, unit_of_measure [ro], currency, account, cost_code, site, department, vendor
+purchase_return: inventory, item [ro], unit_of_measure [ro], site, department, cost_code
+putaway: transfer, item_return_line, asset, item, site, store, bin, zone
+reason_code: account, account
+request_for_quotation: purchase_request, employee, vendor, employee, vendor
+rfq_line: request_for_quotation, purchase_request_line, item
+sales_order: currency, site
+sales_order_item: sales_order, item, unit_of_measure [ro], site, department
+stock_count: store, site
+stock_count_line: stock_count, inventory, item, bin, zone, unit_of_measure [ro], reason_code
+stock_count_task: stock_count, users (system), bin, site
+stock_ledger_entry: item, store, bin, site
+store: location, site
+transfer: employee, work_order_activity, inventory, labor, equipment, purchase_request_line, site, location [ro], store [ro], bin, zone, location, vendor, store, bin, zone
+transfer_receipt: transfer, inventory, unit_of_measure [ro], location, site
+unit_of_measure: — (standalone)
+vendor: site
+zone: store, site
+
+============================================================
+MODULE: work_mgmt
+============================================================
+
+category_of_failure: site
+work_order: category_of_failure, incident, site, department, cost_code
+work_order_activity: work_order, asset, position, labor, location, site, department
+work_order_activity_logs: work_order_activity
+work_order_checklist: work_order_activity, checklist, employee
+work_order_checklist_detail: work_order_checklist
+work_order_equipment: work_order_activity, item, equipment
+work_order_equipment_actual_hours: work_order_equipment, site, department, cost_code
+work_order_equipment_assignment: work_order_equipment, equipment
+work_order_labor: work_order_activity, trade, labor
+work_order_labor_actual_hours: work_order_labor, site, department, cost_code
+work_order_labor_assignment: work_order_labor, labor
+work_order_parts: work_order_activity, item, unit_of_measure [ro]
+work_order_parts_reservation: work_order_parts, unit_of_measure [ro], inventory

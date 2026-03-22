@@ -1,0 +1,145 @@
+{
+  "name": "department",
+  "label": "Department",
+  "module": "Enterprise",
+  "table_name": "department",
+  "title_field": "department_name",
+  "in_sidebar": 1,
+  "naming": "DEPT-{####}",
+  "icon": "users",
+  "group": "Organization Structure",
+  "search": true,
+  "fields": [
+    {
+      "name": "department_name",
+      "label": "Department Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "department_code",
+      "label": "Department Code",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site_name",
+      "label": "Site Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "department_manager",
+      "label": "Department Manager",
+      "field_type": "link",
+      "link_entity": "employee"
+    },
+    {
+      "name": "default_cost_code",
+      "label": "Default Cost Code",
+      "field_type": "link",
+      "link_entity": "cost_code",
+      "required": false
+    },
+    {
+      "name": "overhead_method",
+      "label": "Overhead Method",
+      "field_type": "string"
+    },
+    {
+      "name": "overhead_percent",
+      "label": "Overhead Percent",
+      "field_type": "float"
+    },
+    {
+      "name": "overhead_rp_hour",
+      "label": "Overhead RP/Hour",
+      "field_type": "float"
+    },
+    {
+      "name": "overhead_expense_account",
+      "label": "Overhead Expense Account",
+      "field_type": "link",
+      "link_entity": "account"
+    },
+    {
+      "name": "labor_expense_account_overwrite",
+      "label": "Labor Expense Account Overwrite",
+      "field_type": "link",
+      "link_entity": "account"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "asset",
+      "fk_field": "department",
+      "label": "Assets"
+    },
+    {
+      "entity": "maintenance_request",
+      "fk_field": "department",
+      "label": "Maintenance Requests"
+    },
+    {
+      "entity": "item_issue",
+      "fk_field": "department",
+      "label": "Item Issues"
+    },
+    {
+      "entity": "item_return",
+      "fk_field": "department",
+      "label": "Item Returns"
+    },
+    {
+      "entity": "purchase_request",
+      "fk_field": "department",
+      "label": "Purchase Requests"
+    },
+    {
+      "entity": "purchase_request_line",
+      "fk_field": "department",
+      "label": "Lines"
+    },
+    {
+      "entity": "purchase_return",
+      "fk_field": "department",
+      "label": "Purchase Returns"
+    },
+    {
+      "entity": "work_order",
+      "fk_field": "department",
+      "label": "Work Orders"
+    },
+    {
+      "entity": "work_order_activity",
+      "fk_field": "department",
+      "label": "Activities"
+    },
+    {
+      "entity": "work_order_equipment_actual_hours",
+      "fk_field": "department",
+      "label": "Actual Hours"
+    },
+    {
+      "entity": "work_order_labor_actual_hours",
+      "fk_field": "department",
+      "label": "Actual Hours"
+    }
+  ]
+}

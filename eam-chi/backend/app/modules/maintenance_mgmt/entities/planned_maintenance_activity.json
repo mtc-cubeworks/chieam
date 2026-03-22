@@ -1,0 +1,96 @@
+{
+  "name": "planned_maintenance_activity",
+  "label": "Activity Plan",
+  "module": "Maintenance Management",
+  "table_name": "planned_maintenance_activity",
+  "title_field": "maintenance_activity_name",
+  "in_sidebar": 1,
+  "naming": "PMA-{#####}",
+  "icon": "calendar-check",
+  "group": "Maintenance Planning",
+  "search": true,
+  "fields": [
+    {
+      "name": "maintenance_plan",
+      "label": "Maintenance Plan",
+      "field_type": "link",
+      "link_entity": "maintenance_plan"
+    },
+    {
+      "name": "maintenance_plan_name",
+      "label": "Plan Name",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "maintenance_activity",
+      "label": "Activity",
+      "field_type": "link",
+      "link_entity": "maintenance_activity",
+      "in_list_view": true
+    },
+    {
+      "name": "maintenance_activity_name",
+      "label": "Activity Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "checklist",
+      "label": "Checklist",
+      "field_type": "link",
+      "link_entity": "checklist",
+      "in_list_view": true
+    },
+    {
+      "name": "checklist_name",
+      "label": "Checklist Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "maintenance_schedule",
+      "label": "Schedule Type",
+      "field_type": "select",
+      "options": [
+        "Calendar Based",
+        "Interval Based",
+        "Condition Based"
+      ],
+      "in_list_view": true
+    },
+    {
+      "name": "maintenance_type",
+      "label": "Maintenance Type",
+      "field_type": "link",
+      "link_entity": "request_activity_type",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "maintenance_interval",
+      "fk_field": "planned_maintenance_activity",
+      "label": "Intervals"
+    },
+    {
+      "entity": "maintenance_condition",
+      "fk_field": "planned_maintenance_activity",
+      "label": "Conditions"
+    },
+    {
+      "entity": "maintenance_calendar",
+      "fk_field": "planned_maintenance_activity",
+      "label": "Calendars"
+    }
+  ],
+  "children": [],
+  "form_state": {}
+}

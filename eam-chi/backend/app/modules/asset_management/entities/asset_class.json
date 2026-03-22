@@ -1,0 +1,102 @@
+{
+  "name": "asset_class",
+  "label": "Asset Class",
+  "module": "Asset Management",
+  "table_name": "asset_class",
+  "title_field": "name",
+  "in_sidebar": 1,
+  "naming": "AC-{####}",
+  "icon": "layers",
+  "group": "Asset Classification",
+  "search": true,
+  "search_fields": [
+    "name"
+  ],
+  "attachment_config": {
+    "allow_attachments": true,
+    "max_attachments": 5,
+    "allowed_extensions": [
+      "png",
+      "jpg",
+      "jpeg",
+      "gif",
+      "webp",
+      "svg"
+    ],
+    "max_file_size_mb": 5
+  },
+  "is_tree": true,
+  "tree_parent_field": "parent_asset_class",
+  "links": [
+    {
+      "entity": "asset",
+      "fk_field": "asset_class",
+      "label": "Asset"
+    },
+    {
+      "entity": "asset_class",
+      "fk_field": "parent_asset_class",
+      "label": "Child Asset Class"
+    },
+    {
+      "entity": "asset_class_property",
+      "fk_field": "asset_class",
+      "label": "Asset Class Properties"
+    },
+    {
+      "entity": "asset_class_availability",
+      "fk_field": "asset_class",
+      "label": "Asset Class Availability"
+    },
+    {
+      "entity": "position",
+      "fk_field": "asset_class",
+      "label": "Position"
+    },
+    {
+      "entity": "maintenance_plan",
+      "fk_field": "asset_class",
+      "label": "Maintenance Plans"
+    }
+  ],
+  "fields": [
+    {
+      "name": "name",
+      "label": "Class Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "in_list_view": true
+    },
+    {
+      "name": "class_icon",
+      "label": "Class Icon",
+      "field_type": "attach_image"
+    },
+    {
+      "name": "due_date_lead_time",
+      "label": "Due Date Lead Time",
+      "field_type": "int"
+    },
+    {
+      "name": "parent_asset_class",
+      "label": "Parent Asset Class",
+      "field_type": "link",
+      "link_entity": "asset_class"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ],
+    "AssetManager": [
+      "read"
+    ]
+  },
+  "form_state": {}
+}

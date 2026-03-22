@@ -1,0 +1,34 @@
+{
+  "name": "unit_of_measure",
+  "label": "Unit of Measure",
+  "module": "Procurement",
+  "table_name": "unit_of_measure",
+  "title_field": "short_name",
+  "in_sidebar": 1,
+  "naming": "UOM-{#####}",
+  "icon": "ruler",
+  "group": "Item Catalog",
+  "search": true,
+  "fields": [
+    {
+      "name": "name",
+      "label": "Name",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "short_name",
+      "label": "Short Name",
+      "field_type": "string",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [],
+  "children": [],
+  "form_state": {}
+}

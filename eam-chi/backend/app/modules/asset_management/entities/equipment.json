@@ -1,0 +1,113 @@
+{
+  "name": "equipment",
+  "label": "Equipment",
+  "module": "Asset Management",
+  "table_name": "equipment",
+  "title_field": "description",
+  "in_sidebar": 1,
+  "naming": "EQP-{####}",
+  "icon": "tool",
+  "group": "Asset Structure",
+  "search": true,
+  "links": [
+    {
+      "entity": "breakdown",
+      "fk_field": "equipment",
+      "label": "Breakdowns"
+    }
+  ],
+  "fields": [
+    {
+      "name": "equipment_type",
+      "label": "Equipment Type",
+      "field_type": "select",
+      "options": [
+        {
+          "label": "Owned",
+          "value": "Owned"
+        },
+        {
+          "label": "Rented",
+          "value": "Rented"
+        }
+      ],
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "equipment_group",
+      "label": "Equipment Group",
+      "field_type": "link",
+      "link_entity": "equipment_group",
+      "in_list_view": true
+    },
+    {
+      "name": "equipment_group_name",
+      "label": "Equipment Group Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "custodian",
+      "label": "Custodian",
+      "field_type": "link",
+      "link_entity": "employee",
+      "in_list_view": true
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "in_list_view": true
+    },
+    {
+      "name": "location_name",
+      "label": "Location Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false
+    },
+    {
+      "name": "inventory",
+      "label": "Inventory",
+      "field_type": "link",
+      "link_entity": "inventory",
+      "in_list_view": true,
+      "depends_on": "eval:doc.equipment_type === 'Owned'",
+      "mandatory_depends_on": "eval:doc.equipment_type === 'Owned'"
+    },
+    {
+      "name": "pr_line_no",
+      "label": "PR Line No",
+      "field_type": "link",
+      "link_entity": "purchase_request_line",
+      "depends_on": "eval:doc.equipment_type === 'Rented'",
+      "mandatory_depends_on": "eval:doc.equipment_type === 'Rented'"
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "string",
+      "readonly": true
+    },
+    {
+      "name": "equipment_cost",
+      "label": "Equipment Cost",
+      "field_type": "float"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

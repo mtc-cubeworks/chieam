@@ -1,0 +1,115 @@
+{
+  "name": "position",
+  "label": "Position",
+  "module": "Asset Management",
+  "table_name": "position",
+  "title_field": "position_tag",
+  "in_sidebar": 1,
+  "naming": "POS-{####}",
+  "icon": "crosshair",
+  "group": "Asset Structure",
+  "search": true,
+  "is_diagram": true,
+  "links": [
+    {
+      "entity": "asset_position",
+      "fk_field": "position",
+      "label": "Asset History"
+    },
+    {
+      "entity": "position_relation",
+      "fk_field": "position_a",
+      "label": "Relations (From)"
+    }
+  ],
+  "fields": [
+    {
+      "name": "position_tag",
+      "label": "Position Tag",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "attach_img",
+      "label": "Image",
+      "field_type": "attach_image"
+    },
+    {
+      "name": "asset_class",
+      "label": "Asset Class",
+      "field_type": "link",
+      "link_entity": "asset_class",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "asset_class_name",
+      "label": "Asset Class Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "system",
+      "label": "System",
+      "field_type": "link",
+      "link_entity": "system",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "system_name",
+      "label": "System Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "in_list_view": true
+    },
+    {
+      "name": "location_name",
+      "label": "Location Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "fetch_from": "location.site"
+    },
+    {
+      "name": "current_asset",
+      "label": "Current Asset",
+      "field_type": "link",
+      "link_entity": "asset",
+      "readonly": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ],
+    "AssetManager": [
+      "create",
+      "read",
+      "update",
+      "delete"
+    ]
+  }
+}

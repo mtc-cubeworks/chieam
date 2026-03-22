@@ -1,0 +1,150 @@
+{
+  "name": "transfer",
+  "label": "Transfer",
+  "module": "Procurement",
+  "table_name": "transfer",
+  "title_field": "item_to_transfer",
+  "in_sidebar": 1,
+  "naming": "TR-{#####}",
+  "icon": "repeat",
+  "group": "Warehouse Movement",
+  "search": true,
+  "fields": [
+    {
+      "name": "transfer_type",
+      "label": "Transfer Type",
+      "field_type": "select",
+      "options": [
+        "Equipment",
+        "Labor",
+        "Inventory",
+        "External Repair Service"
+      ],
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "moved_by",
+      "label": "Moved By",
+      "field_type": "link",
+      "link_entity": "employee",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "date_moved",
+      "label": "Date Moved",
+      "field_type": "date",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "work_order_activity",
+      "label": "Work Order Activity",
+      "field_type": "link",
+      "link_entity": "work_order_activity"
+    },
+    {
+      "name": "inventory",
+      "label": "Inventory",
+      "field_type": "link",
+      "link_entity": "inventory"
+    },
+    {
+      "name": "labor",
+      "label": "Labor",
+      "field_type": "link",
+      "link_entity": "labor"
+    },
+    {
+      "name": "equipment",
+      "label": "Equipment",
+      "field_type": "link",
+      "link_entity": "equipment"
+    },
+    {
+      "name": "item_to_transfer",
+      "label": "Item",
+      "field_type": "string",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "purchase_request_line",
+      "label": "PR Line",
+      "field_type": "link",
+      "link_entity": "purchase_request_line"
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false
+    },
+    {
+      "name": "from_location",
+      "label": "From Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "readonly": true,
+      "in_list_view": true,
+      "fetch_from": "inventory.location"
+    },
+    {
+      "name": "from_store",
+      "label": "From Store",
+      "field_type": "link",
+      "link_entity": "store",
+      "readonly": true
+    },
+    {
+      "name": "from_bin",
+      "label": "From Bin",
+      "field_type": "link",
+      "link_entity": "bin"
+    },
+    {
+      "name": "from_zone",
+      "label": "From Zone",
+      "field_type": "link",
+      "link_entity": "zone"
+    },
+    {
+      "name": "to_location",
+      "label": "To Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "in_list_view": true
+    },
+    {
+      "name": "to_vendor",
+      "label": "To Vendor",
+      "field_type": "link",
+      "link_entity": "vendor"
+    },
+    {
+      "name": "to_store",
+      "label": "To Store",
+      "field_type": "link",
+      "link_entity": "store"
+    },
+    {
+      "name": "to_bin",
+      "label": "To Bin",
+      "field_type": "link",
+      "link_entity": "bin"
+    },
+    {
+      "name": "to_zone",
+      "label": "To Zone",
+      "field_type": "link",
+      "link_entity": "zone"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

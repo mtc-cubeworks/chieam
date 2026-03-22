@@ -1,0 +1,5 @@
+MASTERFILE ORDER VIOLATIONS
+(Entity links to something that should be created AFTER it)
+============================================================
+
+#2 site.location -> #5 location (links forward in creation order)

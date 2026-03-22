@@ -1,0 +1,57 @@
+{
+  "name": "store",
+  "label": "Store",
+  "module": "Procurement",
+  "table_name": "store",
+  "title_field": "store_name",
+  "in_sidebar": 1,
+  "naming": "STR-{#####}",
+  "icon": "home",
+  "group": "Warehouse Structure",
+  "search": true,
+  "fields": [
+    {
+      "name": "store_name",
+      "label": "Store Name",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "in_list_view": true
+    },
+    {
+      "name": "location_name",
+      "label": "Location Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "bin",
+      "fk_field": "store",
+      "label": "Bins"
+    },
+    {
+      "entity": "zone",
+      "fk_field": "store",
+      "label": "Zones"
+    }
+  ]
+}

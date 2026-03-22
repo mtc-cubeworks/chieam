@@ -1,0 +1,235 @@
+(* ===================================================================== *)
+(* BLML v1.1 — Bayesian & Business Logic Modeling Language                 *)
+(* Purpose: Canonical, grammar-constrained modeling of deterministic and  *)
+(*          probabilistic business logic, rules, constraints, optimization*)
+(*          and decision structures aligned with DBML, AIML, and EIML.    *)
+(* Context for GitHub Copilot: This language defines the logic-layer DSL   *)
+(*          used to express rules, formulas, constraints, Bayesian logic, *)
+(*          and optimizers that can be validated, simulated, and emitted  *)
+(*          into executable engines or AI pipelines.                      *)
+(* ===================================================================== *)
+
+(* ============================== *)
+(* LEXICAL                        *)
+(* ============================== *)
+
+identifier        = letter , { letter | digit | "_" | "-" } ;
+qualified-name    = identifier , { "." , identifier } ;
+
+string            = '"' , { character } , '"' ;
+integer           = [ "-" ] , digit , { digit } ;
+number            = [ "-" ] , digit , { digit } , [ "." , { digit } ] ;
+boolean           = "true" | "false" ;
+
+scalar            = string | integer | number | boolean ;
+
+letter            = "A"…"Z" | "a"…"z" ;
+digit             = "0"…"9" ;
+character         = ? any valid character except " and line break ? ;
+
+(* ============================== *)
+(* ROOT MODEL                     *)
+(* ============================== *)
+
+blml-model        = "blml" , "model" , identifier , "{" ,
+                      { import-def } ,
+                      { blml-element } ,
+                    "}" ;
+
+import-def        = "import" , string , [ "as" , identifier ] , ";" ;
+
+blml-element      =
+      context-def
+    | formula-def
+    | rule-def
+    | constraint-def
+    | matrix-def
+    | function-def
+    | optimizer-def
+    | bayesian-network-def
+    | decision-table-def
+    | policy-def
+    | security-ref
+    | annotation-def ;
+
+security-ref      = "security" , "use" , qualified-name , ";" ;
+
+(* ============================== *)
+(* CONTEXT                        *)
+(* ============================== *)
+
+context-def       = "context" , identifier , "{" ,
+                      [ "label" , "=" , string , ";" ] ,
+                      [ "description" , "=" , string , ";" ] ,
+                      [ "domain" , "=" , qualified-name , ";" ] ,
+                      { property } ,
+                    "}" ;
+
+(* ============================== *)
+(* FORMULAS                       *)
+(* ============================== *)
+
+formula-def       = "formula" , identifier , "{" ,
+                      "expression" , "=" , expression , ";" ,
+                      [ "unit" , "=" , string , ";" ] ,
+                      { property } ,
+                    "}" ;
+
+expression        = term , { operator , term } ;
+term              = identifier | number | "(" , expression , ")" ;
+operator          = "+" | "-" | "*" | "/" | "**" ;
+
+(* ============================== *)
+(* RULES                          *)
+(* ============================== *)
+
+rule-def          = "rule" , identifier , "{" ,
+                      "if" , condition-expr , ";" ,
+                      "then" , action-block ,
+                      [ "else" , action-block ] ,
+                      { property } ,
+                    "}" ;
+
+action-block      = "{" , { action-def } , "}" ;
+
+action-def        = assignment
+                  | statement ;
+
+assignment        = identifier , "=" , expression , ";" ;
+statement         = identifier , "(" , [ argument-list ] , ")" , ";" ;
+
+argument-list     = expression , { "," , expression } ;
+
+(* ============================== *)
+(* CONSTRAINTS                    *)
+(* ============================== *)
+
+constraint-def    = "constraint" , identifier , "{" ,
+                      "enforce" , condition-expr , ";" ,
+                      [ "severity" , "=" , identifier , ";" ] ,
+                      { property } ,
+                    "}" ;
+
+(* ============================== *)
+(* MATRICES                       *)
+(* ============================== *)
+
+matrix-def        = "matrix" , identifier , "{" ,
+                      { matrix-row-def } ,
+                    "}" ;
+
+matrix-row-def    = identifier , "->" , identifier , ":" , number , ";" ;
+
+(* ============================== *)
+(* FUNCTIONS                      *)
+(* ============================== *)
+
+function-def      = "function" , identifier , "(" ,
+                      [ parameter-list ] ,
+                    ")" , "{" ,
+                      { statement } ,
+                      "return" , expression , ";" ,
+                    "}" ;
+
+parameter-list    = identifier , { "," , identifier } ;
+
+(* ============================== *)
+(* OPTIMIZATION                   *)
+(* ============================== *)
+
+optimizer-def     = "optimizer" , identifier , "{" ,
+                      "objective" , "=" , objective-def , ";" ,
+                      "variables" , "{" , { identifier , ";" } , "}" ,
+                      "constraints" , "{" , { qualified-name , ";" } , "}" ,
+                      { property } ,
+                    "}" ;
+
+objective-def     = "minimize" , expression
+                  | "maximize" , expression ;
+
+(* ============================== *)
+(* BAYESIAN NETWORKS              *)
+(* ============================== *)
+
+bayesian-network-def
+                  = "bayesianNetwork" , identifier , "{" ,
+                      bayes-node-block ,
+                      bayes-edge-block ,
+                      bayes-cpt-block ,
+                      inference-block ,
+                    "}" ;
+
+bayes-node-block  = "nodes" , "{" , { bayes-node-def } , "}" ;
+bayes-node-def    = identifier , "{" , { identifier , ";" } , "}" ;
+
+bayes-edge-block  = "edges" , "{" , { bayes-edge-def } , "}" ;
+bayes-edge-def    = identifier , "->" , identifier , ";" ;
+
+bayes-cpt-block   = "cpt" , "{" , { cpt-def } , "}" ;
+cpt-def           = identifier , "{" , { cpt-case-def } , "}" ;
+
+cpt-case-def      = "when" , condition-expr , ":" , { probability-def } , ";" ;
+probability-def   = identifier , "=" , number , ";" ;
+
+inference-block   = "inference" , identifier , "{" ,
+                      "output" , "=" , string , ";" ,
+                    "}" ;
+
+(* ============================== *)
+(* DECISION TABLES                *)
+(* ============================== *)
+
+decision-table-def
+                  = "decisionTable" , identifier , "{" ,
+                      "inputs" , "{" , { identifier , ";" } , "}" ,
+                      "outputs" , "{" , { identifier , ";" } , "}" ,
+                      { decision-row-def } ,
+                    "}" ;
+
+decision-row-def  = "row" , "{" ,
+                      "when" , condition-expr , ";" ,
+                      "emit" , identifier , ";" ,
+                    "}" ;
+
+(* ============================== *)
+(* POLICIES                       *)
+(* ============================== *)
+
+policy-def        = "policy" , identifier , "{" ,
+                      "intent" , "=" , string , ";" ,
+                      [ "scope" , "=" , string , ";" ] ,
+                      { rule-ref } ,
+                      { property } ,
+                    "}" ;
+
+rule-ref          = "use" , "rule" , qualified-name , ";" ;
+
+(* ============================== *)
+(* CONDITIONS                     *)
+(* ============================== *)
+
+condition-expr    = boolean-expr ;
+
+boolean-expr      = boolean-term , { logical-op , boolean-term } ;
+boolean-term      = comparison-expr
+                  | "(" , boolean-expr , ")" ;
+
+comparison-expr   = identifier , comparator , value ;
+comparator        = "==" | "!=" | ">" | ">=" | "<" | "<=" ;
+value             = identifier | number | string | boolean ;
+
+logical-op        = "and" | "or" ;
+
+(* ============================== *)
+(* ANNOTATIONS & PROPERTIES       *)
+(* ============================== *)
+
+annotation-def    = "@" , identifier , [ "(" , annotation-args , ")" ] , ";" ;
+annotation-args   = annotation-arg , { "," , annotation-arg } ;
+annotation-arg    = identifier , "=" , scalar ;
+
+property          = identifier , "=" , scalar , ";" ;
+
+(* ============================== *)
+(* END                            *)
+(* ============================== *)

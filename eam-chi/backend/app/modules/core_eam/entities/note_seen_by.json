@@ -1,0 +1,30 @@
+{
+  "name": "note_seen_by",
+  "label": "Note Seen By",
+  "module": "Enterprise",
+  "table_name": "note_seen_by",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "naming": "NSB-{#####}",
+  "is_child_table": true,
+  "fields": [
+    {
+      "name": "note",
+      "label": "Note",
+      "field_type": "link",
+      "link_entity": "note"
+    },
+    {
+      "name": "user",
+      "label": "User",
+      "field_type": "link",
+      "link_entity": "users"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "group": "Enterprise"
+}

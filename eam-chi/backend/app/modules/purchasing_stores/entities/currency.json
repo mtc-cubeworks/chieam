@@ -1,0 +1,44 @@
+{
+  "name": "currency",
+  "label": "Currency",
+  "module": "Procurement",
+  "table_name": "currency",
+  "title_field": "currency_name",
+  "in_sidebar": 1,
+  "naming": "CUR-{#####}",
+  "icon": "dollar-sign",
+  "group": "Reference Data",
+  "search": true,
+  "fields": [
+    {
+      "name": "currency_name",
+      "label": "Currency Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "symbol",
+      "label": "Symbol",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "conversion_factor",
+      "label": "Conversion Factor",
+      "field_type": "float",
+      "in_list_view": true
+    },
+    {
+      "name": "active",
+      "label": "Active",
+      "field_type": "boolean",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "name": "work_order",
+  "label": "Work Order",
+  "module": "Work Management",
+  "table_name": "work_order",
+  "title_field": "description",
+  "in_sidebar": 1,
+  "naming": "WO-{#####}",
+  "icon": "clipboard",
+  "group": "Work Orders",
+  "search": true,
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "initial_state": "Requested",
+    "states": [
+      "Requested",
+      "Approved",
+      "In Progress",
+      "Closed"
+    ],
+    "transitions": [
+      {
+        "from": "Requested",
+        "to": "Approved",
+        "action": "Approve",
+        "label": "Approve"
+      },
+      {
+        "from": "Approved",
+        "to": "In Progress",
+        "action": "Start",
+        "label": "Start"
+      },
+      {
+        "from": "In Progress",
+        "to": "Closed",
+        "action": "Complete",
+        "label": "Complete"
+      },
+      {
+        "from": "Closed",
+        "to": "In Progress",
+        "action": "Reopen",
+        "label": "Reopen"
+      }
+    ]
+  },
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "work_order_type",
+      "label": "Type",
+      "field_type": "select",
+      "options": [
+        "Preventive Maintenance",
+        "Corrective Maintenance"
+      ],
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "category_of_failure",
+      "label": "Category of Failure",
+      "field_type": "link",
+      "link_entity": "category_of_failure"
+    },
+    {
+      "name": "due_date",
+      "label": "Due Date",
+      "field_type": "date",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "priority",
+      "label": "Priority",
+      "field_type": "select",
+      "options": [
+        "Low",
+        "Medium",
+        "High",
+        "Emergency"
+      ],
+      "in_list_view": true
+    },
+    {
+      "name": "severity",
+      "label": "Severity",
+      "field_type": "select",
+      "options": [
+        "Low",
+        "Medium",
+        "High"
+      ]
+    },
+    {
+      "name": "incident",
+      "label": "Incident",
+      "field_type": "link",
+      "link_entity": "incident"
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department",
+      "required": false
+    },
+    {
+      "name": "cost_code",
+      "label": "Cost Code",
+      "field_type": "link",
+      "link_entity": "cost_code",
+      "required": false
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "work_order_activity",
+      "fk_field": "work_order",
+      "label": "Activities"
+    }
+  ],
+  "form_state": {
+    "editable_when": {
+      "workflow_state": [
+        "requested"
+      ]
+    }
+  }
+}

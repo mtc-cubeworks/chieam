@@ -1,0 +1,79 @@
+{
+  "name": "work_order_checklist",
+  "label": "Work Order Checklist",
+  "module": "Work Management",
+  "table_name": "work_order_checklist",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "WOCHK-{#####}",
+  "icon": "check-square",
+  "group": "Work Execution",
+  "search": true,
+  "fields": [
+    {
+      "name": "work_order_activity",
+      "label": "Activity",
+      "field_type": "link",
+      "link_entity": "work_order_activity",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "checklist",
+      "label": "Checklist",
+      "field_type": "link",
+      "link_entity": "checklist",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "inspector_id",
+      "label": "Inspector",
+      "field_type": "link",
+      "link_entity": "employee",
+      "in_list_view": true
+    },
+    {
+      "name": "inspector_name",
+      "label": "Inspector Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "inspection_date",
+      "label": "Inspection Date",
+      "field_type": "date",
+      "in_list_view": true
+    },
+    {
+      "name": "remarks",
+      "label": "Remarks",
+      "field_type": "text",
+      "in_list_view": true
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "field_type": "select",
+      "options": [
+        "Pending",
+        "Completed",
+        "In Progress",
+        "Failed"
+      ]
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "work_order_checklist_detail",
+      "fk_field": "work_order_checklist",
+      "label": "Checklist Details"
+    }
+  ]
+}

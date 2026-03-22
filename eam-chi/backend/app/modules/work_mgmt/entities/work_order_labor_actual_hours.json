@@ -1,0 +1,66 @@
+{
+  "name": "work_order_labor_actual_hours",
+  "label": "Work Order Labor Actual Hours",
+  "module": "Work Management",
+  "table_name": "work_order_labor_actual_hours",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "naming": "WLAHR-{#####}",
+  "icon": "clock",
+  "group": "Work Resources",
+  "fields": [
+    {
+      "name": "wo_labor_id",
+      "label": "Labor",
+      "field_type": "link",
+      "link_entity": "work_order_labor"
+    },
+    {
+      "name": "date",
+      "label": "Date",
+      "field_type": "date",
+      "in_list_view": true
+    },
+    {
+      "name": "time",
+      "label": "Time",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "reason",
+      "label": "Reason",
+      "field_type": "text",
+      "in_list_view": true
+    },
+    {
+      "name": "comment",
+      "label": "Comment",
+      "field_type": "text",
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department"
+    },
+    {
+      "name": "cost_code",
+      "label": "Cost Code",
+      "field_type": "link",
+      "link_entity": "cost_code"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

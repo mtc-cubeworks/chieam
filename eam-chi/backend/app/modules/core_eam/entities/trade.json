@@ -1,0 +1,63 @@
+{
+  "name": "trade",
+  "label": "Trade",
+  "module": "Enterprise",
+  "table_name": "trade",
+  "title_field": "trade_name",
+  "in_sidebar": 1,
+  "naming": "TRD-{#####}",
+  "icon": "hammer",
+  "group": "Trades",
+  "search": true,
+  "links": [
+    {
+      "entity": "trade_labor",
+      "fk_field": "trade",
+      "label": "Labor Resources"
+    },
+    {
+      "entity": "trade_availability",
+      "fk_field": "trade",
+      "label": "Availability"
+    }
+  ],
+  "fields": [
+    {
+      "name": "trade_name",
+      "label": "Trade Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "on_staff",
+      "label": "On Staff",
+      "field_type": "boolean",
+      "in_list_view": true
+    },
+    {
+      "name": "licensed",
+      "label": "Licensed",
+      "field_type": "boolean",
+      "in_list_view": true
+    },
+    {
+      "name": "available_capacity",
+      "label": "Available Capacity",
+      "field_type": "int",
+      "hidden": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

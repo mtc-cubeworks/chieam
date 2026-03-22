@@ -1,0 +1,57 @@
+{
+  "name": "reason_code",
+  "label": "Reason Code",
+  "module": "Procurement",
+  "table_name": "reason_code",
+  "title_field": "code",
+  "in_sidebar": 1,
+  "naming": "RCD-{#####}",
+  "icon": "tag",
+  "group": "Reference Data",
+  "search": true,
+  "fields": [
+    {
+      "name": "code",
+      "label": "Code",
+      "field_type": "string"
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text"
+    },
+    {
+      "name": "movement_type",
+      "label": "Movement Type",
+      "field_type": "select",
+      "options": [
+        "Gain",
+        "Loss",
+        "Reclass",
+        "No-Value"
+      ]
+    },
+    {
+      "name": "default_debit_account",
+      "label": "Debit Account",
+      "field_type": "link",
+      "link_entity": "account"
+    },
+    {
+      "name": "default_credit_account",
+      "label": "Credit Account",
+      "field_type": "link",
+      "link_entity": "account"
+    },
+    {
+      "name": "approval_threshold",
+      "label": "Approval Threshold",
+      "field_type": "string"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

@@ -1,0 +1,262 @@
+{
+  "name": "work_order_activity",
+  "label": "Work Order Activity",
+  "module": "Work Management",
+  "table_name": "work_order_activity",
+  "title_field": "description",
+  "in_sidebar": 1,
+  "naming": "WOACT-{#####}",
+  "icon": "activity",
+  "group": "Work Orders",
+  "search": true,
+  "actions": [
+    {
+      "action": "generate_templated_pma",
+      "label": "Generate Planned Maintenance Activity",
+      "method": "app.modules.work_mgmt.apis.work_order_activity_actions.generate_templated_pma",
+      "confirm": "Generate a Planned Maintenance Activity from this Work Order Activity?",
+      "show_when": {
+        "workflow_state": [
+          "Completed",
+          "Closed"
+        ]
+      }
+    }
+  ],
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "initial_state": "Awaiting Resources",
+    "states": [
+      "Awaiting Resources",
+      "Ready",
+      "In Progress",
+      "On Hold",
+      "Completed",
+      "Closed"
+    ],
+    "transitions": [
+      {
+        "from": "Awaiting Resources",
+        "to": "Ready",
+        "action": "Allocate",
+        "label": "Allocate"
+      },
+      {
+        "from": "Ready",
+        "to": "In Progress",
+        "action": "Start_Activity",
+        "label": "Start Activity"
+      },
+      {
+        "from": "In Progress",
+        "to": "On Hold",
+        "action": "Put_On_Hold",
+        "label": "Put On Hold"
+      },
+      {
+        "from": "In Progress",
+        "to": "Completed",
+        "action": "Complete",
+        "label": "Complete"
+      },
+      {
+        "from": "On Hold",
+        "to": "In Progress",
+        "action": "Resume",
+        "label": "Resume"
+      },
+      {
+        "from": "Completed",
+        "to": "In Progress",
+        "action": "Reopen",
+        "label": "Reopen"
+      },
+      {
+        "from": "Completed",
+        "to": "Closed",
+        "action": "Close",
+        "label": "Close"
+      }
+    ]
+  },
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "work_order",
+      "label": "Work Order",
+      "field_type": "link",
+      "link_entity": "work_order"
+    },
+    {
+      "name": "work_order_name",
+      "label": "Work Order Name",
+      "field_type": "text",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "work_item_type",
+      "label": "Work Item Type",
+      "field_type": "select",
+      "options": [
+        "Asset",
+        "Non-Asset"
+      ],
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "work_item",
+      "label": "Work Item",
+      "field_type": "link",
+      "link_entity": "asset",
+      "in_list_view": true
+    },
+    {
+      "name": "asset_name",
+      "label": "Asset Name",
+      "field_type": "text",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "activity_type",
+      "label": "Activity Type",
+      "field_type": "query_link",
+      "query": {
+        "key": "request_activity_type"
+      },
+      "filter_by": "work_item"
+    },
+    {
+      "name": "activity_type_name",
+      "label": "Activity Type Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "position",
+      "label": "Position",
+      "field_type": "link",
+      "link_entity": "position"
+    },
+    {
+      "name": "assigned_to",
+      "label": "Assigned To",
+      "field_type": "link",
+      "link_entity": "labor"
+    },
+    {
+      "name": "does_it_need_repair",
+      "label": "Needs Repair",
+      "field_type": "boolean"
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "required": false
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department",
+      "required": false
+    },
+    {
+      "name": "start_date",
+      "label": "Start Date",
+      "field_type": "datetime",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "end_date",
+      "label": "End Date",
+      "field_type": "datetime",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "form_state": {
+    "editable_when": {
+      "workflow_state": [
+        "awaiting_resources",
+        "ready"
+      ]
+    }
+  },
+  "links": [
+    {
+      "entity": "work_order_equipment",
+      "fk_field": "work_order_activity",
+      "label": "Equipment"
+    },
+    {
+      "entity": "work_order_parts",
+      "fk_field": "work_order_activity",
+      "label": "Parts"
+    },
+    {
+      "entity": "work_order_labor",
+      "fk_field": "work_order_activity",
+      "label": "Labor"
+    },
+    {
+      "entity": "work_order_checklist",
+      "fk_field": "work_order_activity",
+      "label": "Checklists"
+    },
+    {
+      "entity": "work_order_activity_logs",
+      "fk_field": "work_order_activity",
+      "label": "Activity Logs"
+    },
+    {
+      "entity": "purchase_request",
+      "fk_field": "work_activity_id",
+      "label": "Purchase Requests"
+    },
+    {
+      "entity": "transfer",
+      "fk_field": "work_order_activity",
+      "label": "Transfers"
+    },
+    {
+      "entity": "item_issue",
+      "fk_field": "work_order_activity",
+      "label": "Item Issues"
+    },
+    {
+      "entity": "item_return",
+      "fk_field": "work_order_activity",
+      "label": "Item Returns"
+    }
+  ]
+}

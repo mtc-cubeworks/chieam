@@ -1,0 +1,45 @@
+{
+  "name": "checklist",
+  "label": "Checklist",
+  "module": "Maintenance Management",
+  "table_name": "checklist",
+  "title_field": "checklist_name",
+  "in_sidebar": 1,
+  "naming": "CHK-{#####}",
+  "icon": "clipboard-list",
+  "group": "Maintenance Execution",
+  "search": true,
+  "fields": [
+    {
+      "name": "checklist_name",
+      "label": "Checklist Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "checklist_type",
+      "label": "Type",
+      "field_type": "select",
+      "options": [
+        "Receiving",
+        "Maintenance",
+        "Inspection",
+        "Safety"
+      ],
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "checklist_details",
+      "fk_field": "checklist",
+      "label": "Checklist Details"
+    }
+  ]
+}

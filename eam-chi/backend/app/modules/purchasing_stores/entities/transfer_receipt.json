@@ -1,0 +1,64 @@
+{
+  "name": "transfer_receipt",
+  "label": "Transfer Receipt",
+  "module": "Procurement",
+  "table_name": "transfer_receipt",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "TRR-{######}",
+  "icon": "check-circle",
+  "group": "Warehouse Movement",
+  "search": true,
+  "fields": [
+    {
+      "name": "transfer_request",
+      "label": "Transfer Request",
+      "field_type": "link",
+      "link_entity": "transfer",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "inventory",
+      "label": "Inventory",
+      "field_type": "link",
+      "link_entity": "inventory",
+      "in_list_view": true
+    },
+    {
+      "name": "unit_of_measure",
+      "label": "UoM",
+      "field_type": "link",
+      "link_entity": "unit_of_measure",
+      "readonly": true,
+      "fetch_from": "inventory.unit_of_measure"
+    },
+    {
+      "name": "date_received",
+      "label": "Date Received",
+      "field_type": "date",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "receiving_location",
+      "label": "Receiving Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

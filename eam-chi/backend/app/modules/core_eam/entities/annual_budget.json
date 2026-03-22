@@ -1,0 +1,48 @@
+{
+  "name": "annual_budget",
+  "label": "Annual Budget",
+  "module": "Enterprise",
+  "table_name": "annual_budget",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "AB-{####}",
+  "icon": "calendar-range",
+  "group": "Finance",
+  "search": true,
+  "fields": [
+    {
+      "name": "cost_code",
+      "label": "Cost Code",
+      "field_type": "link",
+      "link_entity": "cost_code",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "cost_code_name",
+      "label": "Cost Code Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "year",
+      "label": "Year",
+      "field_type": "int",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "budgetary_amount",
+      "label": "Budgetary Amount",
+      "field_type": "float",
+      "required": false,
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

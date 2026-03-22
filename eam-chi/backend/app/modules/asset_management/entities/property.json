@@ -1,0 +1,61 @@
+{
+  "name": "property",
+  "label": "Property",
+  "module": "Asset Management",
+  "table_name": "property",
+  "title_field": "name",
+  "in_sidebar": 1,
+  "naming": "PROP-{####}",
+  "icon": "list",
+  "group": "Assets",
+  "search": true,
+  "fields": [
+    {
+      "name": "name",
+      "label": "Property Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "unit_of_measure",
+      "label": "Unit of Measure",
+      "field_type": "link",
+      "link_entity": "unit_of_measure",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "property_type",
+      "label": "Property Type",
+      "field_type": "link",
+      "link_entity": "property_type",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "system",
+      "label": "System",
+      "field_type": "boolean"
+    },
+    {
+      "name": "inactive",
+      "label": "Inactive",
+      "field_type": "boolean"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [],
+  "form_state": {}
+}

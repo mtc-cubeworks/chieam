@@ -1,0 +1,104 @@
+{
+  "name": "labor",
+  "label": "Labor",
+  "module": "Enterprise",
+  "table_name": "labor",
+  "title_field": "laborer",
+  "in_sidebar": 1,
+  "naming": "LBR-{#####}",
+  "icon": "wrench",
+  "group": "Labor",
+  "search": true,
+  "links": [
+    {
+      "entity": "labor_availability",
+      "fk_field": "labor",
+      "label": "Availability"
+    },
+    {
+      "entity": "trade_labor",
+      "fk_field": "labor",
+      "label": "Trades"
+    }
+  ],
+  "fields": [
+    {
+      "name": "labor_type",
+      "label": "Type",
+      "field_type": "select",
+      "options": [
+        "Employee",
+        "Contractor"
+      ],
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "labor_group",
+      "label": "Group",
+      "field_type": "link",
+      "link_entity": "labor_group",
+      "in_list_view": true
+    },
+    {
+      "name": "labor_group_name",
+      "label": "Group Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "employee",
+      "label": "Employee",
+      "field_type": "link",
+      "link_entity": "employee",
+      "depends_on": "labor_type=='Employee'",
+      "in_list_view": true
+    },
+    {
+      "name": "contractor",
+      "label": "Contractor",
+      "field_type": "link",
+      "link_entity": "contractor",
+      "depends_on": "labor_type=='Contractor'",
+      "in_list_view": true
+    },
+    {
+      "name": "laborer",
+      "label": "Laborer",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "in_list_view": true
+    },
+    {
+      "name": "location_name",
+      "label": "Location Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "pr_line_no",
+      "label": "PR Line No",
+      "field_type": "string",
+      "depends_on": "labor_type=='Contractor'"
+    },
+    {
+      "name": "labor_cost",
+      "label": "Labor Cost",
+      "field_type": "float"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "name": "work_schedule_details",
+  "label": "Work Schedule Details",
+  "module": "Enterprise",
+  "table_name": "work_schedule_details",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "naming": "WSCHEDD-{#####}",
+  "fields": [
+    {
+      "name": "work_schedule",
+      "label": "Work Schedule",
+      "field_type": "link",
+      "link_entity": "work_schedule"
+    },
+    {
+      "name": "day",
+      "label": "Day",
+      "field_type": "select",
+      "options": [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "in_list_view": true
+    },
+    {
+      "name": "start_time",
+      "label": "Start Time",
+      "field_type": "time",
+      "in_list_view": true
+    },
+    {
+      "name": "end_time",
+      "label": "End Time",
+      "field_type": "time",
+      "in_list_view": true
+    },
+    {
+      "name": "is_working",
+      "label": "Is Working",
+      "field_type": "boolean",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "group": "Scheduling"
+}

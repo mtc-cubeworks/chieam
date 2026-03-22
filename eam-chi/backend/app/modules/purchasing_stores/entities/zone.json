@@ -1,0 +1,45 @@
+{
+  "name": "zone",
+  "label": "Zone",
+  "module": "Procurement",
+  "table_name": "zone",
+  "title_field": "zone_name",
+  "in_sidebar": 1,
+  "naming": "ZN-{#####}",
+  "icon": "map-pin",
+  "group": "Warehouse Structure",
+  "search": true,
+  "fields": [
+    {
+      "name": "zone_name",
+      "label": "Zone",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "store",
+      "label": "Store",
+      "field_type": "link",
+      "link_entity": "store",
+      "in_list_view": true
+    },
+    {
+      "name": "store_name",
+      "label": "Store Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

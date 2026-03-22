@@ -1,0 +1,140 @@
+{
+  "name": "purchase_order",
+  "label": "Purchase Order",
+  "module": "Procurement",
+  "table_name": "purchase_order",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "PO-{#####}",
+  "icon": "file-text",
+  "group": "Purchasing",
+  "search": true,
+  "children": [
+    {
+      "entity": "purchase_order_line",
+      "fk_field": "po_id",
+      "label": "Lines"
+    }
+  ],
+  "links": [],
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "initial_state": "Draft",
+    "states": [
+      "Draft",
+      "Open",
+      "Closed",
+      "Rejected",
+      "Cancelled"
+    ],
+    "transitions": [
+      {
+        "from": "Draft",
+        "to": "Open",
+        "action": "Approve",
+        "label": "Approve"
+      },
+      {
+        "from": "Draft",
+        "to": "Rejected",
+        "action": "Reject",
+        "label": "Reject"
+      },
+      {
+        "from": "Open",
+        "to": "Closed",
+        "action": "Complete",
+        "label": "Complete"
+      },
+      {
+        "from": "Open",
+        "to": "Cancelled",
+        "action": "Cancel",
+        "label": "Cancel"
+      }
+    ]
+  },
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "source_rfq",
+      "label": "Source RFQ",
+      "field_type": "string",
+      "required": false
+    },
+    {
+      "name": "vendor",
+      "label": "Vendor",
+      "field_type": "link",
+      "link_entity": "vendor",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "vendor_name",
+      "label": "Vendor Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "date_ordered",
+      "label": "Date Ordered",
+      "field_type": "date",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "total_amount",
+      "label": "Total Amount",
+      "field_type": "float",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department",
+      "required": true
+    },
+    {
+      "name": "cost_code",
+      "label": "Cost Code",
+      "field_type": "link",
+      "link_entity": "cost_code",
+      "required": false
+    }
+  ],
+  "form_state": {
+    "editable_when": {
+      "workflow_state": [
+        "draft"
+      ]
+    },
+    "can_add_children_when": {
+      "workflow_state": [
+        "draft"
+      ]
+    }
+  },
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

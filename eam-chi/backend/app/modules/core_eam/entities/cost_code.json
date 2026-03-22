@@ -1,0 +1,110 @@
+{
+  "name": "cost_code",
+  "label": "Cost Code",
+  "module": "Enterprise",
+  "table_name": "cost_code",
+  "title_field": "code",
+  "in_sidebar": 1,
+  "naming": "CC-{####}",
+  "icon": "hash",
+  "group": "Costing",
+  "search": true,
+  "links": [
+    {
+      "entity": "annual_budget",
+      "fk_field": "cost_code",
+      "label": "Annual Budgets"
+    },
+    {
+      "entity": "department",
+      "fk_field": "default_cost_code",
+      "label": "Departments"
+    },
+    {
+      "entity": "purchase_request",
+      "fk_field": "cost_code",
+      "label": "Purchase Requests"
+    },
+    {
+      "entity": "purchase_request_line",
+      "fk_field": "cost_code",
+      "label": "Lines"
+    },
+    {
+      "entity": "purchase_receipt",
+      "fk_field": "cost_code",
+      "label": "Purchase Receipts"
+    },
+    {
+      "entity": "purchase_return",
+      "fk_field": "cost_code",
+      "label": "Purchase Returns"
+    },
+    {
+      "entity": "work_order",
+      "fk_field": "cost_code",
+      "label": "Work Orders"
+    },
+    {
+      "entity": "work_order_equipment_actual_hours",
+      "fk_field": "cost_code",
+      "label": "Actual Hours"
+    },
+    {
+      "entity": "work_order_labor_actual_hours",
+      "fk_field": "cost_code",
+      "label": "Actual Hours"
+    }
+  ],
+  "fields": [
+    {
+      "name": "code",
+      "label": "Code",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "scope",
+      "label": "Scope",
+      "field_type": "select",
+      "options": [
+        "Global",
+        "Per Site"
+      ],
+      "required": false
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "depends_on": "scope=='Per Site'"
+    },
+    {
+      "name": "site_name",
+      "label": "Site Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "children": [],
+  "form_state": {},
+  "search_fields": [
+    "description",
+    "code"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "vendor",
+  "label": "Vendor",
+  "module": "Procurement",
+  "table_name": "vendor",
+  "title_field": "vendor_name",
+  "in_sidebar": 1,
+  "naming": "VND-{#####}",
+  "icon": "truck",
+  "group": "Purchasing",
+  "search": true,
+  "fields": [
+    {
+      "name": "vendor_name",
+      "label": "Vendor Name",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

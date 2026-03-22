@@ -1,0 +1,31 @@
+{
+  "name": "inventory",
+  "label": "Inventory",
+  "module": "purchasing_stores",
+  "table_name": "inventory",
+  "title_field": "name",
+  "in_sidebar": 1,
+  "naming": "INV-{#####}",
+  "icon": "archive",
+  "group": "Purchasing and Stores",
+  "search": true,
+  "fields": [
+    {
+      "name": "name",
+      "label": "Name",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

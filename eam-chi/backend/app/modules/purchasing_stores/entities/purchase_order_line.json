@@ -1,0 +1,165 @@
+{
+  "name": "purchase_order_line",
+  "label": "Purchase Order Line",
+  "module": "Procurement",
+  "table_name": "purchase_order_line",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "is_child_table": true,
+  "naming": "POL-{#####}",
+  "icon": "list",
+  "group": "Purchasing",
+  "search": true,
+  "links": [
+    {
+      "entity": "purchase_receipt",
+      "fk_field": "purchase_order_line",
+      "label": "Receipts",
+      "show_when": {
+        "workflow_state": [
+          "approved",
+          "partially_received",
+          "fully_received"
+        ]
+      }
+    }
+  ],
+  "workflow": {
+    "enabled": true,
+    "show_actions": false,
+    "state_field": "workflow_state",
+    "initial_state": "Draft",
+    "states": [
+      "Draft",
+      "Approved",
+      "Rejected",
+      "Partially Received",
+      "Fully Received",
+      "Complete",
+      "Cancelled"
+    ],
+    "transitions": []
+  },
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "po_id",
+      "label": "Purchase Order",
+      "field_type": "link",
+      "link_entity": "purchase_order",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "pr_line_id",
+      "label": "PR Line",
+      "field_type": "link",
+      "link_entity": "purchase_request_line",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "line_row_num",
+      "label": "Line Row No",
+      "field_type": "int",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "financial_asset_number",
+      "label": "Financial Asset Number",
+      "field_type": "string"
+    },
+    {
+      "name": "item_id",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "item_description",
+      "label": "Item Description",
+      "field_type": "text"
+    },
+    {
+      "name": "quantity_ordered",
+      "label": "Qty Ordered",
+      "field_type": "int",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "price",
+      "label": "Price",
+      "field_type": "float",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "quantity_received",
+      "label": "Qty Received",
+      "field_type": "int",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": true
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department",
+      "required": true
+    },
+    {
+      "name": "cost_code",
+      "label": "Cost Code",
+      "field_type": "link",
+      "link_entity": "cost_code",
+      "required": false
+    }
+  ],
+  "form_state": {
+    "editable_when": {
+      "workflow_state": [
+        "draft"
+      ]
+    },
+    "can_add_children_when": {
+      "workflow_state": [
+        "approved",
+        "partially_received"
+      ]
+    },
+    "tab_rules": [
+      {
+        "entity": "purchase_receipt",
+        "label": "Receipts",
+        "show_when": {
+          "workflow_state": [
+            "approved",
+            "partially_received",
+            "fully_received"
+          ]
+        }
+      }
+    ]
+  },
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

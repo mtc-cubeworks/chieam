@@ -1,0 +1,79 @@
+{
+  "name": "purchase_return",
+  "label": "Purchase Return",
+  "module": "Procurement",
+  "table_name": "purchase_return",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "PURTN-{#####}",
+  "icon": "rotate-ccw",
+  "group": "Receiving",
+  "search": true,
+  "fields": [
+    {
+      "name": "inventory",
+      "label": "Inventory",
+      "field_type": "link",
+      "link_entity": "inventory",
+      "in_list_view": true
+    },
+    {
+      "name": "serial_number",
+      "label": "Serial Number",
+      "field_type": "string",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "unit_of_measure",
+      "label": "UoM",
+      "field_type": "link",
+      "link_entity": "unit_of_measure",
+      "readonly": true,
+      "fetch_from": "inventory.unit_of_measure"
+    },
+    {
+      "name": "date_returned",
+      "label": "Date Returned",
+      "field_type": "date",
+      "in_list_view": true
+    },
+    {
+      "name": "quantity_returned",
+      "label": "Qty Returned",
+      "field_type": "int",
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department"
+    },
+    {
+      "name": "cost_code",
+      "label": "Cost Code",
+      "field_type": "link",
+      "link_entity": "cost_code"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

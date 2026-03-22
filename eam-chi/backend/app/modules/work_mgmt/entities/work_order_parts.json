@@ -1,0 +1,102 @@
+{
+  "name": "work_order_parts",
+  "label": "Work Order Parts",
+  "module": "Work Management",
+  "table_name": "work_order_parts",
+  "title_field": "item_name",
+  "in_sidebar": 1,
+  "naming": "WOPART-{#####}",
+  "icon": "package",
+  "group": "Work Resources",
+  "search": true,
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "work_order_activity",
+      "label": "Activity",
+      "field_type": "link",
+      "link_entity": "work_order_activity",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "work_order_activity_desc",
+      "label": "Activity Desc",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "item_name",
+      "label": "Item Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "unit_of_measure",
+      "label": "UoM",
+      "field_type": "link",
+      "link_entity": "unit_of_measure",
+      "readonly": true,
+      "fetch_from": "item.uom"
+    },
+    {
+      "name": "total_actual_qty",
+      "label": "Actual Qty",
+      "field_type": "int",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "total_avail_qty",
+      "label": "Avail Qty",
+      "field_type": "int",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "date_required",
+      "label": "Date Required",
+      "field_type": "date",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "quantity_required",
+      "label": "Qty Required",
+      "field_type": "int",
+      "required": false
+    },
+    {
+      "name": "quantity_issued",
+      "label": "Qty Issued",
+      "field_type": "int",
+      "readonly": true
+    },
+    {
+      "name": "quantity_returned",
+      "label": "Qty Returned",
+      "field_type": "int",
+      "readonly": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

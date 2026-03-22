@@ -1,0 +1,38 @@
+{
+  "name": "sensor_data",
+  "label": "Sensor Data",
+  "module": "Maintenance Management",
+  "table_name": "sensor_data",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "SNRD-{#####}",
+  "icon": "database",
+  "group": "Condition Monitoring",
+  "search": true,
+  "fields": [
+    {
+      "name": "sensor",
+      "label": "Sensor",
+      "field_type": "link",
+      "link_entity": "sensor",
+      "in_list_view": true
+    },
+    {
+      "name": "value",
+      "label": "Value",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "timestamp",
+      "label": "Timestamp",
+      "field_type": "string",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

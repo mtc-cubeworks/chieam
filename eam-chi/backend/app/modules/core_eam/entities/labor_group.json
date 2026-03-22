@@ -1,0 +1,41 @@
+{
+  "name": "labor_group",
+  "label": "Labor Group",
+  "module": "Enterprise",
+  "table_name": "labor_group",
+  "title_field": "labor_group_name",
+  "in_sidebar": 1,
+  "naming": "LBRGRP-{#####}",
+  "icon": "users-round",
+  "group": "Labor",
+  "links": [
+    {
+      "entity": "labor",
+      "fk_field": "labor_group",
+      "label": "Labor Resources"
+    },
+    {
+      "entity": "work_schedule",
+      "fk_field": "applicable_to_labor_grp",
+      "label": "Work Schedules"
+    },
+    {
+      "entity": "holiday",
+      "fk_field": "applicable_to_labor_grp",
+      "label": "Holidays"
+    }
+  ],
+  "fields": [
+    {
+      "name": "labor_group_name",
+      "label": "Group Name",
+      "field_type": "string",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

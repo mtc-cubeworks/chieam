@@ -1,0 +1,41 @@
+{
+  "name": "model",
+  "label": "Model",
+  "module": "Enterprise",
+  "table_name": "model",
+  "title_field": "model_name",
+  "in_sidebar": 1,
+  "naming": "M-{#####}",
+  "icon": "box",
+  "group": "System Configuration",
+  "search": true,
+  "fields": [
+    {
+      "name": "model_name",
+      "label": "Model Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "manufacturer",
+      "label": "Manufacturer",
+      "field_type": "link",
+      "link_entity": "manufacturer",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "manufacturer_name",
+      "label": "Manufacturer Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

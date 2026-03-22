@@ -1,0 +1,45 @@
+{
+  "name": "request_activity_type",
+  "label": "Request Activity Type",
+  "module": "Enterprise",
+  "table_name": "request_activity_type",
+  "title_field": "menu",
+  "in_sidebar": 1,
+  "naming": "RQAT-{#####}",
+  "icon": "workflow",
+  "group": "System Configuration",
+  "fields": [
+    {
+      "name": "menu",
+      "label": "Menu",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "type",
+      "label": "Type",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "state",
+      "label": "State",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "role",
+      "label": "Role",
+      "field_type": "string",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [],
+  "children": [],
+  "form_state": {}
+}

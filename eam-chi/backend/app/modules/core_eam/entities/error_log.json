@@ -1,0 +1,37 @@
+{
+  "name": "error_log",
+  "label": "Error Log",
+  "module": "Enterprise",
+  "table_name": "error_log",
+  "title_field": "title",
+  "in_sidebar": 0,
+  "naming": "ERR-{#####}",
+  "fields": [
+    {
+      "name": "status",
+      "label": "Status Code",
+      "field_type": "int",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "title",
+      "label": "Title",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "message",
+      "label": "Message",
+      "field_type": "text",
+      "required": false
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "group": "System Configuration"
+}

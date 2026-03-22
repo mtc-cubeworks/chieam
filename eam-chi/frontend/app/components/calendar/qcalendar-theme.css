@@ -1,0 +1,143 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   QCALENDAR THEME (FROM DOCS)
+
+   This file intentionally contains:
+   - QCalendar CSS variables (theme)
+   - Our app-specific task item styling
+   - Sticky header behavior
+
+   This file intentionally does NOT contain:
+   - height: 100% hacks on internal QCalendar elements
+   - layout overrides that can break scrolling
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Theme Variables: base (Light) ─────────────────────────────────────────
+   Adjusts:
+   - Borders, background, text colors
+   - Selected/range/current date styling
+   - Scrollbar colors
+   - Header font weight
+   - Resources/interval column widths
+*/
+.qcal-wrap {
+  --calendar-border: #e0e0e0 1px solid;
+  --calendar-border-section: #e0e0e0 1px dashed;
+  --calendar-border-current: #027BE3 2px solid;
+  --calendar-mini-range-connector-hover-border: #027BE3 1px dashed;
+
+  --calendar-color: #606c71;
+  --calendar-background: #ffffff;
+  --calendar-current-color: #027BE3;
+  --calendar-current-background: #00000000;
+
+  --calendar-disabled-date-color: #a1a1a1;
+  --calendar-disabled-date-background: #ffffff;
+
+  --calendar-active-date-color: #027BE3FF;
+  --calendar-active-date-background: #cce7ffff;
+
+  --calendar-outside-color: #606c71;
+  --calendar-outside-background: #00000000;
+
+  --calendar-selected-color: #027BE3;
+  --calendar-selected-background: #cce7ff;
+
+  --calendar-mini-selected-color: #027BE3;
+  --calendar-mini-selected-background: #00000000;
+  --calendar-mini-selected-label-color: #027BE3;
+  --calendar-mini-selected-label-background: #cce7ff;
+
+  --calendar-range-color: #027BE3;
+  --calendar-range-background: #cce7ff;
+
+  --calendar-mini-range-color: #cce7ff;
+  --calendar-mini-range-background: #00000000;
+  --calendar-mini-range-label-color: #cce7ff;
+  --calendar-mini-range-label-background: #cce7ff;
+  --calendar-mini-range-connector-color: #cce7ff;
+  --calendar-mini-range-hover-color: #027BE3;
+  --calendar-mini-range-firstlast-color: #cce7ff;
+  --calendar-mini-range-firstlast-background: #00000000;
+  --calendar-mini-range-firstlast-label-color: #cce7ff;
+  --calendar-mini-range-firstlast-label-background: #027BE3;
+
+  --calendar-scrollbar-track: #eeeeee;
+  --calendar-scrollbar-thumb: #888888;
+  --calendar-scrollbar-thumb-hover: #555555;
+
+  --calendar-intervals-width: 56px;
+  --calendar-resources-width: 100px;
+  --calendar-work-week-width: 30px;
+  --calendar-mini-work-week-width: 30px;
+  --calendar-work-week-font-size: 1.0em;
+  --calendar-head-font-weight: 600;
+}
+
+/* ── Theme Variables: base (Dark) ──────────────────────────────────────────
+   Adjusts the same areas as Light, but for dark mode.
+*/
+.dark .qcal-wrap {
+  --calendar-border: #71755d 1px solid;
+  --calendar-border-section: #71755d 1px dashed;
+  --calendar-border-current: #ffff66 2px solid;
+  --calendar-mini-range-connector-hover-border: #ffff66 1px dashed;
+
+  --calendar-color: #fafafa;
+  --calendar-background: #121212;
+  --calendar-current-color: #ffff66;
+  --calendar-current-background: #121212;
+
+  --calendar-disabled-date-color: #bebebe;
+  --calendar-disabled-date-background: #121212;
+
+  --calendar-active-date-color: #cce7ffff;
+  --calendar-active-date-background: #027BE3FF;
+
+  --calendar-outside-color: #bebebe;
+  --calendar-outside-background: #121212;
+
+  --calendar-selected-color: #027BE3;
+  --calendar-selected-background: #cce7ff;
+
+  --calendar-mini-selected-color: #027BE3;
+  --calendar-mini-selected-background: #00000000;
+  --calendar-mini-selected-label-color: #cce7ff;
+  --calendar-mini-selected-label-background: #027BE3;
+
+  --calendar-range-color: #027BE3;
+  --calendar-range-background: #cce7ff;
+
+  --calendar-mini-range-color: #027BE3;
+  --calendar-mini-range-background: #00000000;
+  --calendar-mini-range-label-color: #027BE3;
+  --calendar-mini-range-label-background: #cce7ff;
+  --calendar-mini-range-connector-color: #ffff66;
+  --calendar-mini-range-hover-color: #ffff66;
+  --calendar-mini-range-firstlast-color: #cce7ff;
+  --calendar-mini-range-firstlast-background: #cce7ff;
+  --calendar-mini-range-firstlast-label-color: #cce7ff;
+  --calendar-mini-range-firstlast-label-background: #ffff66;
+
+  --calendar-scrollbar-track: #eeeeee;
+  --calendar-scrollbar-thumb: #888888;
+  --calendar-scrollbar-thumb-hover: #555555;
+}
+
+/* ── Task Items (our app) ─────────────────────────────────────────────────
+   Adjusts:
+   - The visual presentation of tasks rendered inside calendar cells
+*/
+.calendar-task-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-radius: 0.25rem;
+  padding: 0.2rem;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.calendar-task-item:hover {
+  opacity: 0.7;
+}
+

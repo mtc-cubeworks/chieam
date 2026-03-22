@@ -1,0 +1,61 @@
+{
+  "name": "note",
+  "label": "Note",
+  "module": "Enterprise",
+  "table_name": "note",
+  "title_field": "title",
+  "in_sidebar": 1,
+  "naming": "hash",
+  "icon": "sticky-note",
+  "group": "System",
+  "search": true,
+  "links": [
+    {
+      "entity": "note_seen_by",
+      "fk_field": "note",
+      "label": "Seen By"
+    }
+  ],
+  "fields": [
+    {
+      "name": "title",
+      "label": "Title",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "public",
+      "label": "Public",
+      "field_type": "boolean"
+    },
+    {
+      "name": "notify_on_login",
+      "label": "Notify on Login",
+      "field_type": "boolean",
+      "depends_on": "public"
+    },
+    {
+      "name": "notify_on_every_login",
+      "label": "Notify on Every Login",
+      "field_type": "boolean",
+      "depends_on": "notify_on_login"
+    },
+    {
+      "name": "expire_notification_on",
+      "label": "Expire Notification On",
+      "field_type": "date",
+      "depends_on": "notify_on_login && public"
+    },
+    {
+      "name": "content",
+      "label": "Content",
+      "field_type": "text"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

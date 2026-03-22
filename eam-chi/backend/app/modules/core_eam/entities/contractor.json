@@ -1,0 +1,33 @@
+{
+  "name": "contractor",
+  "label": "Contractor",
+  "module": "Enterprise",
+  "table_name": "contractor",
+  "title_field": "contractor_name",
+  "in_sidebar": 1,
+  "naming": "CNTR-{#####}",
+  "icon": "hard-hat",
+  "group": "Costing",
+  "search": true,
+  "fields": [
+    {
+      "name": "contractor_name",
+      "label": "Contractor Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "labor",
+      "fk_field": "contractor",
+      "label": "Labor"
+    }
+  ]
+}

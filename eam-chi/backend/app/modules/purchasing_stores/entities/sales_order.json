@@ -1,0 +1,119 @@
+{
+  "name": "sales_order",
+  "label": "Sales Order",
+  "module": "Procurement",
+  "table_name": "sales_order",
+  "title_field": "description",
+  "in_sidebar": 1,
+  "naming": "SO-{#####}",
+  "icon": "shopping-bag",
+  "group": "Receiving",
+  "search": true,
+  "children": [
+    {
+      "entity": "sales_order_item",
+      "fk_field": "sales_order",
+      "label": "Items"
+    }
+  ],
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "default_state": "Draft",
+    "initial_state": "Draft",
+    "states": [
+      "Draft",
+      "Submitted",
+      "Approved",
+      "Cancelled"
+    ],
+    "transitions": [
+      {
+        "from": "Draft",
+        "to": "Submitted",
+        "action": "Submit",
+        "label": "Submit"
+      },
+      {
+        "from": "Submitted",
+        "to": "Approved",
+        "action": "Approve",
+        "label": "Approve"
+      },
+      {
+        "from": "Submitted",
+        "to": "Draft",
+        "action": "Return to Draft",
+        "label": "Return to Draft"
+      },
+      {
+        "from": "Draft",
+        "to": "Cancelled",
+        "action": "Cancel",
+        "label": "Cancel"
+      }
+    ]
+  },
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Status",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "string",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "customer_name",
+      "label": "Customer Name",
+      "field_type": "string",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "order_date",
+      "label": "Order Date",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "currency",
+      "label": "Currency",
+      "field_type": "link",
+      "link_entity": "currency"
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    },
+    {
+      "name": "notes",
+      "label": "Notes",
+      "field_type": "text"
+    }
+  ],
+  "form_state": {
+    "editable_when": {
+      "workflow_state": [
+        "draft"
+      ]
+    },
+    "can_add_children_when": {
+      "workflow_state": [
+        "draft"
+      ]
+    }
+  },
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

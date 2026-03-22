@@ -1,0 +1,25 @@
+{
+  "name": "property_type",
+  "label": "Property Type",
+  "module": "Asset Management",
+  "table_name": "property_type",
+  "title_field": "name",
+  "in_sidebar": 0,
+  "naming": "PT-{####}",
+  "icon": "folder",
+  "group": "Asset Classification",
+  "fields": [
+    {
+      "name": "name",
+      "label": "Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

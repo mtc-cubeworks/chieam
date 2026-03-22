@@ -1,0 +1,32 @@
+{
+  "name": "users",
+  "label": "User",
+  "module": "Enterprise",
+  "table_name": "users",
+  "title_field": "full_name",
+  "in_sidebar": 0,
+  "icon": "user",
+  "group": "Employees",
+  "fields": [
+    {
+      "name": "full_name",
+      "label": "Full Name",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "username",
+      "label": "Username",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "email",
+      "label": "Email",
+      "field_type": "string"
+    }
+  ],
+  "rbac": {
+    "SystemManager": ["*"]
+  }
+}

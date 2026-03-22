@@ -1,0 +1,68 @@
+{
+  "name": "maintenance_calendar",
+  "label": "Maintenance Calendar",
+  "module": "Maintenance Management",
+  "table_name": "maintenance_calendar",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "MTCAL-{#####}",
+  "icon": "calendar",
+  "group": "Maintenance Planning",
+  "search": true,
+  "fields": [
+    {
+      "name": "planned_maintenance_activity",
+      "label": "Planned Activity",
+      "field_type": "link",
+      "link_entity": "planned_maintenance_activity"
+    },
+    {
+      "name": "maintenance_plan",
+      "label": "Maintenance Plan",
+      "field_type": "link",
+      "link_entity": "maintenance_plan",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "maintenance_activity",
+      "label": "Activity",
+      "field_type": "link",
+      "link_entity": "maintenance_activity",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "frequency",
+      "label": "Frequency",
+      "field_type": "select",
+      "options": [
+        "Weekly",
+        "Monthly",
+        "Quarterly",
+        "Annually",
+        "Day of Week",
+        "Day of Month"
+      ],
+      "in_list_view": true
+    },
+    {
+      "name": "lead_calendar_days",
+      "label": "Lead Days",
+      "field_type": "int",
+      "in_list_view": true
+    },
+    {
+      "name": "last_maintenance_date_property",
+      "label": "Last Maintenance Property",
+      "field_type": "link",
+      "link_entity": "property",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

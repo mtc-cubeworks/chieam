@@ -1,0 +1,49 @@
+{
+  "name": "labor_availability_details",
+  "label": "Labor Availability Details",
+  "module": "Enterprise",
+  "table_name": "labor_availability_details",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "naming": "LBRAVD-{#####}",
+  "fields": [
+    {
+      "name": "labor_availability",
+      "label": "Labor Availability",
+      "field_type": "link",
+      "link_entity": "labor_availability"
+    },
+    {
+      "name": "hour",
+      "label": "Hour",
+      "field_type": "time",
+      "in_list_view": true
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "field_type": "select",
+      "options": [
+        "Available",
+        "Reserved",
+        "On Leave",
+        "Non-Working",
+        "Holiday",
+        "End Shift"
+      ],
+      "in_list_view": true
+    },
+    {
+      "name": "reason",
+      "label": "Reason",
+      "field_type": "text",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "group": "Enterprise"
+}

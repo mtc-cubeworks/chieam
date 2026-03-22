@@ -1,0 +1,351 @@
+(* UXML v3.1 — User Experience Modeling Language (Revised) *)
+
+uxml-model   = "uxml", "model", identifier, "{",
+                 { import-def },
+                 { uxml-element },
+               "}" ;
+
+import-def   = "import", string, [ "as", identifier ], ";" ;
+
+uxml-element = app-def
+             | feature-def
+             | template-def
+             | logic-def
+             | layout-def
+             | view-def
+             | flow-def
+             | component-def
+             | theme-def
+             | channel-def
+             | ui-string-set-def
+             | annotation-def
+             | security-ref ;
+
+security-ref = "security", "use", qualified-name, ";" ;
+
+template-def = "template", identifier, "(", [ template-params ], ")", "{",
+                 { uxml-element },
+               "}" ;
+
+template-params = template-param, { ",", template-param };
+template-param  = identifier, ":", qualified-name;
+
+feature-def = "feature", identifier, "{",
+                [ "label", "=", string, ";" ],
+                { feature-member },
+                { property },
+              "}" ;
+
+feature-member = "use", "view",   qualified-name, ";"
+               | "use", "flow",   qualified-name, ";"
+               | "use", "logic",  qualified-name, ";"
+               | "use", "theme",  qualified-name, ";"
+               | "config", identifier, "=", scalar, ";" ;
+
+app-def = "app", identifier, "{",
+            [ "label", "=", string, ";" ],
+            { app-member },
+          "}" ;
+
+app-member = app-channel-ref
+           | app-view-ref
+           | app-flow-ref
+           | app-layout-ref
+           | app-theme-ref
+           | app-feature-ref
+           | app-setting
+           | annotation-def ;
+
+app-channel-ref = "channel", "use", qualified-name, ";";
+app-view-ref    = "view",    "use", qualified-name, ";";
+app-flow-ref    = "flow",    "use", qualified-name, ";";
+app-layout-ref  = "layout",  "use", qualified-name, ";";
+app-theme-ref   = "theme",   "use", qualified-name, ";";
+app-feature-ref = "feature", "use", qualified-name, ";";
+app-setting     = "setting", identifier, "=", scalar, ";" ;
+
+channel-def = "channel", identifier, "{",
+                [ "label", "=", string, ";" ],
+                [ "kind",  "=", channel-kind, ";" ],
+                [ "entry-view", "=", qualified-name, ";" ],
+                { property },
+             "}" ;
+
+channel-kind = "web-app"
+             | "mobile-app"
+             | "public-webform"
+             | "admin-console"
+             | "api-console"
+             | "kiosk"
+             | identifier ;
+
+layout-def = "layout", identifier, "{",
+               [ "label", "=", string, ";" ],
+               [ "kind",  "=", layout-kind, ";" ],
+               { layout-slot-def },
+               { property },
+            "}" ;
+
+layout-kind = "shell"
+            | "page"
+            | "dialog"
+            | "drawer"
+            | "overlay"
+            | identifier ;
+
+layout-slot-def = "slot", identifier, "{",
+                    [ "region", "=", string, ";" ],
+                    [ "default-component", "=", qualified-name, ";" ],
+                    { property },
+                  "}" ;
+
+theme-def = "theme", identifier, "{",
+              [ "label", "=", string, ";" ],
+              { theme-token-def },
+           "}" ;
+
+theme-token-def = "token", identifier, "{",
+                    [ "kind",  "=", theme-token-kind, ";" ],
+                    [ "value", "=", string, ";" ],
+                    { property },
+                  "}"
+                 | "token", identifier, "=", string, ";" ;
+
+theme-token-kind = "color"
+                 | "spacing"
+                 | "font"
+                 | "shadow"
+                 | "radius"
+                 | "z-index"
+                 | "breakpoint"
+                 | "other"
+                 | identifier ;
+
+logic-def = "logic", identifier, "{",
+              [ "label", "=", string, ";" ],
+              "for-view", "=", qualified-name, ";",
+              "context",  "=", qualified-name, ";",
+              { logic-rule-def },
+              { property },
+            "}" ;
+
+logic-rule-def = "rule", identifier, "{",
+                    [ "when", "=", condition-expr, ";" ],
+                    { "require", qualified-name, ";" },
+                    { "expose",  qualified-name, ";" },
+                    { "hide",    qualified-name, ";" },
+                    { property },
+                 "}" ;
+
+view-def = "view", identifier, "{",
+             [ "label", "=", string, ";" ],
+             [ "kind",  "=", view-kind, ";" ],
+             [ "entity","=", qualified-name, ";" ],
+             [ "layout","=", qualified-name, ";" ],
+             { view-binding },
+             { view-region-def },
+             { view-action-bar-def },
+             { view-guard-def },
+             { annotation-def },
+          "}" ;
+
+view-kind = "list"
+          | "form"
+          | "detail"
+          | "dashboard"
+          | "wizard"
+          | "dialog"
+          | "sheet"
+          | "landing"
+          | "report"
+          | "custom"
+          | identifier ;
+
+view-binding = "bind", identifier, "{",
+                 [ "to", "=", binding-target, ";" ],
+                 [ "mode", "=", binding-mode, ";" ],
+                 [ "default", "=", scalar, ";" ],
+                 [ "visible-if", "=", condition-expr, ";" ],
+                 [ "enabled-if", "=", condition-expr, ";" ],
+                 [ "required-if","=", condition-expr, ";" ],
+                 { property },
+               "}" ;
+
+binding-target = qualified-name ;
+
+binding-mode = "read"
+             | "write"
+             | "two-way"
+             | identifier ;
+
+view-region-def = "region", identifier, "{",
+                    [ "label", "=", string, ";" ],
+                    [ "slot",  "=", identifier, ";" ],
+                    { region-component-ref },
+                    { property },
+                  "}" ;
+
+region-component-ref = "use", "component", qualified-name, "{",
+                         { component-override },
+                       "}"
+                      | "use", "component", qualified-name, ";" ;
+
+component-override = "prop", identifier, "=", scalar, ";"
+                   | "bind-prop", identifier, "=", binding-target, ";"
+                   | "visible-if", "=", condition-expr, ";" ;
+
+view-action-bar-def = "actions", "{",
+                        { view-action-def },
+                      "}" ;
+
+view-action-def = "action", identifier, "{",
+                    [ "label", "=", string, ";" ],
+                    [ "icon",  "=", string, ";" ],
+                    [ "when",  "=", condition-expr, ";" ],
+                    [ "invoke","=", qualified-name, ";" ],
+                    [ "use-mapping", "=", qualified-name, ";" ],
+                    [ "variant","=", string, ";" ],
+                    { property },
+                  "}" ;
+
+view-guard-def = "guard", identifier, "{",
+                   [ "when", "=", condition-expr, ";" ],
+                   [ "redirect-to", "=", qualified-name, ";" ],
+                   [ "message", "=", string, ";" ],
+                   { property },
+                 "}" ;
+
+flow-def = "flow", identifier, "{",
+             [ "label", "=", string, ";" ],
+             [ "entry", "=", qualified-name, ";" ],
+             { flow-node-def },
+             { flow-transition-def },
+             { property },
+          "}" ;
+
+flow-node-def = "step", identifier, "{",
+                  [ "label", "=", string, ";" ],
+                  [ "view",  "=", qualified-name, ";" ],
+                  [ "use-logic", "=", qualified-name, ";" ],
+                  [ "kind",  "=", flow-node-kind, ";" ],
+                  { property },
+                "}" ;
+
+flow-node-kind = "screen"
+               | "decision"
+               | "subflow"
+               | "terminal"
+               | "custom"
+               | identifier ;
+
+flow-transition-def = "transition", identifier, "{",
+                        "from", "=", identifier, ";",
+                        "to",   "=", identifier, ";",
+                        [ "when", "=", condition-expr, ";" ],
+                        [ "via-action", "=", identifier, ";" ],
+                        [ "use-mapping", "=", qualified-name, ";" ],
+                        { property },
+                      "}" ;
+
+component-def = "component", identifier, "{",
+                  [ "label", "=", string, ";" ],
+                  [ "kind",  "=", component-kind, ";" ],
+                  [ "entity","=", qualified-name, ";" ],
+                  { component-prop-def },
+                  { component-slot-def },
+                  { component-binding-def },
+                  { property },
+               "}" ;
+
+component-kind = "field"
+               | "form-section"
+               | "table"
+               | "card"
+               | "button"
+               | "badge"
+               | "filter-bar"
+               | "toolbar"
+               | "chart"
+               | "tabs"
+               | "wizard-stepper"
+               | "modal"
+               | "layout-fragment"
+               | "custom"
+               | identifier ;
+
+component-prop-def = "prop", identifier, "{",
+                       [ "type", "=", prop-type, ";" ],
+                       [ "required", "=", boolean, ";" ],
+                       [ "default", "=", scalar, ";" ],
+                       { property },
+                     "}"
+                    | "prop", identifier, ":", prop-type, ";" ;
+
+prop-type = "string"
+          | "boolean"
+          | "number"
+          | "int"
+          | "json"
+          | "enum"
+          | "any"
+          | identifier ;
+
+component-slot-def = "slot", identifier, "{",
+                       [ "label", "=", string, ";" ],
+                       [ "multiple", "=", boolean, ";" ],
+                       { property },
+                     "}" ;
+
+component-binding-def = "binding", identifier, "{",
+                          [ "to", "=", binding-target, ";" ],
+                          [ "mode", "=", binding-mode, ";" ],
+                          [ "when", "=", condition-expr, ";" ],
+                          { property },
+                        "}" ;
+
+ui-string-set-def = "strings", identifier, "{",
+                      [ "locale", "=", string, ";" ],
+                      { ui-string-entry },
+                   "}" ;
+
+ui-string-entry = "text", identifier, "=", string, ";" ;
+
+annotation-def = "@", identifier, [ "(", annotation-args, ")" ], ";" ;
+
+annotation-args = annotation-arg, { ",", annotation-arg };
+annotation-arg = identifier, "=", scalar;
+
+qualified-name = identifier, { ".", identifier };
+
+identifier     = letter, { letter | digit | "_" | "-" };
+
+string         = '"', { character }, '"';
+
+scalar         = string
+               | integer
+               | number
+               | boolean ;
+
+integer        = [ "-" ], digit, { digit };
+
+number         = [ "-" ], digit, { digit }, [ ".", { digit } ];
+
+boolean        = "true" | "false";
+
+letter         = "A" | "B" | "C" | "D" | "E" | "F" | "G"
+               | "H" | "I" | "J" | "K" | "L" | "M" | "N"
+               | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
+               | "V" | "W" | "X" | "Y" | "Z"
+               | "a" | "b" | "c" | "d" | "e" | "f"
+               | "g" | "h" | "i" | "j" | "k" | "l" | "m"
+               | "n" | "o" | "p" | "q" | "r" | "s" | "t"
+               | "u" | "v" | "w" | "x" | "y" | "z" ;
+
+digit          = "0" | "1" | "2" | "3" | "4"
+               | "5" | "6" | "7" | "8" | "9" ;
+
+character      = ? any valid character except " and line break ? ;
+
+property       = identifier, "=", scalar, ";" ;
+
+condition-expr = string ;

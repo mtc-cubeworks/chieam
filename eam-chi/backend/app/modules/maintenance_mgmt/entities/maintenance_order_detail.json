@@ -1,0 +1,62 @@
+{
+  "name": "maintenance_order_detail",
+  "label": "Maintenance Order Detail",
+  "module": "Maintenance Management",
+  "table_name": "maintenance_order_detail",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "naming": "MTORDD-{#####}",
+  "icon": "list",
+  "group": "Maintenance Execution",
+  "search": true,
+  "fields": [
+    {
+      "name": "maintenance_order",
+      "label": "Order",
+      "field_type": "link",
+      "link_entity": "maintenance_order",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "seq_num",
+      "label": "Seq",
+      "field_type": "int",
+      "in_list_view": true
+    },
+    {
+      "name": "maint_req",
+      "label": "Request",
+      "field_type": "link",
+      "link_entity": "maintenance_request",
+      "in_list_view": true
+    },
+    {
+      "name": "asset",
+      "label": "Asset",
+      "field_type": "link",
+      "link_entity": "asset",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "due_date",
+      "label": "Due Date",
+      "field_type": "string",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "resource_availability_status",
+      "label": "Resource Status",
+      "field_type": "string",
+      "readonly": true,
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

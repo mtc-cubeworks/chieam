@@ -1,0 +1,47 @@
+{
+  "name": "asset_class_property",
+  "label": "Asset Class Property",
+  "module": "Asset Management",
+  "table_name": "asset_class_property",
+  "title_field": "property",
+  "in_sidebar": 0,
+  "naming": "ACP-{####}",
+  "icon": "sliders",
+  "group": "Asset Classification",
+  "fields": [
+    {
+      "name": "asset_class",
+      "label": "Asset Class",
+      "field_type": "link",
+      "link_entity": "asset_class",
+      "in_list_view": true
+    },
+    {
+      "name": "property",
+      "label": "Property",
+      "field_type": "link",
+      "link_entity": "property",
+      "in_list_view": true
+    },
+    {
+      "name": "unit_of_measure",
+      "label": "Unit of Measure",
+      "field_type": "link",
+      "link_entity": "unit_of_measure",
+      "readonly": true,
+      "in_list_view": true,
+      "fetch_from": "property.unit_of_measure"
+    },
+    {
+      "name": "default_value",
+      "label": "Default Value",
+      "field_type": "string",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

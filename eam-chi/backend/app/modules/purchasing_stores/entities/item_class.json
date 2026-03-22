@@ -1,0 +1,103 @@
+{
+  "name": "item_class",
+  "label": "Item Class",
+  "module": "Procurement",
+  "table_name": "item_class",
+  "title_field": "item_class_name",
+  "in_sidebar": 1,
+  "naming": "ITMCL-{#####}",
+  "icon": "layers",
+  "group": "Item Catalog",
+  "search": true,
+  "fields": [
+    {
+      "name": "item_class_name",
+      "label": "Item Class",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "item_class_type",
+      "label": "Type",
+      "field_type": "select",
+      "options": [
+        "Fixed Asset Item",
+        "Asset Item",
+        "Inventory Item",
+        "Non Inventory Item",
+        "Service Item"
+      ],
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "asset_class",
+      "label": "Asset Class",
+      "field_type": "link",
+      "link_entity": "asset_class"
+    },
+    {
+      "name": "parent_item_class",
+      "label": "Parent Class",
+      "field_type": "link",
+      "link_entity": "item_class"
+    },
+    {
+      "name": "default_uom",
+      "label": "Default UoM",
+      "field_type": "link",
+      "link_entity": "unit_of_measure"
+    },
+    {
+      "name": "valuation_method",
+      "label": "Valuation Method",
+      "field_type": "select",
+      "options": [
+        "LIFO",
+        "FIFO",
+        "Weighted AVG"
+      ]
+    },
+    {
+      "name": "account",
+      "label": "Account",
+      "field_type": "link",
+      "link_entity": "account"
+    },
+    {
+      "name": "inventory_tracking",
+      "label": "Inventory Tracking",
+      "field_type": "boolean"
+    },
+    {
+      "name": "is_serialized",
+      "label": "Is Serialized",
+      "field_type": "boolean"
+    },
+    {
+      "name": "is_active",
+      "label": "Is Active",
+      "field_type": "boolean"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "item_class",
+      "fk_field": "parent_item_class",
+      "label": "Sub-Classes"
+    }
+  ]
+}

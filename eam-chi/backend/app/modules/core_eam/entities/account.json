@@ -1,0 +1,67 @@
+{
+  "name": "account",
+  "label": "Account",
+  "module": "Enterprise",
+  "table_name": "account",
+  "title_field": "account_name",
+  "in_sidebar": 1,
+  "naming": "ACCT-{####}",
+  "icon": "wallet",
+  "group": "Finance",
+  "search": true,
+  "fields": [
+    {
+      "name": "account_code",
+      "label": "Account Code",
+      "field_type": "string",
+      "required": false
+    },
+    {
+      "name": "account_name",
+      "label": "Account Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "account_type",
+      "label": "Account Type",
+      "field_type": "select",
+      "options": [
+        "Labor",
+        "Material",
+        "Service",
+        "Equipment",
+        "Overhead"
+      ],
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "item_class",
+      "fk_field": "account",
+      "label": "Sub-Classes"
+    },
+    {
+      "entity": "item",
+      "fk_field": "inventory_adjustment_account",
+      "label": "Items"
+    },
+    {
+      "entity": "inventory_adjustment",
+      "fk_field": "cost_center",
+      "label": "Inventory Adjustments"
+    },
+    {
+      "entity": "inventory_adjustment_line",
+      "fk_field": "inventory_adjustment_account",
+      "label": "Lines"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "name": "maintenance_activity",
+  "label": "Maintenance Activity",
+  "module": "Maintenance Management",
+  "table_name": "maintenance_activity",
+  "title_field": "activity_name",
+  "in_sidebar": 1,
+  "naming": "MTACT-{#####}",
+  "icon": "wrench",
+  "group": "Maintenance Execution",
+  "search": true,
+  "fields": [
+    {
+      "name": "activity_name",
+      "label": "Activity Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "maintenance_parts",
+      "fk_field": "maintenance_activity",
+      "label": "Parts"
+    },
+    {
+      "entity": "maintenance_trade",
+      "fk_field": "maintenance_activity",
+      "label": "Trades"
+    },
+    {
+      "entity": "maintenance_equipment",
+      "fk_field": "maintenance_activity",
+      "label": "Equipment"
+    }
+  ]
+}

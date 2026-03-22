@@ -1,0 +1,74 @@
+{
+  "name": "maintenance_interval",
+  "label": "Maintenance Interval",
+  "module": "Maintenance Management",
+  "table_name": "maintenance_interval",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "MTINT-{#####}",
+  "icon": "clock",
+  "group": "Maintenance Configuration",
+  "search": true,
+  "fields": [
+    {
+      "name": "planned_maintenance_activity",
+      "label": "Planned Activity",
+      "field_type": "link",
+      "link_entity": "planned_maintenance_activity"
+    },
+    {
+      "name": "maintenance_plan",
+      "label": "Maintenance Plan",
+      "field_type": "link",
+      "link_entity": "maintenance_plan",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "maintenance_activity",
+      "label": "Activity",
+      "field_type": "link",
+      "link_entity": "maintenance_activity",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "lead_interval",
+      "label": "Lead Interval",
+      "field_type": "float",
+      "in_list_view": true
+    },
+    {
+      "name": "interval",
+      "label": "Interval",
+      "field_type": "float",
+      "in_list_view": true
+    },
+    {
+      "name": "interval_unit_of_measure",
+      "label": "UoM",
+      "field_type": "link",
+      "link_entity": "unit_of_measure",
+      "in_list_view": true
+    },
+    {
+      "name": "running_interval_property",
+      "label": "Running Property",
+      "field_type": "link",
+      "link_entity": "property",
+      "in_list_view": true
+    },
+    {
+      "name": "last_interval_property",
+      "label": "Last Property",
+      "field_type": "link",
+      "link_entity": "property",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

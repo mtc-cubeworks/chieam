@@ -1,0 +1,121 @@
+{% from "_base.html" import print_styles, branding_header, print_footer %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Work Order — {{ record.id or record_id }}</title>
+  {{ print_styles() }}
+  <style>
+    .table-label { font-weight: 700; font-size: 10px; text-transform: uppercase; color: #555; display: block; margin-top: 10px; margin-bottom: 2px; }
+    .activity-block { border-top: 2px solid #e5e7eb; margin-top: 10px; padding-top: 8px; }
+    .activity-block:first-child { border-top: none; margin-top: 0; }
+  </style>
+</head>
+<body>
+<div class="print-container">
+
+  {{ branding_header(branding, title="Work Order", subtitle=record.id or record_id) }}
+
+  <!-- Work Order Details -->
+  <div class="form-section">
+    <div class="section-header"><span>Work Order Details</span></div>
+    <div class="meta-grid-4" style="margin-top:8px;">
+      <div class="meta-item">
+        <span class="label">Work Order</span>
+        <span class="value">{{ record.id or record_id }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Work Order Type</span>
+        <span class="value">{{ record.work_order_type or '' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Status</span>
+        <span class="value">{{ record.workflow_state or '' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Due Date</span>
+        <span class="value">{{ record.due_date or '' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Site</span>
+        <span class="value">{{ record.site or '' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Department</span>
+        <span class="value">{{ record.department or '' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Cost Code</span>
+        <span class="value">{{ record.cost_code or '' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Priority</span>
+        <span class="value">{{ record.priority or '' }}</span>
+      </div>
+    </div>
+  </div>
+
+  {% if record.description %}
+  <div class="form-section">
+    <div class="section-header"><span>Description</span></div>
+    <p class="description-field">{{ record.description }}</p>
+  </div>
+  {% endif %}
+
+  <!-- Child tables (Activities, Parts, Labor, etc.) -->
+  {% for child in children %}
+  <div class="form-section">
+    <div class="section-header"><span>{{ child.label }}</span></div>
+    {% if child.rows %}
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th style="width:28px;">#</th>
+          {% for col in child.columns %}<th>{{ col.label }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in child.rows %}
+        <tr>
+          <td class="center">{{ loop.index }}</td>
+          {% for col in child.columns %}<td>{{ row.get(col.name, '') or '' }}</td>{% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p style="font-size:11px; color:#888; padding:4px 0;">No records.</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <!-- Approvals -->
+  <div class="form-section">
+    <div class="section-header"><span>Approvals</span></div>
+    <div class="meta-grid-3" style="margin-top:8px;">
+      <div class="meta-item">
+        <span class="label">Requested by</span>
+        <span class="value">{{ record.owner or record.created_by or '' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Approved by</span>
+        <span class="value">{{ record.approved_by or '' }}</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">Checked/Evaluated by</span>
+        <span class="value">{{ record.checked_by or '' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signatures -->
+  <div class="sig-section" style="margin-top:20px;">
+    <div class="sig-block"><div class="sig-line">Requested by:</div></div>
+    <div class="sig-block"><div class="sig-line">Approved by:</div></div>
+    <div class="sig-block"><div class="sig-line">Checked/Evaluated by:</div></div>
+  </div>
+
+  {{ print_footer(branding) }}
+</div>
+</body>
+</html>

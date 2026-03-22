@@ -1,0 +1,114 @@
+{
+  "name": "item_return",
+  "label": "Item Return",
+  "module": "Procurement",
+  "table_name": "item_return",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "PARTN-{#####}",
+  "icon": "log-in",
+  "group": "Inventory Operations",
+  "search": true,
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "initial_state": "Received",
+    "states": [
+      "Received",
+      "Returned",
+      "Closed"
+    ],
+    "transitions": [
+      {
+        "from": "Received",
+        "to": "Returned",
+        "action": "Return_Item",
+        "label": "Return Item"
+      },
+      {
+        "from": "Returned",
+        "to": "Closed",
+        "action": "Complete",
+        "label": "Complete"
+      }
+    ]
+  },
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "return_type",
+      "label": "Return Type",
+      "field_type": "select",
+      "options": [
+        "WO Parts Return",
+        "WO Equipment Return"
+      ],
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "returned_by",
+      "label": "Returned By",
+      "field_type": "link",
+      "link_entity": "employee",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "date_returned",
+      "label": "Date Returned",
+      "field_type": "datetime",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "work_order_activity",
+      "label": "Work Order Activity",
+      "field_type": "link",
+      "link_entity": "work_order_activity",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false,
+      "fetch_from": "work_order_activity.site"
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department",
+      "required": false,
+      "fetch_from": "work_order_activity.department"
+    },
+    {
+      "name": "cost_code",
+      "label": "Cost Code",
+      "field_type": "link",
+      "link_entity": "cost_code",
+      "required": false
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "children": [
+    {
+      "entity": "item_return_line",
+      "fk_field": "item_return",
+      "label": "Lines"
+    }
+  ],
+  "links": []
+}

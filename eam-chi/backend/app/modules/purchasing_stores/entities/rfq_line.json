@@ -1,0 +1,111 @@
+{
+  "name": "rfq_line",
+  "label": "RFQ Line",
+  "plural_label": "RFQ Lines",
+  "module": "Procurement",
+  "table_name": "rfq_line",
+  "title_field": "item",
+  "in_sidebar": 0,
+  "is_child_table": true,
+  "naming": "RFQL-{#####}",
+  "icon": "file-text",
+  "group": "Purchasing",
+  "search": true,
+  "actions": [],
+  "fields": [
+    {
+      "name": "rfq_id",
+      "field_type": "link",
+      "label": "RFQ",
+      "link_entity": "request_for_quotation",
+      "required": false,
+      "readonly": false,
+      "hidden": false
+    },
+    {
+      "name": "pr_line",
+      "field_type": "link",
+      "label": "Purchase Request Line",
+      "link_entity": "purchase_request_line",
+      "required": false,
+      "readonly": false,
+      "hidden": false,
+      "in_list_view": true
+    },
+    {
+      "name": "item",
+      "field_type": "link",
+      "label": "Item",
+      "link_entity": "item",
+      "required": false,
+      "readonly": false,
+      "hidden": false
+    },
+    {
+      "name": "item_description",
+      "field_type": "text",
+      "label": "Item Description",
+      "required": false,
+      "readonly": false,
+      "hidden": false
+    },
+    {
+      "name": "quantity",
+      "field_type": "int",
+      "label": "Quantity",
+      "required": false,
+      "readonly": false,
+      "hidden": false
+    },
+    {
+      "name": "price",
+      "field_type": "float",
+      "label": "Price",
+      "required": false,
+      "readonly": false,
+      "hidden": false
+    }
+  ],
+  "permissions": {
+    "General Manager": [
+      "create",
+      "read",
+      "update",
+      "delete"
+    ],
+    "IT Manager": [
+      "create",
+      "read",
+      "update",
+      "delete"
+    ],
+    "Purchasing Coordinator": [
+      "create",
+      "read",
+      "update"
+    ],
+    "Purchaser": [
+      "read",
+      "update",
+      "delete"
+    ],
+    "Warehouse Coordinator": [
+      "create",
+      "read",
+      "update"
+    ],
+    "Warehouse Operator": [
+      "read"
+    ],
+    "Requestor": [
+      "read"
+    ],
+    "User Access Admin": [
+      "read",
+      "update",
+      "create"
+    ]
+  },
+  "links": [],
+  "form_state": {}
+}

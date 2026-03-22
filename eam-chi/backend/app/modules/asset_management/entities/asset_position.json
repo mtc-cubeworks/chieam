@@ -1,0 +1,44 @@
+{
+  "name": "asset_position",
+  "label": "Asset Position",
+  "module": "Asset Management",
+  "table_name": "asset_position",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "naming": "APOS-{####}",
+  "icon": "map-pin",
+  "group": "Asset Structure",
+  "fields": [
+    {
+      "name": "position",
+      "label": "Position",
+      "field_type": "link",
+      "link_entity": "position",
+      "in_list_view": true
+    },
+    {
+      "name": "asset",
+      "label": "Asset",
+      "field_type": "link",
+      "link_entity": "asset",
+      "in_list_view": true
+    },
+    {
+      "name": "date_installed",
+      "label": "Date Installed",
+      "field_type": "date",
+      "in_list_view": true
+    },
+    {
+      "name": "date_removed",
+      "label": "Date Removed",
+      "field_type": "date",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

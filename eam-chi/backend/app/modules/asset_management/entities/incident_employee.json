@@ -1,0 +1,107 @@
+{
+  "name": "incident_employee",
+  "label": "Incident Employee",
+  "module": "Asset Management",
+  "table_name": "incident_employee",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "naming": "IE-{####}",
+  "icon": "users",
+  "group": "Incidents",
+  "fields": [
+    {
+      "name": "incident",
+      "label": "Incident",
+      "field_type": "link",
+      "link_entity": "incident"
+    },
+    {
+      "name": "employee",
+      "label": "Employee",
+      "field_type": "link",
+      "link_entity": "employee",
+      "in_list_view": true
+    },
+    {
+      "name": "role_in_incident",
+      "label": "Role in Incident",
+      "field_type": "select",
+      "options": [
+        {
+          "label": "Injured",
+          "value": "Injured"
+        },
+        {
+          "label": "Witness",
+          "value": "Witness"
+        },
+        {
+          "label": "Reporter",
+          "value": "Reporter"
+        },
+        {
+          "label": "Supervisor",
+          "value": "Supervisor"
+        },
+        {
+          "label": "Investigator",
+          "value": "Investigator"
+        }
+      ],
+      "in_list_view": true
+    },
+    {
+      "name": "injured",
+      "label": "Injured",
+      "field_type": "boolean"
+    },
+    {
+      "name": "injury_severity",
+      "label": "Injury Severity",
+      "field_type": "select",
+      "options": [
+        {
+          "label": "None",
+          "value": "None"
+        },
+        {
+          "label": "Minor",
+          "value": "Minor"
+        },
+        {
+          "label": "Moderate",
+          "value": "Moderate"
+        },
+        {
+          "label": "Severe",
+          "value": "Severe"
+        },
+        {
+          "label": "Fatal",
+          "value": "Fatal"
+        }
+      ],
+      "depends_on": "eval:doc.injured == true"
+    },
+    {
+      "name": "injury_description",
+      "label": "Injury Description",
+      "field_type": "text"
+    },
+    {
+      "name": "ppe_used",
+      "label": "PPE Used",
+      "field_type": "boolean"
+    },
+    {
+      "name": "treatment",
+      "label": "Treatment",
+      "field_type": "text"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

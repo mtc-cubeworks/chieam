@@ -1,0 +1,82 @@
+{
+  "name": "sales_order_item",
+  "label": "Sales Order Item",
+  "module": "Procurement",
+  "table_name": "sales_order_item",
+  "title_field": "item",
+  "in_sidebar": false,
+  "is_child_table": true,
+  "naming": "SOI-{#####}",
+  "icon": "list",
+  "group": "Receiving",
+  "fields": [
+    {
+      "name": "sales_order",
+      "label": "Sales Order",
+      "field_type": "link",
+      "link_entity": "sales_order",
+      "required": false,
+      "hidden": true
+    },
+    {
+      "name": "row_no",
+      "label": "#",
+      "field_type": "int",
+      "readonly": true
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item",
+      "required": true
+    },
+    {
+      "name": "item_description",
+      "label": "Description",
+      "field_type": "string"
+    },
+    {
+      "name": "unit_of_measure",
+      "label": "UoM",
+      "field_type": "link",
+      "link_entity": "unit_of_measure",
+      "readonly": true,
+      "fetch_from": "item.uom"
+    },
+    {
+      "name": "qty",
+      "label": "Qty",
+      "field_type": "int",
+      "required": true
+    },
+    {
+      "name": "unit_price",
+      "label": "Unit Price",
+      "field_type": "float"
+    },
+    {
+      "name": "total_amount",
+      "label": "Total Amount",
+      "field_type": "float",
+      "readonly": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

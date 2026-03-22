@@ -1,0 +1,57 @@
+{
+  "name": "breakdown",
+  "label": "Breakdown",
+  "module": "Asset Management",
+  "table_name": "breakdown",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "BD-{####}",
+  "icon": "alert-circle",
+  "group": "Incidents",
+  "actions": [
+    {
+      "action": "create_update_equip_availability",
+      "label": "Generate Equipment Availability",
+      "method": "app.modules.asset_management.apis.breakdown.create_update_equip_availability_on_save",
+      "confirm": "Update equipment availability based on this breakdown?"
+    }
+  ],
+  "fields": [
+    {
+      "name": "equipment",
+      "label": "Equipment",
+      "field_type": "link",
+      "link_entity": "equipment",
+      "in_list_view": true
+    },
+    {
+      "name": "breakdown_date",
+      "label": "Breakdown Date",
+      "field_type": "date",
+      "in_list_view": true
+    },
+    {
+      "name": "start_time",
+      "label": "Start Time",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "end_time",
+      "label": "End Time",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "cause",
+      "label": "Cause",
+      "field_type": "text",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

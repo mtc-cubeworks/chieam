@@ -1,0 +1,49 @@
+{
+  "name": "trade_availability",
+  "label": "Trade Availability",
+  "module": "Enterprise",
+  "table_name": "trade_availability",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "TRDAV-{#####}",
+  "icon": "clock",
+  "group": "Trades",
+  "fields": [
+    {
+      "name": "trade",
+      "label": "Trade",
+      "field_type": "link",
+      "link_entity": "trade",
+      "in_list_view": true
+    },
+    {
+      "name": "specific_datetime",
+      "label": "Date/Time",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "remaining_capacity",
+      "label": "Remaining",
+      "field_type": "int",
+      "in_list_view": true
+    },
+    {
+      "name": "reserved_capacity",
+      "label": "Reserved",
+      "field_type": "int",
+      "in_list_view": true
+    },
+    {
+      "name": "available_capacity",
+      "label": "Available",
+      "field_type": "int",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

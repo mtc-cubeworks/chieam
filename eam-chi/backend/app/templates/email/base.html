@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ subject }}</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: #f4f6f9;
+      color: #1a1a2e;
+    }
+    .email-wrapper {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    .email-card {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+    .email-header {
+      background: #3b5998;
+      color: #ffffff;
+      padding: 20px 24px;
+    }
+    .email-header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .email-header .subtitle {
+      margin: 4px 0 0;
+      font-size: 13px;
+      opacity: 0.85;
+    }
+    .email-body {
+      padding: 24px;
+    }
+    .email-body p {
+      margin: 0 0 14px;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+    .record-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+    .record-table th {
+      text-align: left;
+      padding: 10px 12px;
+      background: #f0f2f5;
+      border-bottom: 1px solid #e0e0e0;
+      color: #555;
+      font-weight: 600;
+      width: 35%;
+    }
+    .record-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      color: #1a1a2e;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-info { background: #e8f0fe; color: #1a73e8; }
+    .badge-success { background: #e6f4ea; color: #137333; }
+    .badge-warning { background: #fef7e0; color: #b06000; }
+    .email-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #f0f0f0;
+      font-size: 12px;
+      color: #888;
+      text-align: center;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 24px;
+      background: #3b5998;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-card">
+      {% block header %}
+      <div class="email-header">
+        <h1>{{ subject }}</h1>
+        {% if subtitle %}
+        <div class="subtitle">{{ subtitle }}</div>
+        {% endif %}
+      </div>
+      {% endblock %}
+
+      <div class="email-body">
+        {% block content %}{% endblock %}
+      </div>
+
+      <div class="email-footer">
+        {% block footer %}
+        This is an automated notification from the EAM System. Please do not reply to this email.
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

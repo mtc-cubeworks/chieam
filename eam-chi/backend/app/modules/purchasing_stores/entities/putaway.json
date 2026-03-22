@@ -1,0 +1,95 @@
+{
+  "name": "putaway",
+  "label": "Putaway",
+  "module": "Procurement",
+  "table_name": "putaway",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "PA-{#####}",
+  "icon": "corner-down-left",
+  "group": "Warehouse Movement",
+  "search": true,
+  "fields": [
+    {
+      "name": "putaway_type",
+      "label": "Putaway Type",
+      "field_type": "select",
+      "options": [
+        "Asset",
+        "Item Return",
+        "Repair"
+      ],
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "source_data_repair",
+      "label": "Repair Source",
+      "field_type": "link",
+      "link_entity": "transfer"
+    },
+    {
+      "name": "source_data_parts_return",
+      "label": "Parts Return Source",
+      "field_type": "link",
+      "link_entity": "item_return_line"
+    },
+    {
+      "name": "source_data_asset",
+      "label": "Asset Source",
+      "field_type": "link",
+      "link_entity": "asset"
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "serial_number",
+      "label": "Serial Number",
+      "field_type": "string"
+    },
+    {
+      "name": "qty",
+      "label": "Quantity",
+      "field_type": "int",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "store",
+      "label": "Store",
+      "field_type": "link",
+      "link_entity": "store"
+    },
+    {
+      "name": "bin",
+      "label": "Bin",
+      "field_type": "link",
+      "link_entity": "bin"
+    },
+    {
+      "name": "zone",
+      "label": "Zone",
+      "field_type": "link",
+      "link_entity": "zone"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "name": "service_request",
+  "label": "Service Request",
+  "module": "Maintenance Management",
+  "table_name": "service_request",
+  "title_field": "title",
+  "in_sidebar": 1,
+  "naming": "SRQ-{#####}",
+  "icon": "clipboard",
+  "group": "Maintenance Requests",
+  "search": true,
+  "fields": [
+    {
+      "name": "title",
+      "label": "Title",
+      "field_type": "string",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "field_type": "select",
+      "options": [
+        "Draft",
+        "Submitted",
+        "In Progress",
+        "Closed",
+        "Cancelled"
+      ]
+    },
+    {
+      "name": "priority",
+      "label": "Priority",
+      "field_type": "select",
+      "options": [
+        "Low",
+        "Medium",
+        "High",
+        "Emergency"
+      ]
+    },
+    {
+      "name": "date_reported",
+      "label": "Date Reported",
+      "field_type": "date"
+    },
+    {
+      "name": "closed_date",
+      "label": "Closed Date",
+      "field_type": "date"
+    },
+    {
+      "name": "asset",
+      "label": "Asset",
+      "field_type": "link",
+      "link_entity": "asset"
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "link_entity": "location"
+    },
+    {
+      "name": "work_order",
+      "label": "Work Order",
+      "field_type": "link",
+      "link_entity": "work_order"
+    },
+    {
+      "name": "incident",
+      "label": "Incident",
+      "field_type": "link",
+      "link_entity": "incident"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

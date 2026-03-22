@@ -1,0 +1,116 @@
+﻿,General Manager,Plant Manager,Maintenance Planner,Maintenance Lead,Purchasing Coordinator,Purchaser,Warehouse Coordinator,Warehouse Operator,Requestor,Technician
+Account,SelRWCD,SelRWCD,SelR,SelR,SelRWC,SelR,SelR,SelR,SelR,Sel
+Annual Budget,SelRWCD,SelRWCD,-,-,SelRWC,-,-,-,-,-
+Asset,SelRWCD,SelRWCD,SelRWC,SelRWC,SelRWC,-,SelRWC,SelR,SelR,SelR
+Asset Class,SelRWCD,SelRWCD,SelRWC,SelR,SelR,-,SelR,SelR,SelR,-
+Asset Class Availability,-,-,-,-,-,-,-,-,-,-
+Asset Class Property,SelRWCD,SelRWCD,SelRWC,SelR,SelR,-,SelR,SelR,SelR,-
+Asset Dashboard,R,R,R,R,R,-,-,-,R,R
+Asset Position,SelRWCD,SelRWCD,SelRWC,SelR,-,-,-,-,SelR,SelR
+Asset Property,SelRWCD,SelRWCD,SelRWC,SelRWC,SelR,-,SelR,-,SelR,SelR
+Bin,SelRWCD,SelRWCD,SelR,SelR,SelR,-,SelRWC,SelR,SelR,SelR
+Breakdown,-,-,-,-,-,-,-,-,-,-
+Category Of Failure,-,-,-,-,-,-,-,-,-,SelR
+Category of Failure,SelRWCD,SelRWCD,SelRWC,SelR,-,-,-,-,-,-
+Checklist,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,SelR
+Checklist Details,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,SelR
+Contractor,SelWCD,SelRWCD,SelRWC,SelRWC,SelRWC,SelR,SelRWC,-,-,Sel
+Cost Code,SelRWCD,SelRWCD,SelR,SelR,SelRWC,SelR,SelR,SelR,SelR,SelR
+Currency,SelRWCD,SelRWCD,SelR,SelR,SelRWC,SelR,SelRWC,SelR,-,-
+Department,SelRWCD,SelRWCD,SelR,SelR,SelRWC,SelR,SelR,SelR,SelR,SelR
+Disposed,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,-
+Employee,SelRWCD,SelRWCD,SelRWC,SelR,SelR,SelR,SelR,SelR,SelR,SelR
+Employee Site,SelRWCD,SelRWCD,SelRWC,SelR,SelR,SelR,SelR,SelR,SelR,SelR
+Equipment,SelRWCD,SelRWCD,SelRWC,SelRWC,SelR,-,SelRWC,SelR,SelR,SelR
+Equipment Availability,-,-,-,-,-,-,-,-,-,-
+Equipment Availability Details,-,-,-,-,-,-,-,-,-,-
+Equipment Group,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,-,SelR
+Equipment Schedule,-,-,-,-,-,-,-,-,-,-
+Equipment Schedule Details,-,-,-,-,-,-,-,-,-,-
+Holiday,-,-,-,-,-,-,-,-,-,-
+Incident,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,OSelRWC,SelRWC
+Incident Employee,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,OSelRWC,SelRWC
+Inspection,SelRWCD,SelRWCD,-,-,SelRWC,OSelRWC,SelRWC,SelR,-,-
+Inventory,SelRWCD,SelRWCD,SelRWC,SelRWC,SelR,-,SelRWC,SelRWC,SelR,SelR
+Inventory Adjustment,SelRWCD,SelRWCD,-,-,-,-,SelRWC,-,-,-
+Inventory Adjustment Line,SelRWCD,SelRWCD,-,-,-,-,SelRWC,-,-,-
+Item,SelRWCD,SelRWCD,SelR,SelR,SelRWC,SelR,SelRWC,SelRWC,SelR,SelR
+Item Class,SelRWCD,SelRWCD,-,-,-,-,SelRWC,SelRWC,SelR,-
+Item Issue,SelRWCD,SelRWCD,SelRWC,-,-,-,SelRWC,SelRWC,-,SelR
+Item Issue Line,SelRWCD,SelRWCD,SelRWC,-,-,-,SelRWC,SelRWC,-,SelR
+Item Return,SelRWCD,SelRWCD,SelRWC,-,-,-,SelRWC,SelRWC,-,SelR
+Item Return Line,SelRWCD,SelRWCD,SelRWC,-,-,-,SelRWC,SelRWC,-,SelR
+Labor,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,-,SelR
+Labor Availability,-,-,-,-,-,-,-,-,-,-
+Labor Availability Details,-,-,-,-,-,-,-,-,-,-
+Labor Group,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,-,-
+Leave Application,-,-,-,-,-,-,-,-,-,-
+Leave Type,-,-,-,-,-,-,-,-,-,-
+Location,SelRWCD,SelRWCD,SelRWC,SelR,SelR,-,-,SelR,SelR,SelR
+Location Type,SelR,SelR,SelR,SelR,SelR,-,-,-,-,-
+Maintenance Activity,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,-
+Maintenance Calendar,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,-
+Maintenance Condition,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,-
+Maintenance Dashboard,SelRWCD,SelRWCD,R,R,-,-,-,-,R,-
+Maintenance Equipment,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,-
+Maintenance Interval,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,-
+Maintenance Order,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,-
+Maintenance Order Detail,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,-
+Maintenance Parts,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,-
+Maintenance Plan,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,-
+Maintenance Request,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,OSelRWC,-
+Maintenance Trade,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,-,-
+Manufacturer,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,-,-
+Model,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,-,-
+Note,SelRWCD,SelRWCD,SelR,SelR,SelR,SelR,SelR,SelR,SelR,-
+Organization,SelRWCD,SelRWCD,SelR,Sel,SelRWC,SelR,SelR,SelR,Sel,-
+PNID Layouts,SelRWCD,SelRWCD,SelRWCD,SelRWCD,-,-,-,-,SelRWCD,SelRWC
+Planned Maintenance Activity,SelRWCD,SelRWCD,SelRWC,OSelRWC,-,-,-,-,SelR,-
+Position,SelRWCD,SelRWCD,SelRWC,SelR,-,-,-,-,SelR,SelR
+Position Relation,SelRWCD,SelRWCD,SelRWC,SelR,-,-,-,-,SelR,SelR
+Procurement Dashboard,R,R,-,R,R,R,R,R,R,-
+Property,SelRWCD,SelRWCD,SelRWC,SelR,SelR,-,-,-,SelR,-
+Property Type,SelR,-,SelR,SelR,SelR,-,-,-,-,-
+Purchase Receipt,SelRWCD,SelRWCD,-,SelR,SelRWC,SelR,SelRWC,SelRWC,SelR,SelR
+Purchase Request,SelRWCD,SelRWCD,SelRWC,OSelRWC,SelRWC,OSelRWC,SelRWC,SelRWC,OSelRWC,SelRC
+Purchase Request Line,SelRWCD,SelRWCD,SelRWC,OSelRWC,SelRWC,OSelRWC,SelRWC,SelRWC,OSelRWC,SelR
+Purchase Return,SelRWCD,SelRWCD,-,OSelRWC,SelRWC,OSelRWC,SelRWC,SelRWC,OSelRWC,-
+Putaway,SelRWCD,SelRWCD,SelRWC,-,-,-,SelRWC,SelRWC,-,-
+RFQ Log,SelRWCD,SelRWCD,-,-,SelRWC,SelRC,SelRWC,SelR,SelR,-
+Reason Code,SelRWCD,SelRWCD,-,-,-,-,SelRWC,-,-,-
+Request Activity Type,SelR,SelR,SelR,SelR,-,-,-,-,Sel,Sel
+Sensor,SelRWCD,SelRWCD,SelRC,SelR,-,-,-,-,-,-
+SensorData,SelRW,SelRW,SelR,SelR,-,-,-,-,-,-
+Site,SelRWCD,SelRWCD,SelR,SelR,SelRWC,SelR,SelR,SelR,SelR,SelR
+Stock Count,SelRWCDImp,SelRWCDImp,-,-,-,-,SelRWC,-,-,-
+Stock Count Line,SelRWCD,SelRWCD,-,-,-,-,SelRWC,-,-,-
+Stock Count Task,-,-,-,-,-,-,-,-,-,-
+Stock Ledger Entry,-,-,-,-,-,-,-,-,-,-
+Store,SelRWCD,SelRWCD,SelR,SelR,SelR,-,SelRWC,SelR,SelR,SelR
+System,SelRWCD,SelRWCD,SelRWC,SelR,SelR,-,-,-,SelR,-
+System Type,SelR,-,SelR,SelR,SelR,-,-,-,-,-
+Trade,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,-,SelR
+Trade Availability,-,-,-,-,-,-,-,-,-,-
+Trade Labor,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,-,SelR
+Transfer,SelRWCD,SelRWCD,SelRWC,OSelRWC,SelRWC,OSelRWC,SelRWC,SelRWC,-,-
+Transfer Receipt,SelRWCD,SelRWCD,-,-,SelRWC,OSelRWC,SelRWC,SelR,-,-
+Unit Of Measure,-,-,-,-,-,-,-,-,-,SelR
+Unit of Measure,SelRWCD,SelRWCD,SelR,SelR,SelR,SelR,SelRWC,SelR,SelR,-
+Vendor,SelRWCD,SelRWCD,SelR,SelR,SelRWC,OSelRWC,SelRWC,SelR,SelR,SelR
+Work Management Dashboard,R,R,R,R,-,-,R,R,-,R
+Work Order,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,SelR,SelR,-,SelRWC
+Work Order Activity,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,SelR,SelR,-,SelRWC
+Work Order Activity Logs,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,-,SelRWC
+Work Order Checklist,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,-,SelRWC
+Work Order Checklist Detail,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,-,SelRWC
+Work Order Equipment,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,SelRWC,SelRWC,-,SelRWC
+Work Order Equipment Actual Hours,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,-,SelRWC
+Work Order Equipment Assignment,-,-,-,-,-,-,-,-,-,-
+Work Order Labor,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,SelR,SelR,-,SelRWC
+Work Order Labor Actual Hours,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,-,-,-,SelRWC
+Work Order Labor Assignment,-,-,-,-,-,-,-,-,-,-
+Work Order Parts,SelRWCD,SelRWCD,SelRWC,SelRWC,-,-,SelRWC,SelRWC,-,SelRWC
+Work Order Parts Reservation,-,-,-,-,-,-,-,-,-,-
+Work Schedule,-,-,-,-,-,-,-,-,-,-
+Work Schedule Details,-,-,-,-,-,-,-,-,-,-
+Zone,SelRWCD,SelRWCD,SelR,SelR,SelR,SelR,SelRWC,SelR,SelR,SelR

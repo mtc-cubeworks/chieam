@@ -1,0 +1,100 @@
+{
+  "name": "stock_ledger_entry",
+  "label": "Stock Ledger Entry",
+  "module": "Procurement",
+  "table_name": "stock_ledger_entry",
+  "title_field": "voucher_no",
+  "in_sidebar": 1,
+  "naming": "SLE-{#####}",
+  "icon": "book",
+  "group": "Stock Control",
+  "search": true,
+  "fields": [
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item"
+    },
+    {
+      "name": "serial_no",
+      "label": "Serial No",
+      "field_type": "string"
+    },
+    {
+      "name": "store",
+      "label": "Store",
+      "field_type": "link",
+      "link_entity": "store"
+    },
+    {
+      "name": "bin",
+      "label": "Bin",
+      "field_type": "link",
+      "link_entity": "bin"
+    },
+    {
+      "name": "posting_datetime",
+      "label": "Posting DateTime",
+      "field_type": "datetime"
+    },
+    {
+      "name": "qty_in",
+      "label": "Qty In",
+      "field_type": "int"
+    },
+    {
+      "name": "qty_out",
+      "label": "Qty Out",
+      "field_type": "int"
+    },
+    {
+      "name": "value_in",
+      "label": "Value In",
+      "field_type": "float"
+    },
+    {
+      "name": "value_out",
+      "label": "Value Out",
+      "field_type": "float"
+    },
+    {
+      "name": "balance_qty",
+      "label": "Balance Qty",
+      "field_type": "int"
+    },
+    {
+      "name": "balance_value",
+      "label": "Balance Value",
+      "field_type": "float"
+    },
+    {
+      "name": "voucher_type",
+      "label": "Voucher Type",
+      "field_type": "select",
+      "options": [
+        "Purchase Receipt",
+        "Work Issue",
+        "Transfer",
+        "Inventory Adjustment",
+        "Stock Count Reconciliation"
+      ]
+    },
+    {
+      "name": "voucher_no",
+      "label": "Voucher No",
+      "field_type": "string"
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

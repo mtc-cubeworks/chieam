@@ -1,0 +1,21 @@
+ENTITIES NOT REFERENCED BY ANY OTHER ENTITY
+============================================================
+
+  disposed (asset_management)
+  error_log (core_eam)
+  inspection (purchasing_stores)
+  item_issue_line (purchasing_stores)
+  leave_application (core_eam)
+  rfq_line (purchasing_stores)
+  sales_order_item (purchasing_stores)
+  sensor_data (maintenance_mgmt)
+  service_request (maintenance_mgmt)
+  stock_count_line (purchasing_stores)
+  stock_count_task (purchasing_stores)
+  stock_ledger_entry (purchasing_stores)
+  transfer_receipt (purchasing_stores)
+  work_order_equipment_assignment (work_mgmt)
+  work_order_labor_assignment (work_mgmt)
+  work_order_parts_reservation (work_mgmt)
+
+Total: 16

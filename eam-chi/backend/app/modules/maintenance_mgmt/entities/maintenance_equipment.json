@@ -1,0 +1,45 @@
+{
+  "name": "maintenance_equipment",
+  "label": "Maintenance Equipment",
+  "module": "Maintenance Management",
+  "table_name": "maintenance_equipment",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "MTEQP-{#####}",
+  "icon": "cog",
+  "group": "Maintenance Configuration",
+  "search": true,
+  "fields": [
+    {
+      "name": "maintenance_activity",
+      "label": "Activity",
+      "field_type": "link",
+      "link_entity": "maintenance_activity",
+      "in_list_view": true
+    },
+    {
+      "name": "equipment",
+      "label": "Equipment",
+      "field_type": "link",
+      "link_entity": "equipment",
+      "in_list_view": true
+    },
+    {
+      "name": "required_qty",
+      "label": "Qty",
+      "field_type": "int",
+      "in_list_view": true
+    },
+    {
+      "name": "required_hours",
+      "label": "Hours",
+      "field_type": "float",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

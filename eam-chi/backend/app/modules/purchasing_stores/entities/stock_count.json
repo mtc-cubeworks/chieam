@@ -1,0 +1,158 @@
+{
+  "name": "stock_count",
+  "label": "Stock Count",
+  "module": "Procurement",
+  "table_name": "stock_count",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "SC-{#####}",
+  "icon": "clipboard-list",
+  "group": "Stock Control",
+  "search": true,
+  "children": [
+    {
+      "entity": "stock_count_line",
+      "fk_field": "stock_count",
+      "label": "Lines"
+    }
+  ],
+  "links": [],
+  "actions": [
+    {
+      "action": "find_stock_count_lines",
+      "label": "Find Stock Count Lines",
+      "method": "app.modules.purchasing_stores.apis.stock_count.find_stock_count_lines",
+      "confirm": "Generate stock count lines based on inventory?",
+      "show_when": {
+        "workflow_state": [
+          "Planned"
+        ]
+      }
+    }
+  ],
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "initial_state": "Planned",
+    "states": [
+      "Planned",
+      "In Progress",
+      "Approved",
+      "Closed"
+    ],
+    "transitions": [
+      {
+        "from": "Planned",
+        "to": "In Progress",
+        "action": "Start_Stock_Count",
+        "label": "Start Stock Count"
+      },
+      {
+        "from": "In Progress",
+        "to": "Approved",
+        "action": "Approve",
+        "label": "Approve"
+      },
+      {
+        "from": "Approved",
+        "to": "Closed",
+        "action": "Complete",
+        "label": "Complete"
+      }
+    ]
+  },
+  "form_state": {
+    "editable_when": {
+      "workflow_state": [
+        "Planned"
+      ]
+    },
+    "can_add_children_when": {
+      "workflow_state": [
+        "Planned",
+        "In Progress"
+      ]
+    }
+  },
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "store",
+      "label": "Store",
+      "field_type": "link",
+      "link_entity": "store",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false,
+      "fetch_from": "store.site"
+    },
+    {
+      "name": "method",
+      "label": "Method",
+      "field_type": "select",
+      "options": [
+        "Blind",
+        "Guided"
+      ],
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "basis",
+      "label": "Basis",
+      "field_type": "select",
+      "options": [
+        "Full",
+        "ABC",
+        "Selection"
+      ],
+      "required": false
+    },
+    {
+      "name": "abc_code",
+      "label": "ABC Code",
+      "field_type": "select",
+      "options": [
+        "A",
+        "B",
+        "C"
+      ],
+      "display_depends_on": "eval:doc.basis=='ABC'"
+    },
+    {
+      "name": "freeze_policy",
+      "label": "Freeze Policy",
+      "field_type": "select",
+      "options": [
+        "None",
+        "Freeze",
+        "Warn"
+      ],
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "snapshot_at",
+      "label": "Snapshot At",
+      "field_type": "datetime",
+      "readonly": true,
+      "display_depends_on": "eval:doc.workflow_state!='Planned'"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

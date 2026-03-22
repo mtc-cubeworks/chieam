@@ -1,0 +1,39 @@
+{
+  "name": "maintenance_parts",
+  "label": "Maintenance Parts",
+  "module": "Maintenance Management",
+  "table_name": "maintenance_parts",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "MTPART-{#####}",
+  "icon": "package",
+  "group": "Maintenance Configuration",
+  "search": true,
+  "fields": [
+    {
+      "name": "maintenance_activity",
+      "label": "Activity",
+      "field_type": "link",
+      "link_entity": "maintenance_activity",
+      "in_list_view": true
+    },
+    {
+      "name": "item",
+      "label": "Part",
+      "field_type": "link",
+      "link_entity": "item",
+      "in_list_view": true
+    },
+    {
+      "name": "quantity",
+      "label": "Qty",
+      "field_type": "int",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

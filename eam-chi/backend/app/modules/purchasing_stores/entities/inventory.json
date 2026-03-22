@@ -1,0 +1,234 @@
+{
+  "name": "inventory",
+  "label": "Inventory",
+  "module": "Procurement",
+  "table_name": "inventory",
+  "title_field": "name",
+  "in_sidebar": 1,
+  "naming": "INV-{#####}",
+  "icon": "archive",
+  "group": "Inventory Operations",
+  "search": true,
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "link",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0,
+      "options": "Workflow State",
+      "link_entity": "workflow_states"
+    },
+    {
+      "name": "transaction_type",
+      "label": "Transaction Type",
+      "field_type": "select",
+      "in_list_view": 0,
+      "required": 1,
+      "unique": 0,
+      "options": "Purchase Receipt\nItem Issue\nItem Return\nTransfer\nInventory Adjustment\nOpening Balance\nWork Order Issue\nStock Count Adjustment"
+    },
+    {
+      "name": "date",
+      "label": "Date",
+      "field_type": "date",
+      "in_list_view": 0,
+      "required": 1,
+      "unique": 0
+    },
+    {
+      "name": "assigned_to",
+      "label": "Assigned To",
+      "field_type": "link",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0,
+      "options": "Employee",
+      "link_entity": "employee"
+    },
+    {
+      "name": "serial_number",
+      "label": "Serial Number",
+      "field_type": "string",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0
+    },
+    {
+      "name": "financial_asset_number",
+      "label": "Financial Asset Number",
+      "field_type": "string",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "in_list_view": 1,
+      "required": 1,
+      "unique": 0,
+      "options": "Site",
+      "link_entity": "site"
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "in_list_view": 1,
+      "required": 1,
+      "unique": 0,
+      "options": "Location",
+      "link_entity": "location"
+    },
+    {
+      "name": "location_name",
+      "label": "Location Name",
+      "field_type": "string",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0
+    },
+    {
+      "name": "store_location",
+      "label": "Stores",
+      "field_type": "link",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0,
+      "options": "Store",
+      "link_entity": "store"
+    },
+    {
+      "name": "zone",
+      "label": "Zone",
+      "field_type": "link",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0,
+      "options": "Zone",
+      "link_entity": "zone"
+    },
+    {
+      "name": "bin_location",
+      "label": "Bin",
+      "field_type": "link",
+      "in_list_view": 1,
+      "required": 0,
+      "unique": 0,
+      "options": "Bin",
+      "link_entity": "bin"
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "in_list_view": 1,
+      "required": 0,
+      "unique": 0,
+      "options": "Item",
+      "link_entity": "item"
+    },
+    {
+      "name": "item_type",
+      "label": "Item Type",
+      "field_type": "string",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0
+    },
+    {
+      "name": "item_name",
+      "label": "Item Name",
+      "field_type": "string",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0
+    },
+    {
+      "name": "asset_tag",
+      "label": "Asset Tag",
+      "field_type": "string",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0
+    },
+    {
+      "name": "unit_of_measure",
+      "label": "Unit of Measure",
+      "field_type": "link",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0,
+      "options": "Unit Of Measure",
+      "link_entity": "unit_of_measure",
+      "readonly": true,
+      "fetch_from": "item.uom"
+    },
+    {
+      "name": "asset",
+      "label": "Asset",
+      "field_type": "link",
+      "in_list_view": 1,
+      "required": 0,
+      "unique": 0,
+      "options": "Asset",
+      "link_entity": "asset"
+    },
+    {
+      "name": "base_unit_cost",
+      "label": "Base Unit Cost",
+      "field_type": "float",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0
+    },
+    {
+      "name": "actual_inv",
+      "label": "Actual Inventory",
+      "field_type": "int",
+      "in_list_view": 1,
+      "required": 0,
+      "unique": 0
+    },
+    {
+      "name": "available_inv",
+      "label": "Available Inventory",
+      "field_type": "int",
+      "in_list_view": 1,
+      "required": 0,
+      "unique": 0
+    },
+    {
+      "name": "reserved_inv",
+      "label": "Reserved Inventory",
+      "field_type": "int",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0
+    },
+    {
+      "name": "freeze",
+      "label": "Freeze",
+      "field_type": "boolean",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0
+    },
+    {
+      "name": "warn",
+      "label": "Warn",
+      "field_type": "boolean",
+      "in_list_view": 0,
+      "required": 0,
+      "unique": 0
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

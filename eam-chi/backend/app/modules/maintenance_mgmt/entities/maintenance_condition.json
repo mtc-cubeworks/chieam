@@ -1,0 +1,83 @@
+{
+  "name": "maintenance_condition",
+  "label": "Maintenance Condition",
+  "module": "Maintenance Management",
+  "table_name": "maintenance_condition",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "MTCOND-{#####}",
+  "icon": "gauge",
+  "group": "Maintenance Configuration",
+  "search": true,
+  "fields": [
+    {
+      "name": "planned_maintenance_activity",
+      "label": "Planned Activity",
+      "field_type": "link",
+      "link_entity": "planned_maintenance_activity"
+    },
+    {
+      "name": "maintenance_plan",
+      "label": "Maintenance Plan",
+      "field_type": "link",
+      "link_entity": "maintenance_plan",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "maintenance_activity",
+      "label": "Activity",
+      "field_type": "link",
+      "link_entity": "maintenance_activity",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "sensor",
+      "label": "Sensor",
+      "field_type": "link",
+      "link_entity": "sensor",
+      "in_list_view": true
+    },
+    {
+      "name": "uom_short_name",
+      "label": "UoM",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "property_type",
+      "label": "Property Type",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "comparison_operator",
+      "label": "Operator",
+      "field_type": "select",
+      "options": [
+        "==",
+        "!=",
+        ">",
+        "<",
+        ">=",
+        "<="
+      ],
+      "in_list_view": true
+    },
+    {
+      "name": "threshold_property",
+      "label": "Threshold Property",
+      "field_type": "link",
+      "link_entity": "property",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

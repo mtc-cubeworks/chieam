@@ -1,0 +1,1130 @@
+
+=== account (core_eam) — 3 fields ===
+  account_code (string)
+  account_name (string)
+  account_type (select)
+
+=== annual_budget (core_eam) — 4 fields ===
+  cost_code (link) -> cost_code
+  cost_code_name (string) [ro]
+  year (int)
+  budgetary_amount (float)
+  LINKS: cost_code->cost_code
+
+=== asset (asset_management) — 24 fields ===
+  workflow_state (string)
+  asset_tag (string) [req]
+  asset_class (link) -> asset_class
+  description (text)
+  series (string)
+  model (parent_child_link)
+  serial_number (string)
+  date_purchased (date)
+  cost (float)
+  block_number (int)
+  number_of_repairs (int)
+  location (link) -> location
+  site (link) -> site
+  department (link) -> department
+  assigned_to (link) -> employee
+  inventory (link) -> inventory [ro]
+  system (link) -> system
+  position (link) -> position
+  item (link) -> item [ro]
+  defective (boolean)
+  item_type (string) [ro]
+  is_equipment (boolean) [ro]
+  need_repair (boolean)
+  bypass_process (boolean)
+  LINKS: asset_class->asset_class, location->location, site->site, department->department, assigned_to->employee, inventory->inventory, system->system, position->position, item->item
+
+=== asset_class (asset_management) — 4 fields ===
+  name (string)
+  description (text)
+  due_date_lead_time (int)
+  parent_asset_class (link) -> asset_class
+  LINKS: parent_asset_class->asset_class
+
+=== asset_class_availability (asset_management) — 5 fields ===
+  asset_class (link) -> asset_class
+  specific_datetime (datetime)
+  remaining_capacity (int)
+  reserved_capacity (int)
+  available_capacity (int)
+  LINKS: asset_class->asset_class
+
+=== asset_class_property (asset_management) — 4 fields ===
+  asset_class (link) -> asset_class
+  property (link) -> property
+  unit_of_measure (link) -> unit_of_measure [ro]
+  default_value (string)
+  LINKS: asset_class->asset_class, property->property, unit_of_measure->unit_of_measure
+
+=== asset_position (asset_management) — 4 fields ===
+  position (link) -> position
+  asset (link) -> asset
+  date_installed (date)
+  date_removed (date)
+  LINKS: position->position, asset->asset
+
+=== asset_property (asset_management) — 5 fields ===
+  asset (link) -> asset
+  property (link) -> property
+  property_value (string)
+  unit_of_measure (link) -> unit_of_measure [ro]
+  property_type (string) [ro]
+  LINKS: asset->asset, property->property, unit_of_measure->unit_of_measure
+
+=== bin (purchasing_stores) — 6 fields ===
+  rack_name (string)
+  shelf_name (string)
+  bin_name (string)
+  store (link) -> store
+  store_name (string)
+  site (link) -> site
+  LINKS: store->store, site->site
+
+=== breakdown (asset_management) — 5 fields ===
+  equipment (link) -> equipment
+  breakdown_date (date)
+  start_time (string)
+  end_time (string)
+  cause (text)
+  LINKS: equipment->equipment
+
+=== category_of_failure (work_mgmt) — 4 fields ===
+  failure_name (string)
+  description (text)
+  site (link) -> site
+  active (boolean)
+  LINKS: site->site
+
+=== checklist (maintenance_mgmt) — 2 fields ===
+  checklist_name (string)
+  checklist_type (select)
+
+=== checklist_details (maintenance_mgmt) — 3 fields ===
+  checklist (link) -> checklist
+  item_name (string)
+  is_mandatory (boolean)
+  LINKS: checklist->checklist
+
+=== contractor (core_eam) — 1 fields ===
+  contractor_name (string)
+
+=== cost_code (core_eam) — 5 fields ===
+  code (string)
+  description (text)
+  scope (select)
+  site (link) -> site
+  site_name (string) [ro]
+  LINKS: site->site
+
+=== currency (purchasing_stores) — 4 fields ===
+  currency_name (string)
+  symbol (string)
+  conversion_factor (float)
+  active (boolean)
+
+=== department (core_eam) — 11 fields ===
+  department_name (string)
+  department_code (string)
+  site (link) -> site
+  site_name (string) [ro]
+  department_manager (link) -> employee
+  default_cost_code (link) -> cost_code
+  overhead_method (string)
+  overhead_percent (float)
+  overhead_rp_hour (float)
+  overhead_expense_account (link) -> account
+  labor_expense_account_overwrite (link) -> account
+  LINKS: site->site, department_manager->employee, default_cost_code->cost_code, overhead_expense_account->account, labor_expense_account_overwrite->account
+
+=== disposed (asset_management) — 7 fields ===
+  asset (link) -> asset
+  condition (select)
+  disposal_date (date)
+  disposal_reason (text)
+  disposal_method (select)
+  disposal_status (select)
+  site (link) -> site
+  LINKS: asset->asset, site->site
+
+=== employee (core_eam) — 3 fields ===
+  user (link) -> users
+  employee_name (string)
+  position (string)
+  LINKS: user->users
+
+=== employee_site (core_eam) — 4 fields ===
+  employee (link) -> employee
+  site (link) -> site
+  department (link) -> department
+  default (boolean)
+  LINKS: employee->employee, site->site, department->department
+
+=== equipment (asset_management) — 11 fields ===
+  equipment_type (select)
+  equipment_group (link) -> equipment_group
+  equipment_group_name (string) [ro]
+  custodian (link) -> employee
+  location (link) -> location
+  location_name (string) [ro]
+  site (link) -> site
+  inventory (link) -> inventory
+  pr_line_no (link) -> purchase_request_line
+  description (string) [ro]
+  equipment_cost (float)
+  LINKS: equipment_group->equipment_group, custodian->employee, location->location, site->site, inventory->inventory, pr_line_no->purchase_request_line
+
+=== equipment_group (asset_management) — 1 fields ===
+  name (string)
+
+=== error_log (core_eam) — 3 fields ===
+  status (int)
+  title (string)
+  message (text)
+
+=== holiday (core_eam) — 4 fields ===
+  holiday_name (string)
+  holiday_date (date)
+  applicable_to_labor_grp (link) -> labor_group
+  specific_labor (link) -> labor
+  LINKS: applicable_to_labor_grp->labor_group, specific_labor->labor
+
+=== incident (asset_management) — 15 fields ===
+  title (string)
+  description (text)
+  incident_type (select)
+  incident_datetime (datetime)
+  date_reported (date)
+  location (link) -> location
+  asset (link) -> asset
+  reported_by (link) -> users
+  site (link) -> site
+  department (link) -> department
+  severity (select)
+  immediate_action_taken (text)
+  preventive_actions (text)
+  assigned_to (link) -> employee
+  closed_date (date)
+  LINKS: location->location, asset->asset, reported_by->users, site->site, department->department, assigned_to->employee
+
+=== incident_employee (asset_management) — 8 fields ===
+  incident (link) -> incident
+  employee (link) -> employee
+  role_in_incident (select)
+  injured (boolean)
+  injury_severity (select)
+  injury_description (text)
+  ppe_used (boolean)
+  treatment (text)
+  LINKS: incident->incident, employee->employee
+
+=== inspection (purchasing_stores) — 6 fields ===
+  inspection_date (date)
+  inspector (link) -> employee
+  site (link) -> site
+  inventory (link) -> inventory
+  inspection_result (text)
+  action_required (text)
+  LINKS: inspector->employee, site->site, inventory->inventory
+
+=== inventory (purchasing_stores) — 24 fields ===
+  workflow_state (link) -> workflow_states
+  transaction_type (select) [req]
+  date (date) [req]
+  assigned_to (link) -> employee
+  serial_number (string)
+  financial_asset_number (string)
+  site (link) -> site [req]
+  location (link) -> location [req]
+  location_name (string)
+  store_location (link) -> store
+  zone (link) -> zone
+  bin_location (link) -> bin
+  item (link) -> item
+  item_type (string)
+  item_name (string)
+  asset_tag (string)
+  unit_of_measure (link) -> unit_of_measure [ro]
+  asset (link) -> asset
+  base_unit_cost (float)
+  actual_inv (int)
+  available_inv (int)
+  reserved_inv (int)
+  freeze (boolean)
+  warn (boolean)
+  LINKS: workflow_state->workflow_states, assigned_to->employee, site->site, location->location, store_location->store, zone->zone, bin_location->bin, item->item, unit_of_measure->unit_of_measure, asset->asset
+
+=== inventory_adjustment (purchasing_stores) — 9 fields ===
+  workflow_state (string)
+  source_stock_count (link) -> stock_count [ro]
+  reference_doctype (string) [ro]
+  posting_datetime (datetime) [ro]
+  location (link) -> location
+  store (link) -> store
+  site (link) -> site
+  cost_center (link) -> account
+  remarks (text)
+  LINKS: source_stock_count->stock_count, location->location, store->store, site->site, cost_center->account
+
+=== inventory_adjustment_line (purchasing_stores) — 14 fields ===
+  inventory_adjustment (link) -> inventory_adjustment
+  inventory (link) -> inventory
+  item (link) -> item
+  asset_tag (string)
+  serial_nos (string)
+  bin (link) -> bin
+  zone (link) -> zone
+  uom (link) -> unit_of_measure [ro]
+  current_qty (int) [ro]
+  adjusted_qty (int)
+  current_rate (float)
+  delta_value (float)
+  inventory_adjustment_account (link) -> account
+  inventory_account (link) -> account
+  LINKS: inventory_adjustment->inventory_adjustment, inventory->inventory, item->item, bin->bin, zone->zone, uom->unit_of_measure, inventory_adjustment_account->account, inventory_account->account
+
+=== item (purchasing_stores) — 17 fields ===
+  item_name (string) [req]
+  description (text) [req]
+  item_class (link) -> item_class
+  item_type (select) [req]
+  abc_code (select)
+  expense_account (link) -> account
+  inventory_adjustment_account (link) -> inventory_adjustment
+  primary_vendor (link) -> vendor
+  asset_class (link) -> asset_class
+  uom (link) -> unit_of_measure [req]
+  actual_qty_on_hand (int)
+  available_capacity (int)
+  unit_cost (float)
+  reserved_capacity (int)
+  is_serialized (boolean)
+  inspection_required (boolean)
+  is_equipment (boolean)
+  LINKS: item_class->item_class, expense_account->account, inventory_adjustment_account->inventory_adjustment, primary_vendor->vendor, asset_class->asset_class, uom->unit_of_measure
+
+=== item_class (purchasing_stores) — 11 fields ===
+  item_class_name (string)
+  description (text)
+  item_class_type (select)
+  asset_class (link) -> asset_class
+  parent_item_class (link) -> item_class
+  default_uom (link) -> unit_of_measure
+  valuation_method (select)
+  account (link) -> account
+  inventory_tracking (boolean)
+  is_serialized (boolean)
+  is_active (boolean)
+  LINKS: asset_class->asset_class, parent_item_class->item_class, default_uom->unit_of_measure, account->account
+
+=== item_issue (purchasing_stores) — 8 fields ===
+  workflow_state (string)
+  issue_type (select)
+  issue_to (link) -> employee
+  date_issued (datetime)
+  work_order_activity (link) -> work_order_activity
+  site (link) -> site
+  department (link) -> department
+  cost_code (link) -> cost_code
+  LINKS: issue_to->employee, work_order_activity->work_order_activity, site->site, department->department, cost_code->cost_code
+
+=== item_issue_line (purchasing_stores) — 10 fields ===
+  item_issue (link) -> item_issue
+  work_order_parts (link) -> work_order_parts
+  work_order_equipment (link) -> work_order_equipment
+  inventory (link) -> inventory
+  item_name (string)
+  store (link) -> store
+  bin (link) -> bin
+  zone (link) -> zone
+  quantity_issued (int)
+  unit_cost (float)
+  LINKS: item_issue->item_issue, work_order_parts->work_order_parts, work_order_equipment->work_order_equipment, inventory->inventory, store->store, bin->bin, zone->zone
+
+=== item_return (purchasing_stores) — 8 fields ===
+  workflow_state (string)
+  return_type (select)
+  returned_by (link) -> employee
+  date_returned (datetime)
+  work_order_activity (link) -> work_order_activity
+  site (link) -> site
+  department (link) -> department
+  cost_code (link) -> cost_code
+  LINKS: returned_by->employee, work_order_activity->work_order_activity, site->site, department->department, cost_code->cost_code
+
+=== item_return_line (purchasing_stores) — 6 fields ===
+  item_return (link) -> item_return
+  work_order_parts (link) -> work_order_parts
+  work_order_equipment (link) -> work_order_equipment
+  item (link) -> item
+  quantity_returned (int)
+  unit_cost (float)
+  LINKS: item_return->item_return, work_order_parts->work_order_parts, work_order_equipment->work_order_equipment, item->item
+
+=== labor (core_eam) — 10 fields ===
+  labor_type (select)
+  labor_group (link) -> labor_group
+  labor_group_name (string) [ro]
+  employee (link) -> employee
+  contractor (link) -> contractor
+  laborer (string) [ro]
+  location (link) -> location
+  location_name (string) [ro]
+  pr_line_no (string)
+  labor_cost (float)
+  LINKS: labor_group->labor_group, employee->employee, contractor->contractor, location->location
+
+=== labor_availability (core_eam) — 3 fields ===
+  labor (link) -> labor
+  laborer (string) [ro]
+  date (date)
+  LINKS: labor->labor
+
+=== labor_availability_details (core_eam) — 4 fields ===
+  labor_availability (link) -> labor_availability
+  hour (time)
+  status (select)
+  reason (text)
+  LINKS: labor_availability->labor_availability
+
+=== labor_group (core_eam) — 1 fields ===
+  labor_group_name (string)
+
+=== leave_application (core_eam) — 5 fields ===
+  labor (link) -> labor
+  leave_type (link) -> leave_type
+  from_date (datetime)
+  to_date (datetime)
+  reason (text)
+  LINKS: labor->labor, leave_type->leave_type
+
+=== leave_type (core_eam) — 1 fields ===
+  leave_type_name (string)
+
+=== location (asset_management) — 9 fields ===
+  name (string)
+  description (text)
+  location_type (link) -> location_type
+  location_type_name (string) [ro]
+  parent_location (link) -> location
+  site (link) -> site
+  latitude (float)
+  longitude (float)
+  address (string)
+  LINKS: location_type->location_type, parent_location->location, site->site
+
+=== location_type (asset_management) — 1 fields ===
+  name (string)
+
+=== maintenance_activity (maintenance_mgmt) — 2 fields ===
+  activity_name (string)
+  description (text)
+
+=== maintenance_calendar (maintenance_mgmt) — 6 fields ===
+  planned_maintenance_activity (link) -> planned_maintenance_activity
+  maintenance_plan (link) -> maintenance_plan [ro]
+  maintenance_activity (link) -> maintenance_activity [ro]
+  frequency (select)
+  lead_calendar_days (int)
+  last_maintenance_date_property (link) -> property
+  LINKS: planned_maintenance_activity->planned_maintenance_activity, maintenance_plan->maintenance_plan, maintenance_activity->maintenance_activity, last_maintenance_date_property->property
+
+=== maintenance_condition (maintenance_mgmt) — 8 fields ===
+  planned_maintenance_activity (link) -> planned_maintenance_activity
+  maintenance_plan (link) -> maintenance_plan [ro]
+  maintenance_activity (link) -> maintenance_activity [ro]
+  sensor (link) -> sensor
+  uom_short_name (string) [ro]
+  property_type (string) [ro]
+  comparison_operator (select)
+  threshold_property (link) -> property
+  LINKS: planned_maintenance_activity->planned_maintenance_activity, maintenance_plan->maintenance_plan, maintenance_activity->maintenance_activity, sensor->sensor, threshold_property->property
+
+=== maintenance_equipment (maintenance_mgmt) — 4 fields ===
+  maintenance_activity (link) -> maintenance_activity
+  equipment (link) -> equipment
+  required_qty (int)
+  required_hours (float)
+  LINKS: maintenance_activity->maintenance_activity, equipment->equipment
+
+=== maintenance_interval (maintenance_mgmt) — 8 fields ===
+  planned_maintenance_activity (link) -> planned_maintenance_activity
+  maintenance_plan (link) -> maintenance_plan [ro]
+  maintenance_activity (link) -> maintenance_activity [ro]
+  lead_interval (float)
+  interval (float)
+  interval_unit_of_measure (link) -> unit_of_measure
+  running_interval_property (link) -> property
+  last_interval_property (link) -> property
+  LINKS: planned_maintenance_activity->planned_maintenance_activity, maintenance_plan->maintenance_plan, maintenance_activity->maintenance_activity, interval_unit_of_measure->unit_of_measure, running_interval_property->property, last_interval_property->property
+
+=== maintenance_order (maintenance_mgmt) — 2 fields ===
+  created_date (date)
+  work_order (link) -> work_order [ro]
+  LINKS: work_order->work_order
+
+=== maintenance_order_detail (maintenance_mgmt) — 6 fields ===
+  maintenance_order (link) -> maintenance_order [ro]
+  seq_num (int)
+  maint_req (link) -> maintenance_request
+  asset (link) -> asset [ro]
+  due_date (string) [ro]
+  resource_availability_status (string) [ro]
+  LINKS: maintenance_order->maintenance_order, maint_req->maintenance_request, asset->asset
+
+=== maintenance_parts (maintenance_mgmt) — 3 fields ===
+  maintenance_activity (link) -> maintenance_activity
+  item (link) -> item
+  quantity (int)
+  LINKS: maintenance_activity->maintenance_activity, item->item
+
+=== maintenance_plan (maintenance_mgmt) — 7 fields ===
+  description (string)
+  asset_class (link) -> asset_class
+  asset_class_name (string) [ro]
+  manufacturer (link) -> manufacturer
+  manufacturer_name (string) [ro]
+  model (link) -> model
+  model_name (string) [ro]
+  LINKS: asset_class->asset_class, manufacturer->manufacturer, model->model
+
+=== maintenance_request (maintenance_mgmt) — 20 fields ===
+  workflow_state (string)
+  requestor (link) -> employee
+  requested_date (date)
+  description (text)
+  priority (select)
+  asset (link) -> asset
+  request_type (query_link)
+  location (link) -> location
+  site (link) -> site
+  department (link) -> department
+  position (link) -> position
+  incident (link) -> incident
+  planned_maintenance_activity (link) -> planned_maintenance_activity
+  due_date (date)
+  next_maintenance_request (link) -> maintenance_request
+  closed_date (date) [ro]
+  work_order_activity (link) -> work_order_activity [ro]
+  property (link) -> property
+  maintenance_interval_property (link) -> maintenance_interval
+  running_interval_value (float)
+  LINKS: requestor->employee, asset->asset, location->location, site->site, department->department, position->position, incident->incident, planned_maintenance_activity->planned_maintenance_activity, next_maintenance_request->maintenance_request, work_order_activity->work_order_activity, property->property, maintenance_interval_property->maintenance_interval
+
+=== maintenance_trade (maintenance_mgmt) — 4 fields ===
+  maintenance_activity (link) -> maintenance_activity
+  trade (link) -> trade
+  required_qty (int)
+  required_hours (float)
+  LINKS: maintenance_activity->maintenance_activity, trade->trade
+
+=== manufacturer (core_eam) — 2 fields ===
+  company_name (string)
+  email (string)
+
+=== model (core_eam) — 3 fields ===
+  model_name (string)
+  manufacturer (link) -> manufacturer
+  manufacturer_name (string) [ro]
+  LINKS: manufacturer->manufacturer
+
+=== note (core_eam) — 6 fields ===
+  title (string)
+  public (boolean)
+  notify_on_login (boolean)
+  notify_on_every_login (boolean)
+  expire_notification_on (date)
+  content (text)
+
+=== note_seen_by (core_eam) — 2 fields ===
+  note (link) -> note
+  user (link) -> users
+  LINKS: note->note, user->users
+
+=== organization (core_eam) — 4 fields ===
+  organization_name (string)
+  legal_name (string)
+  organizational_code (string)
+  is_active (boolean)
+
+=== planned_maintenance_activity (maintenance_mgmt) — 8 fields ===
+  maintenance_plan (link) -> maintenance_plan
+  maintenance_plan_name (string)
+  maintenance_activity (link) -> maintenance_activity
+  maintenance_activity_name (string) [ro]
+  checklist (link) -> checklist
+  checklist_name (string) [ro]
+  maintenance_schedule (select)
+  maintenance_type (link) -> request_activity_type
+  LINKS: maintenance_plan->maintenance_plan, maintenance_activity->maintenance_activity, checklist->checklist, maintenance_type->request_activity_type
+
+=== position (asset_management) — 11 fields ===
+  position_tag (string)
+  description (string)
+  attach_img (attach_image)
+  asset_class (link) -> asset_class
+  asset_class_name (string) [ro]
+  system (link) -> system
+  system_name (string) [ro]
+  location (link) -> location
+  location_name (string) [ro]
+  site (link) -> site
+  current_asset (link) -> asset [ro]
+  LINKS: asset_class->asset_class, system->system, location->location, site->site, current_asset->asset
+
+=== position_relation (asset_management) — 5 fields ===
+  position_a (link) -> position
+  position_a_description (string) [ro]
+  position_relation_type (select)
+  position_b (link) -> position
+  position_b_description (string) [ro]
+  LINKS: position_a->position, position_b->position
+
+=== property (asset_management) — 6 fields ===
+  name (string)
+  description (text)
+  unit_of_measure (link) -> unit_of_measure
+  property_type (link) -> property_type
+  system (boolean)
+  inactive (boolean)
+  LINKS: unit_of_measure->unit_of_measure, property_type->property_type
+
+=== property_type (asset_management) — 1 fields ===
+  name (string)
+
+=== purchase_order (purchasing_stores) — 9 fields ===
+  workflow_state (string)
+  source_rfq (string)
+  vendor (link) -> vendor
+  vendor_name (string) [ro]
+  date_ordered (date)
+  total_amount (float)
+  site (link) -> site [req]
+  department (link) -> department [req]
+  cost_code (link) -> cost_code
+  LINKS: vendor->vendor, site->site, department->department, cost_code->cost_code
+
+=== purchase_order_line (purchasing_stores) — 13 fields ===
+  workflow_state (string)
+  po_id (link) -> purchase_order [req]
+  pr_line_id (link) -> purchase_request_line
+  line_row_num (int) [ro]
+  financial_asset_number (string)
+  item_id (link) -> item
+  item_description (text)
+  quantity_ordered (int)
+  price (float)
+  quantity_received (int) [ro]
+  site (link) -> site [req]
+  department (link) -> department [req]
+  cost_code (link) -> cost_code
+  LINKS: po_id->purchase_order, pr_line_id->purchase_request_line, item_id->item, site->site, department->department, cost_code->cost_code
+
+=== purchase_receipt (purchasing_stores) — 13 fields ===
+  purchase_order_line (link) -> purchase_order_line
+  purchase_request_line (link) -> purchase_request_line [ro]
+  pr_row_no (int) [ro]
+  is_received (boolean)
+  item (link) -> item [ro]
+  quantity_received (int)
+  date_received (date)
+  receiving_location (link) -> location
+  site (link) -> site
+  department (link) -> department
+  cost_code (link) -> cost_code
+  generated_inventory (boolean)
+  account_code (link) -> account
+  LINKS: purchase_order_line->purchase_order_line, purchase_request_line->purchase_request_line, item->item, receiving_location->location, site->site, department->department, cost_code->cost_code, account_code->account
+
+=== purchase_request (purchasing_stores) — 12 fields ===
+  workflow_state (string)
+  date_requested (date)
+  pr_description (text)
+  requestor (link) -> employee
+  requestor_name (string) [ro]
+  due_date (date)
+  work_activity_id (link) -> work_order_activity
+  maintenance_request (link) -> maintenance_request
+  reject_reason (text)
+  site (link) -> site
+  department (link) -> department
+  cost_code (link) -> cost_code
+  LINKS: requestor->employee, work_activity_id->work_order_activity, maintenance_request->maintenance_request, site->site, department->department, cost_code->cost_code
+
+=== purchase_request_line (purchasing_stores) — 22 fields ===
+  workflow_state (string)
+  purchase_request (link) -> purchase_request
+  financial_asset_number (string)
+  row_no (int) [ro]
+  item (link) -> item
+  item_description (text)
+  unit_of_measure (link) -> unit_of_measure [ro]
+  unit_cost (float)
+  base_currency (link) -> currency
+  qty_required (int)
+  total_line_amount (float) [ro]
+  account_code (link) -> account
+  cost_code (link) -> cost_code
+  site (link) -> site
+  department (link) -> department
+  vendor (link) -> vendor
+  po_num (string)
+  date_required (datetime)
+  qty_received (int) [ro]
+  base_currency_unit (float)
+  base_currency_line_amount (float)
+  conversion_factor (float)
+  LINKS: purchase_request->purchase_request, item->item, unit_of_measure->unit_of_measure, base_currency->currency, account_code->account, cost_code->cost_code, site->site, department->department, vendor->vendor
+
+=== purchase_return (purchasing_stores) — 9 fields ===
+  inventory (link) -> inventory
+  serial_number (string) [ro]
+  item (link) -> item [ro]
+  unit_of_measure (link) -> unit_of_measure [ro]
+  date_returned (date)
+  quantity_returned (int)
+  site (link) -> site
+  department (link) -> department
+  cost_code (link) -> cost_code
+  LINKS: inventory->inventory, item->item, unit_of_measure->unit_of_measure, site->site, department->department, cost_code->cost_code
+
+=== putaway (purchasing_stores) — 11 fields ===
+  putaway_type (select)
+  source_data_repair (link) -> transfer
+  source_data_parts_return (link) -> item_return_line
+  source_data_asset (link) -> asset
+  item (link) -> item
+  serial_number (string)
+  qty (int)
+  site (link) -> site
+  store (link) -> store
+  bin (link) -> bin
+  zone (link) -> zone
+  LINKS: source_data_repair->transfer, source_data_parts_return->item_return_line, source_data_asset->asset, item->item, site->site, store->store, bin->bin, zone->zone
+
+=== reason_code (purchasing_stores) — 6 fields ===
+  code (string)
+  description (text)
+  movement_type (select)
+  default_debit_account (link) -> account
+  default_credit_account (link) -> account
+  approval_threshold (string)
+  LINKS: default_debit_account->account, default_credit_account->account
+
+=== request_activity_type (core_eam) — 4 fields ===
+  menu (string)
+  type (string)
+  state (string)
+  role (string)
+
+=== request_for_quotation (purchasing_stores) — 10 fields ===
+  workflow_state (string)
+  purchase_request (link) -> purchase_request
+  generated_by (link) -> employee
+  supplier (link) -> vendor
+  date_issue (date)
+  due_date (date)
+  requestor (link) -> employee
+  awarded_vendor (link) -> vendor
+  terms_and_conditions (text)
+  remarks (text)
+  LINKS: purchase_request->purchase_request, generated_by->employee, supplier->vendor, requestor->employee, awarded_vendor->vendor
+
+=== rfq_line (purchasing_stores) — 6 fields ===
+  rfq_id (link) -> request_for_quotation
+  pr_line (link) -> purchase_request_line
+  item (link) -> item
+  item_description (text)
+  quantity (int)
+  price (float)
+  LINKS: rfq_id->request_for_quotation, pr_line->purchase_request_line, item->item
+
+=== sales_order (purchasing_stores) — 7 fields ===
+  workflow_state (string)
+  description (string) [req]
+  customer_name (string) [req]
+  order_date (datetime)
+  currency (link) -> currency
+  site (link) -> site
+  notes (text)
+  LINKS: currency->currency, site->site
+
+=== sales_order_item (purchasing_stores) — 10 fields ===
+  sales_order (link) -> sales_order
+  row_no (int) [ro]
+  item (link) -> item [req]
+  item_description (string)
+  unit_of_measure (link) -> unit_of_measure [ro]
+  qty (int) [req]
+  unit_price (float)
+  total_amount (float) [ro]
+  site (link) -> site
+  department (link) -> department
+  LINKS: sales_order->sales_order, item->item, unit_of_measure->unit_of_measure, site->site, department->department
+
+=== sensor (maintenance_mgmt) — 9 fields ===
+  sensor_name (string)
+  asset (link) -> asset
+  asset_name (text) [ro]
+  asset_property (link) -> asset_property
+  uom_short_name (string) [ro]
+  property_type (string) [ro]
+  root_topic_name (string)
+  collection_frequency (select)
+  site (link) -> site
+  LINKS: asset->asset, asset_property->asset_property, site->site
+
+=== sensor_data (maintenance_mgmt) — 3 fields ===
+  sensor (link) -> sensor
+  value (string)
+  timestamp (string)
+  LINKS: sensor->sensor
+
+=== service_request (maintenance_mgmt) — 11 fields ===
+  title (string) [req]
+  description (text) [req]
+  status (select)
+  priority (select)
+  date_reported (date)
+  closed_date (date)
+  asset (link) -> asset
+  site (link) -> site
+  location (link) -> location
+  work_order (link) -> work_order
+  incident (link) -> incident
+  LINKS: asset->asset, site->site, location->location, work_order->work_order, incident->incident
+
+=== site (core_eam) — 8 fields ===
+  site_name (string)
+  site_code (string)
+  organization (link) -> organization
+  organization_name (string) [ro]
+  default_cost_code (link) -> cost_code
+  site_manager (link) -> employee
+  location (link) -> location
+  location_name (string) [ro]
+  LINKS: organization->organization, default_cost_code->cost_code, site_manager->employee, location->location
+
+=== stock_count (purchasing_stores) — 8 fields ===
+  workflow_state (string)
+  store (link) -> store
+  site (link) -> site
+  method (select)
+  basis (select)
+  abc_code (select)
+  freeze_policy (select)
+  snapshot_at (datetime) [ro]
+  LINKS: store->store, site->site
+
+=== stock_count_line (purchasing_stores) — 14 fields ===
+  stock_count (link) -> stock_count
+  inventory (link) -> inventory
+  item (link) -> item
+  asset_tag (string)
+  serial_nos (string)
+  bin (link) -> bin
+  zone (link) -> zone
+  uom (link) -> unit_of_measure [ro]
+  snapshot_qty (int) [ro]
+  counted_qty (int)
+  variance_qty (int) [ro]
+  variance_value (float) [ro]
+  variance_reason (link) -> reason_code
+  is_reconciled (boolean)
+  LINKS: stock_count->stock_count, inventory->inventory, item->item, bin->bin, zone->zone, uom->unit_of_measure, variance_reason->reason_code
+
+=== stock_count_task (purchasing_stores) — 5 fields ===
+  stock_count (link) -> stock_count
+  assigned_to (link) -> users
+  bin (link) -> bin
+  submitted_at (datetime)
+  site (link) -> site
+  LINKS: stock_count->stock_count, assigned_to->users, bin->bin, site->site
+
+=== stock_ledger_entry (purchasing_stores) — 14 fields ===
+  item (link) -> item
+  serial_no (string)
+  store (link) -> store
+  bin (link) -> bin
+  posting_datetime (datetime)
+  qty_in (int)
+  qty_out (int)
+  value_in (float)
+  value_out (float)
+  balance_qty (int)
+  balance_value (float)
+  voucher_type (select)
+  voucher_no (string)
+  site (link) -> site
+  LINKS: item->item, store->store, bin->bin, site->site
+
+=== store (purchasing_stores) — 4 fields ===
+  store_name (string)
+  location (link) -> location
+  location_name (string) [ro]
+  site (link) -> site
+  LINKS: location->location, site->site
+
+=== sub_asset (asset_management) — 2 fields ===
+  main_asset (link) -> asset
+  child_asset (link) -> asset
+  LINKS: main_asset->asset, child_asset->asset
+
+=== system (asset_management) — 7 fields ===
+  name (string)
+  description (text)
+  system_type (link) -> system_type
+  system_type_name (string) [ro]
+  parent_system (link) -> system
+  location (link) -> location
+  site (link) -> site
+  LINKS: system_type->system_type, parent_system->system, location->location, site->site
+
+=== system_type (asset_management) — 1 fields ===
+  name (string)
+
+=== trade (core_eam) — 5 fields ===
+  trade_name (string)
+  description (text)
+  on_staff (boolean)
+  licensed (boolean)
+  available_capacity (int)
+
+=== trade_availability (core_eam) — 5 fields ===
+  trade (link) -> trade
+  specific_datetime (datetime)
+  remaining_capacity (int)
+  reserved_capacity (int)
+  available_capacity (int)
+  LINKS: trade->trade
+
+=== trade_labor (core_eam) — 4 fields ===
+  trade (link) -> trade
+  labor (link) -> labor
+  laborer (string) [ro]
+  primary (boolean)
+  LINKS: trade->trade, labor->labor
+
+=== transfer (purchasing_stores) — 19 fields ===
+  transfer_type (select)
+  moved_by (link) -> employee
+  date_moved (date)
+  work_order_activity (link) -> work_order_activity
+  inventory (link) -> inventory
+  labor (link) -> labor
+  equipment (link) -> equipment
+  item_to_transfer (string) [ro]
+  purchase_request_line (link) -> purchase_request_line
+  site (link) -> site
+  from_location (link) -> location [ro]
+  from_store (link) -> store [ro]
+  from_bin (link) -> bin
+  from_zone (link) -> zone
+  to_location (link) -> location
+  to_vendor (link) -> vendor
+  to_store (link) -> store
+  to_bin (link) -> bin
+  to_zone (link) -> zone
+  LINKS: moved_by->employee, work_order_activity->work_order_activity, inventory->inventory, labor->labor, equipment->equipment, purchase_request_line->purchase_request_line, site->site, from_location->location, from_store->store, from_bin->bin, from_zone->zone, to_location->location, to_vendor->vendor, to_store->store, to_bin->bin, to_zone->zone
+
+=== transfer_receipt (purchasing_stores) — 6 fields ===
+  transfer_request (link) -> transfer
+  inventory (link) -> inventory
+  unit_of_measure (link) -> unit_of_measure [ro]
+  date_received (date)
+  receiving_location (link) -> location
+  site (link) -> site
+  LINKS: transfer_request->transfer, inventory->inventory, unit_of_measure->unit_of_measure, receiving_location->location, site->site
+
+=== unit_of_measure (purchasing_stores) — 2 fields ===
+  name (string)
+  short_name (string)
+
+=== vendor (purchasing_stores) — 2 fields ===
+  vendor_name (string)
+  site (link) -> site
+  LINKS: site->site
+
+=== work_order (work_mgmt) — 11 fields ===
+  workflow_state (string)
+  work_order_type (select)
+  description (text)
+  category_of_failure (link) -> category_of_failure
+  due_date (date)
+  priority (select)
+  severity (select)
+  incident (link) -> incident
+  site (link) -> site
+  department (link) -> department
+  cost_code (link) -> cost_code
+  LINKS: category_of_failure->category_of_failure, incident->incident, site->site, department->department, cost_code->cost_code
+
+=== work_order_activity (work_mgmt) — 17 fields ===
+  workflow_state (string)
+  work_order (link) -> work_order
+  work_order_name (text) [ro]
+  description (string)
+  work_item_type (select)
+  work_item (link) -> asset
+  asset_name (text) [ro]
+  activity_type (query_link)
+  activity_type_name (string) [ro]
+  position (link) -> position
+  assigned_to (link) -> labor
+  does_it_need_repair (boolean)
+  location (link) -> location
+  site (link) -> site
+  department (link) -> department
+  start_date (datetime)
+  end_date (datetime)
+  LINKS: work_order->work_order, work_item->asset, position->position, assigned_to->labor, location->location, site->site, department->department
+
+=== work_order_activity_logs (work_mgmt) — 4 fields ===
+  work_order_activity (link) -> work_order_activity
+  work_order_activity_name (string) [ro]
+  date (date)
+  log (text)
+  LINKS: work_order_activity->work_order_activity
+
+=== work_order_checklist (work_mgmt) — 7 fields ===
+  work_order_activity (link) -> work_order_activity
+  checklist (link) -> checklist
+  inspector_id (link) -> employee
+  inspector_name (string) [ro]
+  inspection_date (date)
+  remarks (text)
+  status (select)
+  LINKS: work_order_activity->work_order_activity, checklist->checklist, inspector_id->employee
+
+=== work_order_checklist_detail (work_mgmt) — 5 fields ===
+  work_order_checklist (link) -> work_order_checklist
+  item_name (string)
+  is_mandatory (boolean)
+  remarks (text)
+  status (select)
+  LINKS: work_order_checklist->work_order_checklist
+
+=== work_order_equipment (work_mgmt) — 11 fields ===
+  workflow_state (string)
+  work_order_activity (link) -> work_order_activity
+  work_order_activity_desc (string) [ro]
+  item (link) -> item
+  item_name (string) [ro]
+  equipment (link) -> equipment
+  equipment_name (string) [ro]
+  start_datetime (datetime)
+  end_datetime (datetime)
+  total_hours_used (float) [ro]
+  estimated_hours (float)
+  LINKS: work_order_activity->work_order_activity, item->item, equipment->equipment
+
+=== work_order_equipment_actual_hours (work_mgmt) — 8 fields ===
+  wo_equip_id (link) -> work_order_equipment
+  date (date)
+  hour (string)
+  reason (text)
+  comment (text)
+  site (link) -> site
+  department (link) -> department
+  cost_code (link) -> cost_code
+  LINKS: wo_equip_id->work_order_equipment, site->site, department->department, cost_code->cost_code
+
+=== work_order_equipment_assignment (work_mgmt) — 7 fields ===
+  workflow_state (string)
+  work_order_equipment (link) -> work_order_equipment
+  asset_class_id (string) [ro]
+  start_datetime (datetime)
+  end_datetime (datetime)
+  equipment (link) -> equipment
+  hours_used (float)
+  LINKS: work_order_equipment->work_order_equipment, equipment->equipment
+
+=== work_order_labor (work_mgmt) — 12 fields ===
+  workflow_state (string)
+  work_order_activity (link) -> work_order_activity
+  work_order_activity_desc (string) [ro]
+  trade (link) -> trade
+  trade_name (string) [ro]
+  labor (link) -> labor
+  laborer (string) [ro]
+  lead (boolean)
+  start_datetime (datetime)
+  end_datetime (datetime)
+  total_hours_used (float) [ro]
+  estimated_hours (float)
+  LINKS: work_order_activity->work_order_activity, trade->trade, labor->labor
+
+=== work_order_labor_actual_hours (work_mgmt) — 8 fields ===
+  wo_labor_id (link) -> work_order_labor
+  date (date)
+  time (string)
+  reason (text)
+  comment (text)
+  site (link) -> site
+  department (link) -> department
+  cost_code (link) -> cost_code
+  LINKS: wo_labor_id->work_order_labor, site->site, department->department, cost_code->cost_code
+
+=== work_order_labor_assignment (work_mgmt) — 8 fields ===
+  workflow_state (string)
+  work_order_labor (link) -> work_order_labor
+  trade_id (string) [ro]
+  start_datetime (datetime)
+  end_datetime (datetime)
+  lead (boolean)
+  employee (link) -> labor
+  hours_used (float)
+  LINKS: work_order_labor->work_order_labor, employee->labor
+
+=== work_order_parts (work_mgmt) — 12 fields ===
+  workflow_state (string)
+  work_order_activity (link) -> work_order_activity
+  work_order_activity_desc (string) [ro]
+  item (link) -> item
+  item_name (string) [ro]
+  unit_of_measure (link) -> unit_of_measure [ro]
+  total_actual_qty (int) [ro]
+  total_avail_qty (int) [ro]
+  date_required (date)
+  quantity_required (int)
+  quantity_issued (int) [ro]
+  quantity_returned (int) [ro]
+  LINKS: work_order_activity->work_order_activity, item->item, unit_of_measure->unit_of_measure
+
+=== work_order_parts_reservation (work_mgmt) — 9 fields ===
+  work_order_parts (link) -> work_order_parts
+  item_id (string) [ro]
+  item (string) [ro]
+  unit_of_measure (link) -> unit_of_measure [ro]
+  inventory (link) -> inventory
+  avail_quantity_data (string)
+  date_reserved (datetime)
+  quantity_reserved (float)
+  status (select)
+  LINKS: work_order_parts->work_order_parts, unit_of_measure->unit_of_measure, inventory->inventory
+
+=== work_schedule (core_eam) — 5 fields ===
+  schedule_name (string)
+  applicable_to_labor_grp (link) -> labor_group
+  specific_labor (link) -> labor
+  start_date (date)
+  end_date (date)
+  LINKS: applicable_to_labor_grp->labor_group, specific_labor->labor
+
+=== work_schedule_details (core_eam) — 5 fields ===
+  work_schedule (link) -> work_schedule
+  day (select)
+  start_time (time)
+  end_time (time)
+  is_working (boolean)
+  LINKS: work_schedule->work_schedule
+
+=== zone (purchasing_stores) — 4 fields ===
+  zone_name (string)
+  store (link) -> store
+  store_name (string) [ro]
+  site (link) -> site
+  LINKS: store->store, site->site

@@ -1,0 +1,44 @@
+{
+  "name": "category_of_failure",
+  "label": "Category of Failure",
+  "module": "Work Management",
+  "table_name": "category_of_failure",
+  "title_field": "failure_name",
+  "in_sidebar": 1,
+  "naming": "COF-{#####}",
+  "icon": "alert-triangle",
+  "group": "Failure Analysis",
+  "search": true,
+  "fields": [
+    {
+      "name": "failure_name",
+      "label": "Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text"
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "active",
+      "label": "Active",
+      "field_type": "boolean"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

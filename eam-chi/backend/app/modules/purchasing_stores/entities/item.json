@@ -1,0 +1,191 @@
+{
+  "name": "item",
+  "label": "Item",
+  "module": "Procurement",
+  "table_name": "item",
+  "title_field": "item_name",
+  "in_sidebar": 1,
+  "naming": "ITM-{#####}",
+  "icon": "package",
+  "group": "Item Catalog",
+  "search": true,
+  "fields": [
+    {
+      "name": "item_name",
+      "label": "Item Name",
+      "field_type": "string",
+      "in_list_view": true,
+      "required": true,
+      "unique": false
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "in_list_view": true,
+      "required": true,
+      "unique": false
+    },
+    {
+      "name": "item_class",
+      "label": "Item Class",
+      "field_type": "link",
+      "in_list_view": false,
+      "required": false,
+      "unique": false,
+      "options": "Item Class",
+      "link_entity": "item_class"
+    },
+    {
+      "name": "item_type",
+      "label": "Item Type",
+      "field_type": "select",
+      "in_list_view": true,
+      "required": true,
+      "unique": false,
+      "options": "Fixed Asset Item\nAsset Item\nInventory Item\nNon Inventory Item\nService Item"
+    },
+    {
+      "name": "abc_code",
+      "label": "ABC's Code",
+      "field_type": "select",
+      "in_list_view": false,
+      "required": false,
+      "unique": false,
+      "options": "A\nB\nC"
+    },
+    {
+      "name": "expense_account",
+      "label": "Expense Account",
+      "field_type": "link",
+      "in_list_view": false,
+      "required": false,
+      "unique": false,
+      "options": "Account",
+      "link_entity": "account"
+    },
+    {
+      "name": "inventory_adjustment_account",
+      "label": "Inventory Adjustment Account",
+      "field_type": "link",
+      "in_list_view": false,
+      "required": false,
+      "unique": false,
+      "options": "Account",
+      "link_entity": "inventory_adjustment"
+    },
+    {
+      "name": "primary_vendor",
+      "label": "Primary Vendor",
+      "field_type": "link",
+      "in_list_view": false,
+      "required": false,
+      "unique": false,
+      "options": "Vendor",
+      "link_entity": "vendor"
+    },
+    {
+      "name": "asset_class",
+      "label": "Asset Class",
+      "field_type": "link",
+      "in_list_view": false,
+      "required": false,
+      "unique": false,
+      "options": "Asset Class",
+      "link_entity": "asset_class"
+    },
+    {
+      "name": "uom",
+      "label": "Unit of Measure",
+      "field_type": "link",
+      "in_list_view": false,
+      "required": true,
+      "unique": false,
+      "options": "Unit Of Measure",
+      "link_entity": "unit_of_measure"
+    },
+    {
+      "name": "actual_qty_on_hand",
+      "label": "Actual Quantity on Hand",
+      "field_type": "int",
+      "in_list_view": false,
+      "required": false,
+      "unique": false
+    },
+    {
+      "name": "available_capacity",
+      "label": "Available Capacity",
+      "field_type": "int",
+      "in_list_view": false,
+      "required": false,
+      "unique": false
+    },
+    {
+      "name": "unit_cost",
+      "label": "Unit Cost",
+      "field_type": "float",
+      "in_list_view": false,
+      "required": false,
+      "unique": false
+    },
+    {
+      "name": "reserved_capacity",
+      "label": "Reserved Capacity",
+      "field_type": "int",
+      "in_list_view": false,
+      "required": false,
+      "unique": false
+    },
+    {
+      "name": "is_serialized",
+      "label": "Is Serialized",
+      "field_type": "boolean",
+      "in_list_view": false,
+      "required": false,
+      "unique": false
+    },
+    {
+      "name": "inspection_required",
+      "label": "Inspection Required",
+      "field_type": "boolean",
+      "in_list_view": false,
+      "required": false,
+      "unique": false
+    },
+    {
+      "name": "is_equipment",
+      "label": "Is Equipment/Tool",
+      "field_type": "boolean",
+      "in_list_view": false,
+      "required": false,
+      "unique": false
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "inventory",
+      "fk_field": "item",
+      "label": "Inventory"
+    },
+    {
+      "entity": "work_order_parts",
+      "fk_field": "item",
+      "label": "Parts"
+    },
+    {
+      "entity": "putaway",
+      "fk_field": "item",
+      "label": "Putaway"
+    },
+    {
+      "entity": "purchase_request_line",
+      "fk_field": "item",
+      "label": "Lines"
+    }
+  ]
+}

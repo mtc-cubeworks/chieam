@@ -1,0 +1,39 @@
+CIRCULAR REFERENCES (A->B and B->A)
+============================================================
+
+asset <-> inventory
+  Forward: asset.inventory->inventory
+  Back:    inventory.asset->asset
+
+asset <-> position
+  Forward: asset.position->position
+  Back:    position.current_asset->asset
+
+asset_class <-> asset_class
+  Forward: asset_class.parent_asset_class->asset_class
+  Back:    asset_class.parent_asset_class->asset_class
+
+cost_code <-> site
+  Forward: cost_code.site->site
+  Back:    site.default_cost_code->cost_code
+
+item_class <-> item_class
+  Forward: item_class.parent_item_class->item_class
+  Back:    item_class.parent_item_class->item_class
+
+location <-> location
+  Forward: location.parent_location->location
+  Back:    location.parent_location->location
+
+location <-> site
+  Forward: location.site->site
+  Back:    site.location->location
+
+maintenance_request <-> maintenance_request
+  Forward: maintenance_request.next_maintenance_request->maintenance_request
+  Back:    maintenance_request.next_maintenance_request->maintenance_request
+
+system <-> system
+  Forward: system.parent_system->system
+  Back:    system.parent_system->system
+

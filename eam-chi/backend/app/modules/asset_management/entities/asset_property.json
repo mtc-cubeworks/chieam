@@ -1,0 +1,58 @@
+{
+  "name": "asset_property",
+  "label": "Asset Property",
+  "module": "Asset Management",
+  "table_name": "asset_property",
+  "title_field": "property",
+  "in_sidebar": 0,
+  "naming": "AP-{####}",
+  "icon": "tag",
+  "group": "Assets",
+  "fields": [
+    {
+      "name": "asset",
+      "label": "Asset",
+      "field_type": "link",
+      "link_entity": "asset",
+      "in_list_view": true
+    },
+    {
+      "name": "property",
+      "label": "Property",
+      "field_type": "link",
+      "link_entity": "property",
+      "in_list_view": true
+    },
+    {
+      "name": "property_value",
+      "label": "Value",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "unit_of_measure",
+      "label": "Unit of Measure",
+      "field_type": "link",
+      "link_entity": "unit_of_measure",
+      "readonly": true,
+      "in_list_view": true,
+      "fetch_from": "property.unit_of_measure"
+    },
+    {
+      "name": "property_type",
+      "label": "Property Type",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ],
+    "AssetManager": [
+      "read",
+      "update"
+    ]
+  }
+}

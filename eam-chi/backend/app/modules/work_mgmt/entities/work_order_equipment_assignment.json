@@ -1,0 +1,70 @@
+{
+  "name": "work_order_equipment_assignment",
+  "label": "Work Order Equipment Assignment",
+  "module": "Work Management",
+  "table_name": "work_order_equipment_assignment",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "naming": "WEASS-{#####}",
+  "icon": "link",
+  "group": "Work Execution",
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "work_order_equipment",
+      "label": "Equipment",
+      "field_type": "link",
+      "link_entity": "work_order_equipment",
+      "in_list_view": true
+    },
+    {
+      "name": "asset_class_id",
+      "label": "Asset Class ID",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "start_datetime",
+      "label": "Start",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "end_datetime",
+      "label": "End",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "equipment",
+      "label": "Assigned Equipment",
+      "field_type": "link",
+      "link_entity": "equipment",
+      "in_list_view": true
+    },
+    {
+      "name": "hours_used",
+      "label": "Hours Used",
+      "field_type": "float",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "work_order_equipment_actual_hours",
+      "fk_field": "wo_equip_assignment_id",
+      "label": "Actual Hours"
+    }
+  ]
+}

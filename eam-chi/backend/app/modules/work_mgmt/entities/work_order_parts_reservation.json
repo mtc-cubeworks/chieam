@@ -1,0 +1,83 @@
+{
+  "name": "work_order_parts_reservation",
+  "label": "Work Order Parts Reservation",
+  "module": "Work Management",
+  "table_name": "work_order_parts_reservation",
+  "title_field": "item",
+  "in_sidebar": 1,
+  "naming": "WPRS-{#####}",
+  "icon": "bookmark",
+  "group": "Work Resources",
+  "search": true,
+  "fields": [
+    {
+      "name": "work_order_parts",
+      "label": "Parts",
+      "field_type": "link",
+      "link_entity": "work_order_parts",
+      "in_list_view": true
+    },
+    {
+      "name": "item_id",
+      "label": "Item ID",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "string",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "unit_of_measure",
+      "label": "UoM",
+      "field_type": "link",
+      "link_entity": "unit_of_measure",
+      "readonly": true,
+      "in_list_view": true,
+      "fetch_from": "work_order_parts.unit_of_measure"
+    },
+    {
+      "name": "inventory",
+      "label": "Inventory",
+      "field_type": "link",
+      "link_entity": "inventory"
+    },
+    {
+      "name": "avail_quantity_data",
+      "label": "Available Qty Data",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "date_reserved",
+      "label": "Reserved",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "quantity_reserved",
+      "label": "Qty Reserved",
+      "field_type": "float",
+      "in_list_view": true
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "field_type": "select",
+      "options": [
+        "Pending",
+        "Reserved",
+        "Released"
+      ]
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

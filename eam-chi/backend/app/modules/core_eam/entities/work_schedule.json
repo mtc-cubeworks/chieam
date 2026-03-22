@@ -1,0 +1,58 @@
+{
+  "name": "work_schedule",
+  "label": "Work Schedule",
+  "module": "Enterprise",
+  "table_name": "work_schedule",
+  "title_field": "schedule_name",
+  "in_sidebar": 1,
+  "naming": "WSCHED-{#####}",
+  "icon": "calendar-days",
+  "group": "Scheduling",
+  "search": true,
+  "links": [
+    {
+      "entity": "work_schedule_details",
+      "fk_field": "work_schedule",
+      "label": "Schedule Details"
+    }
+  ],
+  "fields": [
+    {
+      "name": "schedule_name",
+      "label": "Schedule Name",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "applicable_to_labor_grp",
+      "label": "Labor Group",
+      "field_type": "link",
+      "link_entity": "labor_group",
+      "in_list_view": true
+    },
+    {
+      "name": "specific_labor",
+      "label": "Specific Labor",
+      "field_type": "link",
+      "link_entity": "labor",
+      "in_list_view": true
+    },
+    {
+      "name": "start_date",
+      "label": "Start Date",
+      "field_type": "date",
+      "in_list_view": true
+    },
+    {
+      "name": "end_date",
+      "label": "End Date",
+      "field_type": "date",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

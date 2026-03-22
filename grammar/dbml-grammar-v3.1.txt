@@ -1,0 +1,449 @@
+(* DBML v3.1 — Domain & Behavior Modeling Language (Revised) *)
+
+dbml-model   = "dbml", "model", identifier, "{",
+                 { import-def },
+                 { dbml-element },
+               "}" ;
+
+import-def   = "import", string, [ "as", identifier ], ";" ;
+
+dbml-element = context-def
+             | entity-def
+             | enum-def
+             | role-def
+             | process-def
+             | lifecycle-def
+             | workflow-def
+             | action-def
+             | mapping-def
+             | permission-def
+             | automation-def
+             | metric-def
+             | integration-def
+             | channel-def
+             | event-def
+             | type-alias-def
+             | constant-def
+             | annotation-def
+             | security-ref ;
+
+security-ref = "security", "use", qualified-name, ";" ;
+
+context-def  = "context", identifier, "{",
+                 [ "label", "=", string, ";" ],
+                 { dbml-element },
+               "}" ;
+
+entity-def = "entity", identifier, "{",
+               [ "label", "=", string, ";" ],
+               [ "category", "=", entity-category, ";" ],
+               [ "kind", "=", entity-kind, ";" ],
+               { entity-member },
+             "}" ;
+
+entity-category = "master"
+                | "transactional"
+                | "config"
+                | "reference"
+                | "aggregate"
+                | identifier ;
+
+entity-kind = "root"
+            | "child"
+            | "junction"
+            | "view"
+            | "session"
+            | identifier ;
+
+entity-member = field-def
+              | relation-def
+              | lifecycle-ref
+              | role-usage
+              | entity-tag
+              | entity-behavior-section
+              | annotation-def ;
+
+field-def = "field", identifier, ":", type-ref, "{",
+               [ "label", "=", string, ";" ],
+               [ "required", "=", boolean, ";" ],
+               [ "unique", "=", boolean, ";" ],
+               [ "default", "=", scalar, ";" ],
+               [ "computed", "=", boolean, ";" ],
+               [ "readonly", "=", boolean, ";" ],
+               [ "index", "=", boolean, ";" ],
+               [ "precision", "=", integer, ";" ],
+               [ "scale", "=", integer, ";" ],
+               [ "enum", "=", identifier, ";" ],
+               { property },
+            "}"
+          | "field", identifier, ":", type-ref, ";" ;
+
+type-ref = primitive-type
+         | identifier
+         | qualified-name ;
+
+primitive-type = "string"
+               | "text"
+               | "boolean"
+               | "int"
+               | "integer"
+               | "float"
+               | "decimal"
+               | "date"
+               | "datetime"
+               | "time"
+               | "uuid"
+               | "json"
+               | "blob"
+               | "binary" ;
+
+relation-def = "relation", identifier, "{",
+                 "from", "=", qualified-name, ";",
+                 "to",   "=", qualified-name, ";",
+                 [ "kind", "=", relation-kind, ";" ],
+                 [ "cardinality", "=", cardinality, ";" ],
+                 [ "owner", "=", qualified-name, ";" ],
+                 { property },
+              "}"
+            | "relation", identifier, ":", qualified-name, ";" ;
+
+relation-kind = "association"
+              | "aggregation"
+              | "composition"
+              | "inheritance"
+              | "link"
+              | "child"
+              | "dynamic-link"
+              | "tree-parent"
+              | identifier ;
+
+cardinality = "one-to-one"
+            | "one-to-many"
+            | "many-to-one"
+            | "many-to-many" ;
+
+lifecycle-ref = "lifecycle", "use", qualified-name, ";" ;
+
+role-usage = "role", "use", qualified-name, ";" ;
+
+entity-tag = "tag", identifier, ";" ;
+
+enum-def = "enum", identifier, "{",
+             { enum-value },
+           "}" ;
+
+enum-value = identifier, [ "=", integer ], ";" ;
+
+role-def = "role", identifier, "{",
+             [ "label", "=", string, ";" ],
+             { property },
+           "}" ;
+
+process-def = "process", identifier, "{",
+                [ "label", "=", string, ";" ],
+                { process-step-def },
+             "}" ;
+
+process-step-def = "step", identifier, "{",
+                     [ "entity", "=", qualified-name, ";" ],
+                     [ "action", "=", qualified-name, ";" ],
+                     [ "next", "=", identifier, ";" ],
+                     { property },
+                   "}" ;
+
+lifecycle-def = "lifecycle", identifier, "{",
+                  [ "entity", "=", qualified-name, ";" ],
+                  { lifecycle-state-def },
+                "}" ;
+
+lifecycle-state-def = "state", identifier, "{",
+                        [ "initial", "=", boolean, ";" ],
+                        [ "final",   "=", boolean, ";" ],
+                        { property },
+                      "}" ;
+
+entity-behavior-section = "behavior", "{",
+                            { entity-behavior-member },
+                          "}" ;
+
+entity-behavior-member = workflow-ref
+                        | local-action-def
+                        | local-permission-def
+                        | entity-event-handler
+                        | behavior-rule-def
+                        | automation-ref ;
+
+workflow-ref = "workflow", "use", qualified-name, ";" ;
+
+local-action-def = "action", identifier, "{",
+                     [ "kind", "=", action-kind, ";" ],
+                     [ "invoke", "=", string, ";" ],
+                     { "step", "=", string, ";" },
+                     { property },
+                   "}" ;
+
+local-permission-def = "permissions", "{",
+                          { role-permission },
+                       "}" ;
+
+entity-event-handler = "on", event-name, "{",
+                         [ "when", condition-expr, ";" ],
+                         { "do", action-ref, ";" },
+                         { property },
+                       "}" ;
+
+behavior-rule-def = "rule", identifier, "{",
+                      [ "when", condition-expr, ";" ],
+                      { "do", action-ref, ";" },
+                      { property },
+                    "}" ;
+
+automation-ref = "automation", "use", qualified-name, ";" ;
+
+workflow-def = "workflow", identifier, "{",
+                 [ "entity", "=", qualified-name, ";" ],
+                 [ "state-field", "=", identifier, ";" ],
+                 { workflow-state },
+                 { workflow-transition },
+              "}" ;
+
+workflow-state = "state", identifier, "{",
+                   [ "initial", "=", boolean, ";" ],
+                   [ "final",   "=", boolean, ";" ],
+                   { property },
+                 "}" ;
+
+workflow-transition = "transition", identifier, "{",
+                         "from", "=", identifier, ";",
+                         "to",   "=", identifier, ";",
+                         [ "action", "=", qualified-name, ";" ],
+                         { "role", "=", qualified-name, ";" },
+                         { property },
+                      "}" ;
+
+action-def = "action", identifier, "{",
+                [ "kind", "=", action-kind, ";" ],
+                [ "entity", "=", qualified-name, ";" ],
+                [ "inputs", "{", { field-def }, "}" ],
+                [ "returns", "{", { field-def }, "}" ],
+                [ "handler", "=", string, ";" ],
+                { "step", "=", string, ";" },
+                { property },
+             "}" ;
+
+action-kind = "server"
+            | "client"
+            | "scheduled"
+            | "webhook"
+            | "external"
+            | "script"
+            | "query"
+            | identifier ;
+
+mapping-def = "mapping", identifier, "{",
+                "from", "=", type-ref, ";",
+                "to",   "=", type-ref, ";",
+                { field-map-def },
+              "}" ;
+
+field-map-def = identifier, "->", identifier, ";" ;
+
+permission-def = "permissions", identifier, "{",
+                    [ "entity", "=", qualified-name, ";" ],
+                    { role-permission },
+                 "}" ;
+
+role-permission = "role", qualified-name, "{",
+                     { permission-flag },
+                     { property },
+                  "}" ;
+
+permission-flag = "allow", "=", permission-set, ";" ;
+
+permission-set = permission-name, { ",", permission-name } ;
+
+permission-name = "read"
+                | "write"
+                | "create"
+                | "delete"
+                | "submit"
+                | "cancel"
+                | "amend"
+                | "assign"
+                | "share"
+                | "print"
+                | "email"
+                | "export"
+                | identifier ;
+
+event-def = "event", identifier, "{",
+               [ "entity", "=", qualified-name, ";" ],
+               [ "kind", "=", event-kind, ";" ],
+               { property },
+            "}" ;
+
+event-kind = "domain"
+           | "integration"
+           | "system"
+           | "ui"
+           | identifier ;
+
+action-ref = qualified-name ;
+
+event-name = "create"
+           | "update"
+           | "delete"
+           | "submit"
+           | "cancel"
+           | "validate"
+           | "before-save"
+           | "after-save"
+           | "scheduled"
+           | identifier ;
+
+automation-def = "automation", identifier, "{",
+                    [ "entity", "=", qualified-name, ";" ],
+                    { trigger-def },
+                 "}" ;
+
+trigger-def = "trigger", identifier, "{",
+                 [ "on-event", "=", event-name, ";" ],
+                 [ "schedule", "=", schedule-expr, ";" ],
+                 [ "filter",   "=", condition-expr, ";" ],
+                 { "notify", notification-target, ";" },
+                 { "invoke", action-ref, ";" },
+                 { property },
+              "}" ;
+
+notification-target = "email"
+                     | "channel"
+                     | "user"
+                     | "role"
+                     | identifier ;
+
+metric-def = "metrics", identifier, "{",
+                { metric-item },
+                { report-def },
+                { dashboard-def },
+              "}" ;
+
+metric-item = "metric", identifier, "{",
+                 [ "entity", "=", qualified-name, ";" ],
+                 [ "field",  "=", identifier, ";" ],
+                 [ "aggregation", "=", aggregation-kind, ";" ],
+                 [ "group-by", "=", identifier, ";" ],
+                 { property },
+              "}" ;
+
+aggregation-kind = "count"
+                 | "sum"
+                 | "avg"
+                 | "min"
+                 | "max"
+                 | identifier ;
+
+report-def = "report", identifier, "{",
+                [ "entity", "=", qualified-name, ";" ],
+                [ "kind", "=", ("tabular" | "query" | "script" | identifier), ";" ],
+                { "metric-ref", "=", identifier, ";" },
+                { property },
+             "}" ;
+
+dashboard-def = "dashboard", identifier, "{",
+                   { "metric-ref", "=", identifier, ";" },
+                   { property },
+                "}" ;
+
+integration-def = "integration", identifier, "{",
+                     [ "entity", "=", qualified-name, ";" ],
+                     { adapter-def },
+                     { endpoint-def },
+                  "}" ;
+
+adapter-def = "adapter", identifier, "{",
+                 [ "direction", "=", adapter-direction, ";" ],
+                 [ "protocol",  "=", adapter-protocol, ";" ],
+                 [ "endpoint-ref", "=", identifier, ";" ],
+                 { property },
+              "}" ;
+
+adapter-direction = "inbound"
+                  | "outbound"
+                  | "bidirectional" ;
+
+adapter-protocol = "http"
+                 | "rest"
+                 | "soap"
+                 | "queue"
+                 | "file"
+                 | "grpc"
+                 | "custom"
+                 | identifier ;
+
+endpoint-def = "endpoint", identifier, "{",
+                  [ "url", "=", string, ";" ],
+                  [ "method", "=", http-method, ";" ],
+                  [ "payload-mapping", "=", string, ";" ],
+                  { property },
+               "}" ;
+
+http-method = "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | identifier ;
+
+channel-def = "channel", identifier, "{",
+                 [ "kind", "=", channel-kind, ";" ],
+                 [ "entity", "=", qualified-name, ";" ],
+                 { property },
+              "}" ;
+
+channel-kind = "webform"
+             | "api"
+             | "import"
+             | "export"
+             | "ui"
+             | "event"
+             | identifier ;
+
+type-alias-def = "type", identifier, "=", type-ref, ";" ;
+
+constant-def = "const", identifier, "=", scalar, ";" ;
+
+annotation-def = "@", identifier, [ "(", annotation-args, ")" ], ";" ;
+
+annotation-args = annotation-arg, { ",", annotation-arg } ;
+
+annotation-arg = identifier, "=", scalar ;
+
+qualified-name = identifier, { ".", identifier } ;
+
+identifier     = letter, { letter | digit | "_" | "-" } ;
+
+string         = '"', { character }, '"' ;
+
+scalar         = string
+               | integer
+               | number
+               | boolean ;
+
+integer        = [ "-" ], digit, { digit } ;
+
+number         = [ "-" ], digit, { digit }, [ ".", { digit } ] ;
+
+boolean        = "true" | "false" ;
+
+letter         = "A" | "B" | "C" | "D" | "E" |
+                 "F" | "G" | "H" | "I" | "J" |
+                 "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" |
+                 "T" | "U" | "V" | "W" | "X" | "Y" | "Z" |
+                 "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" |
+                 "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" |
+                 "t" | "u" | "v" | "w" | "x" | "y" | "z" ;
+
+digit          = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+
+character      = ? any valid character except " and line break ? ;
+
+property       = identifier, "=", scalar, ";" ;
+
+condition-expr = string ;
+
+schedule-expr  = string ;

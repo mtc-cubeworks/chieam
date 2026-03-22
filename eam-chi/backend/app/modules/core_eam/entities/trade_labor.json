@@ -1,0 +1,46 @@
+{
+  "name": "trade_labor",
+  "label": "Trade Labor",
+  "module": "Enterprise",
+  "table_name": "trade_labor",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "TRDEMP-{#####}",
+  "icon": "link",
+  "group": "Trades",
+  "fields": [
+    {
+      "name": "trade",
+      "label": "Trade",
+      "field_type": "link",
+      "link_entity": "trade",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "labor",
+      "label": "Labor",
+      "field_type": "link",
+      "link_entity": "labor",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "laborer",
+      "label": "Laborer",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "primary",
+      "label": "Primary",
+      "field_type": "boolean"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

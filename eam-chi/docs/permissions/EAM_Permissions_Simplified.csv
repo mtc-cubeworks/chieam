@@ -1,0 +1,9 @@
+﻿Code,Permission,Description
+O,Only if Creator,User can only access records they created
+Sel,Select,User can select/view in links
+R,Read,User can read/view the document
+W,Write,User can edit existing documents
+C,Create,User can create new documents
+D,Delete,User can delete documents
+Imp,Import,User can import data
+-,No Permission,No permissions granted

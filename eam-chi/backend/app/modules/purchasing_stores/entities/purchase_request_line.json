@@ -1,0 +1,242 @@
+{
+  "name": "purchase_request_line",
+  "label": "Purchase Request Line",
+  "module": "Procurement",
+  "table_name": "purchase_request_line",
+  "title_field": "item_name",
+  "in_sidebar": 0,
+  "is_child_table": true,
+  "naming": "PRL-{#####}",
+  "icon": "list",
+  "group": "Purchasing",
+  "search": true,
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "default_state": "Draft",
+    "initial_state": "Draft",
+    "states": [
+      "Draft",
+      "Pending Approval",
+      "Approved",
+      "Rejected",
+      "Partially Received",
+      "Fully Received",
+      "Complete"
+    ],
+    "transitions": [
+      {
+        "from": "Draft",
+        "to": "Pending Approval",
+        "action": "Submit for Approval",
+        "label": "Submit for Approval"
+      },
+      {
+        "from": "Pending Approval",
+        "to": "Approved",
+        "action": "Approve",
+        "label": "Approve"
+      },
+      {
+        "from": "Pending Approval",
+        "to": "Rejected",
+        "action": "Reject",
+        "label": "Reject"
+      },
+      {
+        "from": "Approved",
+        "to": "Partially Received",
+        "action": "Receive Partial Items",
+        "label": "Receive Partial Items"
+      },
+      {
+        "from": "Approved",
+        "to": "Fully Received",
+        "action": "Receive All Items",
+        "label": "Receive All Items"
+      },
+      {
+        "from": "Partially Received",
+        "to": "Fully Received",
+        "action": "Receive Remaining Items",
+        "label": "Receive Remaining Items"
+      },
+      {
+        "from": "Fully Received",
+        "to": "Complete",
+        "action": "Complete",
+        "label": "Complete"
+      }
+    ]
+  },
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "purchase_request",
+      "label": "Purchase Request",
+      "field_type": "link",
+      "link_entity": "purchase_request",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "financial_asset_number",
+      "label": "Financial Asset Number",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "row_no",
+      "label": "Row No",
+      "field_type": "int",
+      "readonly": true,
+      "in_list_view": true,
+      "hidden": true
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "item_description",
+      "label": "Description",
+      "field_type": "text",
+      "fetch_from": "item.description"
+    },
+    {
+      "name": "vendor",
+      "label": "Vendor",
+      "field_type": "link",
+      "link_entity": "vendor",
+      "hidden": false
+    },
+    {
+      "name": "unit_cost",
+      "label": "Unit Cost",
+      "field_type": "float"
+    },
+    {
+      "name": "unit_of_measure",
+      "label": "UoM",
+      "field_type": "link",
+      "link_entity": "unit_of_measure",
+      "readonly": true,
+      "fetch_from": "item.uom"
+    },
+    {
+      "name": "qty_required",
+      "label": "Qty Rqd",
+      "field_type": "int",
+      "required": false
+    },
+    {
+      "name": "base_currency",
+      "label": "Base Currency",
+      "field_type": "link",
+      "link_entity": "currency"
+    },
+    {
+      "name": "total_line_amount",
+      "label": "Line Total",
+      "field_type": "float",
+      "readonly": true
+    },
+    {
+      "name": "account_code",
+      "label": "Account Code",
+      "field_type": "link",
+      "link_entity": "account",
+      "hidden": false
+    },
+    {
+      "name": "cost_code",
+      "label": "Cost Code",
+      "field_type": "link",
+      "link_entity": "cost_code",
+      "hidden": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false,
+      "hidden": true
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department",
+      "required": false,
+      "hidden": true
+    },
+    {
+      "name": "po_num",
+      "label": "PO Number",
+      "field_type": "string",
+      "hidden": false
+    },
+    {
+      "name": "date_required",
+      "label": "Date Required",
+      "field_type": "datetime",
+      "in_list_view": true,
+      "hidden": true
+    },
+    {
+      "name": "qty_received",
+      "label": "Qty Received",
+      "field_type": "int",
+      "readonly": true,
+      "hidden": true
+    },
+    {
+      "name": "base_currency_unit",
+      "label": "Currency Unit",
+      "field_type": "float",
+      "hidden": true
+    },
+    {
+      "name": "base_currency_line_amount",
+      "label": "Currency Amount",
+      "field_type": "float",
+      "hidden": true
+    },
+    {
+      "name": "conversion_factor",
+      "label": "Conversion Factor",
+      "field_type": "float",
+      "hidden": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "purchase_receipt",
+      "fk_field": "purchase_request_line",
+      "label": "Purchase Receipts"
+    }
+  ],
+  "form_state": {
+    "editable_when": {
+      "workflow_state": [
+        "draft"
+      ]
+    }
+  },
+  "children": []
+}

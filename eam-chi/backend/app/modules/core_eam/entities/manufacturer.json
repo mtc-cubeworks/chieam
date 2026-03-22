@@ -1,0 +1,39 @@
+{
+  "name": "manufacturer",
+  "label": "Manufacturer",
+  "module": "Enterprise",
+  "table_name": "manufacturer",
+  "title_field": "company_name",
+  "in_sidebar": 1,
+  "naming": "MFG-{#####}",
+  "icon": "factory",
+  "group": "System Configuration",
+  "search": true,
+  "links": [
+    {
+      "entity": "model",
+      "fk_field": "manufacturer",
+      "label": "Models"
+    }
+  ],
+  "fields": [
+    {
+      "name": "company_name",
+      "label": "Company Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "email",
+      "label": "Email",
+      "field_type": "string",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

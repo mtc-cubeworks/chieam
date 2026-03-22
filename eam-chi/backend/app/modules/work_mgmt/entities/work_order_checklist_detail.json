@@ -1,0 +1,52 @@
+{
+  "name": "work_order_checklist_detail",
+  "label": "Work Order Checklist Detail",
+  "module": "Work Management",
+  "table_name": "work_order_checklist_detail",
+  "title_field": "item_name",
+  "in_sidebar": 0,
+  "naming": "WOCHKD-{#####}",
+  "icon": "list",
+  "group": "Work Execution",
+  "fields": [
+    {
+      "name": "work_order_checklist",
+      "label": "Checklist",
+      "field_type": "link",
+      "link_entity": "work_order_checklist"
+    },
+    {
+      "name": "item_name",
+      "label": "Item Name",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "is_mandatory",
+      "label": "Mandatory",
+      "field_type": "boolean",
+      "in_list_view": true
+    },
+    {
+      "name": "remarks",
+      "label": "Remarks",
+      "field_type": "text",
+      "in_list_view": true
+    },
+    {
+      "name": "status",
+      "label": "Status",
+      "field_type": "select",
+      "options": [
+        "Pending",
+        "Checked",
+        "Failed"
+      ]
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

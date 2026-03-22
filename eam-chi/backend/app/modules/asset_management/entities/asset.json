@@ -1,0 +1,358 @@
+{
+  "name": "asset",
+  "label": "Asset",
+  "module": "Asset Management",
+  "table_name": "asset",
+  "title_field": "asset_tag",
+  "in_sidebar": 1,
+  "naming": "A-{#####}",
+  "icon": "box",
+  "group": "Assets",
+  "search": true,
+  "workflow": {
+    "enabled": true,
+    "initial_state": "acquired",
+    "state_field": "workflow_state",
+    "states": [
+      {
+        "name": "acquired",
+        "label": "Acquired",
+        "color": "blue"
+      },
+      {
+        "name": "inspected",
+        "label": "Inspected",
+        "color": "yellow"
+      },
+      {
+        "name": "active",
+        "label": "Active",
+        "color": "green"
+      },
+      {
+        "name": "inactive",
+        "label": "Inactive",
+        "color": "gray"
+      },
+      {
+        "name": "under_maintenance",
+        "label": "Under Maintenance",
+        "color": "orange"
+      },
+      {
+        "name": "under_repair",
+        "label": "Under Repair",
+        "color": "red"
+      },
+      {
+        "name": "decommissioned",
+        "label": "Decommissioned",
+        "color": "black"
+      }
+    ],
+    "transitions": [
+      {
+        "action": "Retire Asset",
+        "from_state": "active",
+        "to_state": "inactive"
+      },
+      {
+        "action": "Putaway",
+        "from_state": "inspected",
+        "to_state": "active"
+      },
+      {
+        "action": "Dispose",
+        "from_state": "active",
+        "to_state": "decommissioned"
+      },
+      {
+        "action": "Receive",
+        "from_state": "under_repair",
+        "to_state": "under_maintenance"
+      },
+      {
+        "action": "Send to Vendor",
+        "from_state": "under_maintenance",
+        "to_state": "under_repair"
+      },
+      {
+        "action": "Internal Repair",
+        "from_state": "under_maintenance",
+        "to_state": "under_repair"
+      },
+      {
+        "action": "Remove Asset",
+        "from_state": "active",
+        "to_state": "under_maintenance"
+      },
+      {
+        "action": "Complete",
+        "from_state": "under_maintenance",
+        "to_state": "active"
+      },
+      {
+        "action": "Install Asset",
+        "from_state": "inspected",
+        "to_state": "active"
+      },
+      {
+        "action": "Putaway",
+        "from_state": "under_maintenance",
+        "to_state": "inspected"
+      },
+      {
+        "action": "Failed Inspection",
+        "from_state": "inspected",
+        "to_state": "under_maintenance"
+      },
+      {
+        "action": "Install Asset",
+        "from_state": "active",
+        "to_state": "inspected"
+      },
+      {
+        "action": "Maintain Asset",
+        "from_state": "active",
+        "to_state": "under_maintenance"
+      },
+      {
+        "action": "Inspect Asset",
+        "from_state": "acquired",
+        "to_state": "inspected"
+      }
+    ]
+  },
+  "links": [
+    {
+      "entity": "asset_property",
+      "fk_field": "asset",
+      "label": "Property"
+    },
+    {
+      "entity": "asset_position",
+      "fk_field": "asset",
+      "label": "Asset Position"
+    },
+    {
+      "entity": "sub_asset",
+      "fk_field": "asset",
+      "label": "Sub Asset"
+    },
+    {
+      "entity": "maintenance_request",
+      "fk_field": "asset",
+      "label": "Maintenance Request"
+    },
+    {
+      "entity": "incident",
+      "fk_field": "asset",
+      "label": "Incident"
+    },
+    {
+      "entity": "sensor",
+      "fk_field": "asset",
+      "label": "Sensor"
+    }
+  ],
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "asset_tag",
+      "label": "Asset Tag",
+      "field_type": "string",
+      "required": true,
+      "unique": true,
+      "in_list_view": true
+    },
+    {
+      "name": "asset_class",
+      "label": "Asset Class",
+      "field_type": "link",
+      "link_entity": "asset_class",
+      "required": false
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "series",
+      "label": "Series",
+      "field_type": "string"
+    },
+    {
+      "name": "model",
+      "label": "Model (by Manufacturer)",
+      "field_type": "parent_child_link",
+      "child_entity": "model",
+      "parent_entity": "manufacturer",
+      "child_parent_fk_field": "manufacturer",
+      "required": false
+    },
+    {
+      "name": "serial_number",
+      "label": "Serial Number",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "date_purchased",
+      "label": "Date Purchased",
+      "field_type": "date",
+      "required": false
+    },
+    {
+      "name": "cost",
+      "label": "Cost",
+      "field_type": "float"
+    },
+    {
+      "name": "block_number",
+      "label": "Block Number",
+      "field_type": "int"
+    },
+    {
+      "name": "number_of_repairs",
+      "label": "Number of Repairs",
+      "field_type": "int"
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false,
+      "fetch_from": "location.site",
+      "in_list_view": true
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department",
+      "required": false
+    },
+    {
+      "name": "assigned_to",
+      "label": "Assigned To",
+      "field_type": "link",
+      "link_entity": "employee"
+    },
+    {
+      "name": "inventory",
+      "label": "Inventory",
+      "field_type": "link",
+      "link_entity": "inventory",
+      "readonly": true
+    },
+    {
+      "name": "system",
+      "label": "System",
+      "field_type": "link",
+      "link_entity": "system"
+    },
+    {
+      "name": "position",
+      "label": "Position",
+      "field_type": "link",
+      "link_entity": "position"
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item",
+      "readonly": true
+    },
+    {
+      "name": "defective",
+      "label": "Defective",
+      "field_type": "boolean"
+    },
+    {
+      "name": "item_type",
+      "label": "Item Type",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "is_equipment",
+      "label": "Is Equipment",
+      "field_type": "boolean",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "need_repair",
+      "label": "Need Repair",
+      "field_type": "boolean",
+      "hidden": true
+    },
+    {
+      "name": "bypass_process",
+      "label": "Bypass Process",
+      "field_type": "boolean",
+      "default": false,
+      "description": "When enabled, asset installation creates an Asset Position directly without a formal Maintenance Request."
+    }
+  ],
+  "form_state": {
+    "editable_when": {
+      "workflow_state": [
+        "acquired",
+        "inspected",
+        "inactive",
+        "active",
+        "under_maintenance",
+        "under_repair",
+        "decommissioned"
+      ]
+    },
+    "tab_rules": [
+      {
+        "entity": "asset_position",
+        "label": "Asset Position",
+        "display_depends_on": "eval:doc.workflow_state!='acquired'"
+      },
+      {
+        "entity": "maintenance_request",
+        "label": "Maintenance Request",
+        "display_depends_on": "eval:doc.workflow_state!='acquired'"
+      }
+    ]
+  },
+  "search_fields": [
+    "asset_tag",
+    "description",
+    "asset_class"
+  ],
+  "attachment_config": {
+    "allow_attachments": true,
+    "max_attachments": 5,
+    "max_file_size_mb": 10,
+    "allowed_extensions": [
+      "jpg",
+      "pdf",
+      "png"
+    ]
+  },
+  "children": []
+}

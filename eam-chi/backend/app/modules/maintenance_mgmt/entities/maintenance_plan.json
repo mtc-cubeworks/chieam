@@ -1,0 +1,72 @@
+{
+  "name": "maintenance_plan",
+  "label": "Maintenance Plan",
+  "module": "Maintenance Management",
+  "table_name": "maintenance_plan",
+  "title_field": "description",
+  "in_sidebar": 1,
+  "naming": "MTPLAN-{#####}",
+  "icon": "clipboard-check",
+  "group": "Maintenance Planning",
+  "search": true,
+  "fields": [
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "asset_class",
+      "label": "Asset Class",
+      "field_type": "link",
+      "link_entity": "asset_class",
+      "in_list_view": true
+    },
+    {
+      "name": "asset_class_name",
+      "label": "Asset Class Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "manufacturer",
+      "label": "Manufacturer",
+      "field_type": "link",
+      "link_entity": "manufacturer"
+    },
+    {
+      "name": "manufacturer_name",
+      "label": "Manufacturer Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "model",
+      "label": "Model",
+      "field_type": "link",
+      "link_entity": "model"
+    },
+    {
+      "name": "model_name",
+      "label": "Model Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "planned_maintenance_activity",
+      "fk_field": "maintenance_plan",
+      "label": "Planned Activities"
+    }
+  ]
+}

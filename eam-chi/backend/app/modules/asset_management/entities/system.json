@@ -1,0 +1,90 @@
+{
+  "name": "system",
+  "label": "System",
+  "module": "Asset Management",
+  "table_name": "system",
+  "title_field": "name",
+  "in_sidebar": 1,
+  "naming": "SYS-{####}",
+  "icon": "cpu",
+  "group": "Asset Structure",
+  "search": true,
+  "is_tree": true,
+  "tree_parent_field": "parent_system",
+  "links": [
+    {
+      "entity": "position",
+      "fk_field": "system",
+      "label": "Positions"
+    },
+    {
+      "entity": "asset",
+      "fk_field": "system",
+      "label": "Assets"
+    },
+    {
+      "entity": "system",
+      "fk_field": "parent_system",
+      "label": "Child Systems"
+    }
+  ],
+  "fields": [
+    {
+      "name": "name",
+      "label": "Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "system_type",
+      "label": "System Type",
+      "field_type": "link",
+      "link_entity": "system_type",
+      "in_list_view": true
+    },
+    {
+      "name": "system_type_name",
+      "label": "System Type Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "parent_system",
+      "label": "Parent System",
+      "field_type": "link",
+      "link_entity": "system"
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ],
+    "AssetManager": [
+      "read"
+    ]
+  }
+}

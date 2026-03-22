@@ -1,0 +1,49 @@
+{
+  "name": "asset_class_availability",
+  "label": "Asset Class Availability",
+  "module": "Asset Management",
+  "table_name": "asset_class_availability",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "naming": "ACAV-{####}",
+  "icon": "calendar-check",
+  "group": "Asset Classification",
+  "fields": [
+    {
+      "name": "asset_class",
+      "label": "Asset Class",
+      "field_type": "link",
+      "link_entity": "asset_class",
+      "in_list_view": true
+    },
+    {
+      "name": "specific_datetime",
+      "label": "Specific Datetime",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "remaining_capacity",
+      "label": "Remaining Capacity",
+      "field_type": "int",
+      "in_list_view": true
+    },
+    {
+      "name": "reserved_capacity",
+      "label": "Reserved Capacity",
+      "field_type": "int",
+      "in_list_view": true
+    },
+    {
+      "name": "available_capacity",
+      "label": "Available Capacity",
+      "field_type": "int",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

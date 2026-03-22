@@ -1,0 +1,137 @@
+{
+  "name": "inventory_adjustment",
+  "label": "Inventory Adjustment",
+  "module": "Procurement",
+  "table_name": "inventory_adjustment",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "INVADJ-{#####}",
+  "icon": "sliders",
+  "group": "Inventory Operations",
+  "search": true,
+  "children": [
+    {
+      "entity": "inventory_adjustment_line",
+      "fk_field": "inventory_adjustment",
+      "label": "Lines"
+    }
+  ],
+  "links": [],
+  "form_state": {
+    "editable_when": {
+      "workflow_state": [
+        "Draft"
+      ]
+    },
+    "can_add_children_when": {
+      "workflow_state": [
+        "Draft"
+      ]
+    }
+  },
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "initial_state": "Draft",
+    "states": [
+      "Draft",
+      "Submitted",
+      "Posted",
+      "Cancelled"
+    ],
+    "transitions": [
+      {
+        "from": "Draft",
+        "to": "Submitted",
+        "action": "Submit",
+        "label": "Submit"
+      },
+      {
+        "from": "Submitted",
+        "to": "Posted",
+        "action": "Post",
+        "label": "Post"
+      },
+      {
+        "from": "Submitted",
+        "to": "Cancelled",
+        "action": "Cancel",
+        "label": "Cancel"
+      },
+      {
+        "from": "Posted",
+        "to": "Submitted",
+        "action": "Submit",
+        "label": "Submit"
+      }
+    ]
+  },
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "source_stock_count",
+      "label": "Source Stock Count",
+      "field_type": "link",
+      "link_entity": "stock_count",
+      "readonly": true
+    },
+    {
+      "name": "reference_doctype",
+      "label": "Reference DocType",
+      "field_type": "string",
+      "readonly": true
+    },
+    {
+      "name": "posting_datetime",
+      "label": "Posting DateTime",
+      "field_type": "datetime",
+      "readonly": true,
+      "display_depends_on": "eval:doc.workflow_state=='Posted'"
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "store",
+      "label": "Store",
+      "field_type": "link",
+      "link_entity": "store",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "cost_center",
+      "label": "Cost Center",
+      "field_type": "link",
+      "link_entity": "account"
+    },
+    {
+      "name": "remarks",
+      "label": "Remarks",
+      "field_type": "text"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

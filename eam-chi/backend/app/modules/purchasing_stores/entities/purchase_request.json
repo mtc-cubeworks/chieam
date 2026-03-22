@@ -1,0 +1,214 @@
+{
+  "name": "purchase_request",
+  "label": "Purchase Request",
+  "module": "Procurement",
+  "table_name": "purchase_request",
+  "title_field": "pr_description",
+  "in_sidebar": 1,
+  "naming": "PR-{#####}",
+  "icon": "shopping-cart",
+  "group": "Purchasing",
+  "search": true,
+  "children": [
+    {
+      "entity": "purchase_request_line",
+      "fk_field": "purchase_request",
+      "label": "Lines"
+    }
+  ],
+  "links": [
+    {
+      "entity": "request_for_quotation",
+      "fk_field": "pr_id",
+      "label": "RFQ"
+    }
+  ],
+  "actions": [
+    {
+      "action": "generate_rfq",
+      "label": "Generate RFQ",
+      "method": "app.modules.purchasing_stores.apis.purchase_request.generate_rfq",
+      "show_when": {
+        "workflow_state": [
+          "approved"
+        ]
+      }
+    },
+    {
+      "action": "create_purchase_order",
+      "label": "Create Purchase Order",
+      "method": "app.modules.purchasing_stores.apis.purchase_order.create_po_from_pr",
+      "show_when": {
+        "workflow_state": [
+          "approved"
+        ]
+      }
+    }
+  ],
+  "workflow": {
+    "enabled": true,
+    "state_field": "workflow_state",
+    "initial_state": "Draft",
+    "states": [
+      "Draft",
+      "Pending Review",
+      "Pending Approval",
+      "Approved",
+      "Closed",
+      "Rejected"
+    ],
+    "transitions": [
+      {
+        "from": "Draft",
+        "to": "Pending Review",
+        "action": "Submit_for_Review",
+        "label": "Submit for Review"
+      },
+      {
+        "from": "Pending Review",
+        "to": "Pending Approval",
+        "action": "Submit_for_Approval",
+        "label": "Submit for Approval"
+      },
+      {
+        "from": "Pending Approval",
+        "to": "Approved",
+        "action": "Approve",
+        "label": "Approve"
+      },
+      {
+        "from": "Pending Approval",
+        "to": "Rejected",
+        "action": "Reject_Purchase_Request",
+        "label": "Reject Purchase Request"
+      },
+      {
+        "from": "Approved",
+        "to": "Closed",
+        "action": "Complete",
+        "label": "Complete"
+      },
+      {
+        "from": "Rejected",
+        "to": "Draft",
+        "action": "Revise_Purchase_Request",
+        "label": "Revise Purchase Request"
+      }
+    ]
+  },
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "date_requested",
+      "label": "Date Requested",
+      "field_type": "date",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "requestor",
+      "label": "Requestor",
+      "field_type": "link",
+      "link_entity": "employee",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "pr_description",
+      "label": "Description",
+      "field_type": "text",
+      "required": true,
+      "in_list_view": true
+    },
+    {
+      "name": "due_date",
+      "label": "Due Date",
+      "field_type": "date",
+      "in_list_view": true
+    },
+    {
+      "name": "work_activity_id",
+      "label": "Work Activity",
+      "field_type": "link",
+      "link_entity": "work_order_activity",
+      "hidden": true
+    },
+    {
+      "name": "maintenance_request",
+      "label": "Maintenance Request",
+      "field_type": "link",
+      "link_entity": "maintenance_request",
+      "hidden": true
+    },
+    {
+      "name": "reject_reason",
+      "label": "Reject Reason",
+      "field_type": "text",
+      "show_when": {
+        "workflow_state": [
+          "rejected"
+        ]
+      }
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": true
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department",
+      "required": true
+    },
+    {
+      "name": "cost_code",
+      "label": "Cost Code",
+      "field_type": "link",
+      "link_entity": "cost_code",
+      "hidden": true
+    }
+  ],
+  "form_state": {
+    "editable_when": {
+      "workflow_state": [
+        "draft",
+        "pending_review",
+        "pending_approval"
+      ]
+    },
+    "can_add_children_when": {
+      "workflow_state": [
+        "draft",
+        "pending_review"
+      ]
+    },
+    "tab_rules": [
+      {
+        "entity": "request_for_quotation",
+        "hide_when": {
+          "workflow_state": [
+            "rejected"
+          ]
+        },
+        "require_data": "has_lines"
+      }
+    ]
+  },
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "prefill": {
+    "date_requested": "today"
+  }
+}

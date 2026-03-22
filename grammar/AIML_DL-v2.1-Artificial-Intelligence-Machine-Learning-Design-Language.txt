@@ -1,0 +1,338 @@
+(* ===================================================================== *)
+(* AIML v2.1 — Artificial Intelligence & Machine Learning Modeling Language *)
+(* Purpose: Canonical, grammar-constrained modeling of AI/ML data, feature, *)
+(*          training, inference, deployment, governance, and lifecycle     *)
+(*          constructs across the Composable Modeling Stack.               *)
+(* Context for GitHub Copilot: This language defines the structural DSL     *)
+(*          used to model end-to-end AI/ML systems (data → model → ops),   *)
+(*          enabling deterministic generation, validation, and emitters.  *)
+(* ===================================================================== *)
+
+(* ============================== *)
+(* LEXICAL                        *)
+(* ============================== *)
+
+identifier        = letter , { letter | digit | "_" | "-" } ;
+qualified-name    = identifier , { "." , identifier } ;
+
+string            = '"' , { character } , '"' ;
+integer           = [ "-" ] , digit , { digit } ;
+number            = [ "-" ] , digit , { digit } , [ "." , { digit } ] ;
+boolean           = "true" | "false" ;
+
+scalar            = string | integer | number | boolean ;
+
+letter            = "A"…"Z" | "a"…"z" ;
+digit             = "0"…"9" ;
+character         = ? any valid character except " and line break ? ;
+
+(* ============================== *)
+(* ROOT MODEL                     *)
+(* ============================== *)
+
+aiml-model        = "aiml" , "model" , identifier , "{" ,
+                      { import-def } ,
+                      { aiml-element } ,
+                    "}" ;
+
+import-def        = "import" , string , [ "as" , identifier ] , ";" ;
+
+aiml-element      =
+      context-def
+    | datasource-def
+    | sensor-def
+    | feature-schema-def
+    | transform-def
+    | dataset-def
+    | model-def
+    | bayesian-model-def
+    | training-pipeline-def
+    | preprocessing-pipeline-def
+    | inference-architecture-def
+    | model-serving-def
+    | model-registry-def
+    | retraining-policy-def
+    | canary-deployment-def
+    | data-quality-rule-def
+    | drift-detector-def
+    | explainability-def
+    | tuning-block-def
+    | schedule-def
+    | security-ref
+    | annotation-def ;
+
+security-ref      = "security" , "use" , qualified-name , ";" ;
+
+(* ============================== *)
+(* CONTEXT                        *)
+(* ============================== *)
+
+context-def       = "context" , identifier , "{" ,
+                      [ "label" , "=" , string , ";" ] ,
+                      [ "description" , "=" , string , ";" ] ,
+                      [ "domain" , "=" , qualified-name , ";" ] ,
+                      { property } ,
+                    "}" ;
+
+(* ============================== *)
+(* DATASOURCES                    *)
+(* ============================== *)
+
+datasource-def    = "datasource" , identifier , "{" ,
+                      "type" , "=" , identifier , ";" ,
+                      [ "frequency" , "=" , number , ";" ] ,
+                      [ "retention_days" , "=" , number , ";" ] ,
+                      "fields" , "{" , { field-def } , "}" ,
+                    "}" ;
+
+field-def         = "field" , identifier , ":" , identifier , ";" ;
+
+(* ============================== *)
+(* SENSORS                        *)
+(* ============================== *)
+
+sensor-def        = "sensorType" , identifier , "{" ,
+                      "features" , "{" , { qualified-name , ";" } , "}" ,
+                      "window_seconds" , "=" , number , ";" ,
+                      "preprocessing" , "{" , { qualified-name , ";" } , "}" ,
+                    "}" ;
+
+(* ============================== *)
+(* FEATURE SCHEMAS                *)
+(* ============================== *)
+
+feature-schema-def
+                  = "featureSchema" , identifier , "{" ,
+                      "keys" , "{" , { identifier , ";" } , "}" ,
+                      "features" , "{" , { feature-field-def } , "}" ,
+                      [ "target" , "=" , identifier , ";" ] ,
+                    "}" ;
+
+feature-field-def = identifier , ":" , identifier , ";" ;
+
+(* ============================== *)
+(* TRANSFORMS                     *)
+(* ============================== *)
+
+transform-def     = "transform" , identifier , "{" ,
+                      "input" , "=" , qualified-name , ";" ,
+                      "outputs" , "{" , { qualified-name , ";" } , "}" ,
+                      [ "window" , "=" , number , ";" ] ,
+                      [ "algorithm" , "=" , string , ";" ] ,
+                      [ "formula" , "=" , string , ";" ] ,
+                    "}" ;
+
+(* ============================== *)
+(* DATASETS                       *)
+(* ============================== *)
+
+dataset-def       = "dataset" , identifier , "{" ,
+                      "schema" , "=" , qualified-name , ";" ,
+                      "sources" , "{" , { qualified-name , ";" } , "}" ,
+                      [ "filters" , "{" , { string , ";" } , "}" ] ,
+                      [ "join_keys" , "{" , { identifier , ";" } , "}" ] ,
+                    "}" ;
+
+(* ============================== *)
+(* MODELS                         *)
+(* ============================== *)
+
+model-def         = "model" , identifier , "{" ,
+                      "type" , "=" , identifier , ";" ,
+                      "algorithm" , "=" , identifier , ";" ,
+                      [ "input_schema" , "=" , qualified-name , ";" ] ,
+                      [ "output" , "=" , string , ";" ] ,
+                      [ "labels" , "{" , { string , ";" } , "}" ] ,
+                      [ "architecture" , "{" , { string , ";" } , "}" ] ,
+                      [ "hyperparameters" , "{" , { hyperparam-def } , "}" ] ,
+                      [ "metrics" , "{" , { string , ";" } , "}" ] ,
+                    "}" ;
+
+hyperparam-def    = identifier , "=" , scalar , ";" ;
+
+(* ============================== *)
+(* BAYESIAN MODELS                *)
+(* ============================== *)
+
+bayesian-model-def
+                  = "bayesianModel" , identifier , "{" ,
+                      bayes-nodes-block ,
+                      bayes-edges-block ,
+                      bayes-cpt-block ,
+                      evidence-binding-block ,
+                      inference-block ,
+                    "}" ;
+
+bayes-nodes-block = "nodes" , "{" , { bayes-node-def } , "}" ;
+bayes-node-def    = identifier , "{" , { identifier , ";" } , "}" ;
+
+bayes-edges-block = "edges" , "{" , { bayes-edge-def } , "}" ;
+bayes-edge-def    = identifier , "->" , identifier , ";" ;
+
+bayes-cpt-block   = "cpt" , identifier , "{" , { cpt-case-def } , "}" ;
+cpt-case-def      = "when" , string , ":" , { cpt-prob-def } , ";" ;
+cpt-prob-def      = identifier , "=" , number , ";" ;
+
+evidence-binding-block
+                  = "evidenceBinding" , identifier , "{" ,
+                      { binding-rule-def } ,
+                    "}" ;
+
+binding-rule-def  = "bind" , identifier , "to" , identifier , "using" , identifier , ";" ;
+
+inference-block   = "inference" , identifier , "{" ,
+                      "output" , "=" , string , ";" ,
+                    "}" ;
+
+(* ============================== *)
+(* TRAINING PIPELINES             *)
+(* ============================== *)
+
+training-pipeline-def
+                  = "trainingPipeline" , identifier , "{" ,
+                      "dataset" , "=" , qualified-name , ";" ,
+                      "steps" , "{" , { string , ";" } , "}" ,
+                      "metrics" , "{" , { string , ";" } , "}" ,
+                    "}" ;
+
+(* ============================== *)
+(* PREPROCESSING                  *)
+(* ============================== *)
+
+preprocessing-pipeline-def
+                  = "preprocessingPipeline" , identifier , "{" ,
+                      "steps" , "{" , { string , ";" } , "}" ,
+                      "output_type" , "=" , string , ";" ,
+                    "}" ;
+
+(* ============================== *)
+(* INFERENCE ARCHITECTURE         *)
+(* ============================== *)
+
+inference-architecture-def
+                  = "inferenceArchitecture" , identifier , "{" ,
+                      "edge_nodes" , "{" , { qualified-name , ";" } , "}" ,
+                      "cloud_nodes" , "{" , { qualified-name , ";" } , "}" ,
+                      "data_flow" , "{" , { string , ";" } , "}" ,
+                      [ "fallback_logic" , "{" , { string , ";" } , "}" ] ,
+                      "latency_targets" , "{" , { latency-def } , "}" ,
+                    "}" ;
+
+latency-def       = identifier , "=" , string , ";" ;
+
+(* ============================== *)
+(* MODEL SERVING                  *)
+(* ============================== *)
+
+model-serving-def = "modelServing" , identifier , "{" ,
+                      "model" , "=" , qualified-name , ";" ,
+                      "location" , "=" , string , ";" ,
+                      [ "batch_size" , "=" , number , ";" ] ,
+                      [ "concurrency" , "=" , number , ";" ] ,
+                      [ "autoscale" , "=" , identifier , ";" ] ,
+                      [ "retry_policy" , "=" , string , ";" ] ,
+                      [ "gpu_enabled" , "=" , boolean , ";" ] ,
+                    "}" ;
+
+(* ============================== *)
+(* MODEL REGISTRY                 *)
+(* ============================== *)
+
+model-registry-def
+                  = "modelRegistry" , identifier , "{" ,
+                      "models" , "{" , { qualified-name , ";" } , "}" ,
+                      "states" , "{" , { identifier , ";" } , "}" ,
+                    "}" ;
+
+(* ============================== *)
+(* RETRAINING                     *)
+(* ============================== *)
+
+retraining-policy-def
+                  = "retrainingPolicy" , identifier , "{" ,
+                      "triggers" , "{" , { string , ";" } , "}" ,
+                      "actions" , "{" , { string , ";" } , "}" ,
+                      [ "approval_required" , "{" , { qualified-name , ";" } , "}" ] ,
+                    "}" ;
+
+(* ============================== *)
+(* CANARY DEPLOYMENT              *)
+(* ============================== *)
+
+canary-deployment-def
+                  = "canaryDeployment" , identifier , "{" ,
+                      "model" , "=" , qualified-name , ";" ,
+                      "traffic_split" , "{" , { traffic-def } , "}" ,
+                      "success_criteria" , "{" , { string , ";" } , "}" ,
+                      "rollback_conditions" , "{" , { string , ";" } , "}" ,
+                    "}" ;
+
+traffic-def       = identifier , "=" , string , ";" ;
+
+(* ============================== *)
+(* DATA QUALITY                   *)
+(* ============================== *)
+
+data-quality-rule-def
+                  = "dataQualityRule" , identifier , "{" ,
+                      "conditions" , "{" , { string , ";" } , "}" ,
+                      "severity" , "=" , string , ";" ,
+                    "}" ;
+
+(* ============================== *)
+(* DRIFT DETECTION                *)
+(* ============================== *)
+
+drift-detector-def
+                  = "driftDetector" , identifier , "{" ,
+                      "method" , "=" , string , ";" ,
+                      "monitored_features" , "{" , { identifier , ";" } , "}" ,
+                      "drift_threshold" , "=" , number , ";" ,
+                    "}" ;
+
+(* ============================== *)
+(* EXPLAINABILITY                 *)
+(* ============================== *)
+
+explainability-def
+                  = "explainability" , identifier , "{" ,
+                      "method" , "=" , string , ";" ,
+                      "applicable_models" , "{" , { qualified-name , ";" } , "}" ,
+                      "outputs" , "{" , { string , ";" } , "}" ,
+                    "}" ;
+
+(* ============================== *)
+(* TUNING                         *)
+(* ============================== *)
+
+tuning-block-def  = "tuningBlock" , identifier , "{" ,
+                      "algorithms" , "{" , { identifier , ";" } , "}" ,
+                      "search_method" , "=" , string , ";" ,
+                      "max_trials" , "=" , number , ";" ,
+                      "optimize_for" , "{" , { optimize-def } , "}" ,
+                    "}" ;
+
+optimize-def      = identifier , "=" , string , ";" ;
+
+(* ============================== *)
+(* SCHEDULING                     *)
+(* ============================== *)
+
+schedule-def      = "schedule" , identifier , "{" ,
+                      "runs" , "=" , string , ";" ,
+                      "tasks" , "{" , { string , ";" } , "}" ,
+                    "}" ;
+
+(* ============================== *)
+(* ANNOTATIONS & PROPERTIES       *)
+(* ============================== *)
+
+annotation-def    = "@" , identifier , [ "(" , annotation-args , ")" ] , ";" ;
+annotation-args   = annotation-arg , { "," , annotation-arg } ;
+annotation-arg    = identifier , "=" , scalar ;
+
+property          = identifier , "=" , scalar , ";" ;
+
+(* ============================== *)
+(* END                            *)
+(* ============================== *)

@@ -1,0 +1,38 @@
+{
+  "name": "checklist_details",
+  "label": "Checklist Details",
+  "module": "Maintenance Management",
+  "table_name": "checklist_details",
+  "title_field": "item_name",
+  "in_sidebar": 0,
+  "naming": "CHKD-{#####}",
+  "icon": "list",
+  "group": "Maintenance Execution",
+  "search": true,
+  "fields": [
+    {
+      "name": "checklist",
+      "label": "Checklist",
+      "field_type": "link",
+      "link_entity": "checklist",
+      "required": false
+    },
+    {
+      "name": "item_name",
+      "label": "Item Name",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "is_mandatory",
+      "label": "Mandatory",
+      "field_type": "boolean",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

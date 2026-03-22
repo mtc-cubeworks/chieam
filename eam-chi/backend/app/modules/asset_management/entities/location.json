@@ -1,0 +1,122 @@
+{
+  "name": "location",
+  "label": "Location",
+  "module": "Asset Management",
+  "table_name": "location",
+  "title_field": "name",
+  "in_sidebar": 1,
+  "naming": "LOC-{####}",
+  "icon": "map",
+  "group": "Asset Structure",
+  "search": true,
+  "is_tree": true,
+  "tree_parent_field": "parent_location",
+  "links": [
+    {
+      "entity": "asset",
+      "fk_field": "location",
+      "label": "Assets"
+    },
+    {
+      "entity": "location",
+      "fk_field": "parent_location",
+      "label": "Child Locations"
+    },
+    {
+      "entity": "position",
+      "fk_field": "location",
+      "label": "Positions"
+    },
+    {
+      "entity": "system",
+      "fk_field": "location",
+      "label": "Systems"
+    },
+    {
+      "entity": "equipment",
+      "fk_field": "location",
+      "label": "Equipment"
+    },
+    {
+      "entity": "incident",
+      "fk_field": "location",
+      "label": "Incidents"
+    },
+    {
+      "entity": "maintenance_request",
+      "fk_field": "location",
+      "label": "Maintenance Requests"
+    },
+    {
+      "entity": "work_order_activity",
+      "fk_field": "location",
+      "label": "Activities"
+    }
+  ],
+  "fields": [
+    {
+      "name": "name",
+      "label": "Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "in_list_view": true
+    },
+    {
+      "name": "location_type",
+      "label": "Location Type",
+      "field_type": "link",
+      "link_entity": "location_type",
+      "in_list_view": true
+    },
+    {
+      "name": "location_type_name",
+      "label": "Location Type Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "parent_location",
+      "label": "Parent Location",
+      "field_type": "link",
+      "link_entity": "location"
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false
+    },
+    {
+      "name": "latitude",
+      "label": "Latitude",
+      "field_type": "float"
+    },
+    {
+      "name": "longitude",
+      "label": "Longitude",
+      "field_type": "float"
+    },
+    {
+      "name": "address",
+      "label": "Address",
+      "field_type": "string",
+      "required": false
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ],
+    "AssetManager": [
+      "read"
+    ]
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "name": "work_order_equipment",
+  "label": "Work Order Equipment",
+  "module": "Work Management",
+  "table_name": "work_order_equipment",
+  "title_field": "equipment_name",
+  "in_sidebar": 1,
+  "naming": "WOEQP-{#####}",
+  "icon": "tool",
+  "group": "Work Execution",
+  "search": true,
+  "fields": [
+    {
+      "name": "workflow_state",
+      "label": "Workflow State",
+      "field_type": "string",
+      "hidden": true
+    },
+    {
+      "name": "work_order_activity",
+      "label": "Activity",
+      "field_type": "link",
+      "link_entity": "work_order_activity",
+      "required": false
+    },
+    {
+      "name": "work_order_activity_desc",
+      "label": "Activity Desc",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "item_name",
+      "label": "Item Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "equipment",
+      "label": "Equipment",
+      "field_type": "link",
+      "link_entity": "equipment",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "equipment_name",
+      "label": "Equipment Name",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "start_datetime",
+      "label": "Start",
+      "field_type": "datetime",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "end_datetime",
+      "label": "End",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "total_hours_used",
+      "label": "Hours Used",
+      "field_type": "float",
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "estimated_hours",
+      "label": "Est. Hours",
+      "field_type": "float",
+      "hidden": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "work_order_equipment_actual_hours",
+      "fk_field": "wo_equip_id",
+      "label": "Actual Hours"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "labor_availability",
+  "label": "Labor Availability",
+  "module": "Enterprise",
+  "table_name": "labor_availability",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "LBRAV-{#####}",
+  "icon": "calendar-check",
+  "group": "Labor",
+  "links": [
+    {
+      "entity": "labor_availability_details",
+      "fk_field": "labor_availability",
+      "label": "Details"
+    }
+  ],
+  "fields": [
+    {
+      "name": "labor",
+      "label": "Labor",
+      "field_type": "link",
+      "link_entity": "labor",
+      "in_list_view": true
+    },
+    {
+      "name": "laborer",
+      "label": "Laborer",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true,
+      "in_list_view": true
+    },
+    {
+      "name": "date",
+      "label": "Date",
+      "field_type": "date",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

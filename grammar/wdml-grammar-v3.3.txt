@@ -1,0 +1,644 @@
+(* ========================================================= *)
+(* WDML-Application v3.3 – Web App & Site UI Modeling DSL    *)
+(* Revised to Assemble UXML Features and Style DBML Data     *)
+(* ========================================================= *)
+
+Model               = "wdml", "model", Identifier, "{"
+                        { ImportDef }      (* NEW: Modularity *)
+                        { DesignSystem | Site } 
+                      "}" ;
+
+ImportDef           = "import", StringLit, [ "as", Identifier ], ";" ;
+
+(* --------------------------------------------------------- *)
+(* Design System (Tokens, Scales, Patterns, Layout Rules)    *)
+(* --------------------------------------------------------- *)
+
+DesignSystem        = "designSystem" Identifier "{"
+                        [ DsMeta ]
+                        { ColorToken | SpaceToken | RadiusToken | ShadowToken }
+                        { FontFamily | TextStyle | TypographyScale }
+                        { Breakpoint }
+                        { LayoutPattern }
+                        { DensityProfile }
+                        { FluidSize }
+                        { LayoutConstraint }
+                        { SafeAreaDef }
+                        { ResponsiveRule }
+                        { ComponentTheme }
+                      "}" ;
+
+DsMeta              = "meta" "{"
+                        [ "title"       ":" StringLit ";" ]
+                        [ "description" ":" StringLit ";" ]
+                        [ "brand"       ":" StringLit ";" ]
+                        [ "version"     ":" StringLit ";" ]
+                      "}" ;
+
+ColorToken          = "color" Identifier "{"
+                        "role"   ":" ColorRole ";"
+                        [ "state" ":" StateRole ";" ]
+                        "value"  ":" StringLit ";"
+                        [ "usage" ":" StringLit ";" ]
+                      "}" ;
+
+ColorRole           = "primary"
+                    | "primarySoft"
+                    | "secondary"
+                    | "accent"
+                    | "neutral"
+                    | "danger"
+                    | "success"
+                    | "warning"
+                    | "info"
+                    | "background"
+                    | "surface"
+                    | "textPrimary"
+                    | "textSecondary" ;
+
+StateRole           = "default"
+                    | "hover"
+                    | "active"
+                    | "focus"
+                    | "disabled" ;
+
+SpaceToken          = "space" Identifier "{"
+                        "step"  ":" Number ";"
+                        "usage" ":" StringLit ";"
+                      "}" ;
+
+RadiusToken         = "radius" Identifier "{"
+                        "value" ":" Number ";"
+                        "usage" ":" StringLit ";"
+                      "}" ;
+
+ShadowToken         = "shadow" Identifier "{"
+                        "value" ":" StringLit ";"
+                        "usage" ":" StringLit ";"
+                      "}" ;
+
+FontFamily          = "fontFamily" Identifier "{"
+                        "stack" ":" StringLit ";"
+                        [ "usage" ":" StringLit ";" ]
+                      "}" ;
+
+TypographyScale     = "typeScale" Identifier "{"
+                        "baseSize" ":" Number ";"
+                        "ratio"    ":" Number ";"
+                      "}" ;
+
+TextStyle           = "textStyle" Identifier "{"
+                        "role"         ":" TextRole ";"
+                        "font"         ":" QName ";"
+                        "size"         ":" Number ";"
+                        [ "weight"      ":" Number ";" ]
+                        [ "lineHeight"  ":" Number ";" ]
+                        [ "letterSpacing" ":" Number ";" ]
+                      "}" ;
+
+TextRole            = "display" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6"
+                    | "body" | "bodyStrong" | "caption" | "label" | "code" ;
+
+Breakpoint          = "breakpoint" Identifier "{"
+                        "alias"    ":" StringLit ";"
+                        "minWidth" ":" Number ";"
+                      "}" ;
+
+LayoutPattern       = "layoutPattern" Identifier "{"
+                        "kind"       ":" LayoutKind ";"
+                        [ "columns"  ":" Number ";" ]
+                        [ "gap"      ":" QName ";" ]
+                        [ "maxWidth" ":" Number ";" ]
+                        [ "align"    ":" StringLit ";" ]
+                        [ "notes"    ":" StringLit ";" ]
+                      "}" ;
+
+LayoutKind          = "stack"
+                    | "columns"
+                    | "grid"
+                    | "hero"
+                    | "sidebar"
+                    | "split"
+                    | "cardGrid"
+                    | "gallery"
+                    | "formLayout" ;
+
+(* ---------------- Density Profiles ----------------------- *)
+
+DensityProfile      = "densityProfile" Identifier "{"
+                        "level"       ":" DensityLevel ";"
+                        [ "description" ":" StringLit ";" ]
+                      "}" ;
+
+DensityLevel        = "compact"
+                    | "comfortable"
+                    | "spacious" ;
+
+(* ---------------- Fluid Sizes (e.g. clamp) --------------- *)
+
+FluidSize           = "fluidSize" Identifier "{"
+                        [ "role"  ":" TextRole ";" ]
+                        "min"     ":" Number ";"
+                        "max"     ":" Number ";"
+                        "scale"   ":" StringLit ";"
+                        (* e.g. "clamp(1.5rem, 4vw, 2.5rem)" *)
+                        [ "usage" ":" StringLit ";" ]
+                      "}" ;
+
+(* ---------------- Layout Constraints --------------------- *)
+
+LayoutConstraint    = "layoutConstraint" Identifier "{"
+                        "target"   ":" LayoutConstraintTarget ";"
+                        "property" ":" StringLit ";"
+                        "value"    ":" StringLit ";"
+                        [ "breakpoint" ":" QName ";" ]
+                        [ "notes"      ":" StringLit ";" ]
+                      "}" ;
+
+LayoutConstraintTarget
+                    = "page"
+                    | "content"
+                    | "sidebar"
+                    | "hero"
+                    | "section"
+                    | "nav"
+                    | "custom" ;
+
+(* ---------------- Safe Areas (platform insets) ----------- *)
+
+SafeAreaDef         = "safeArea" Identifier "{"
+                        [ "platform" ":" StringLit ";" ]
+                        [ "top"      ":" Boolean ";" ]
+                        [ "bottom"   ":" Boolean ";" ]
+                        [ "left"     ":" Boolean ";" ]
+                        [ "right"    ":" Boolean ";" ]
+                        [ "notes"    ":" StringLit ";" ]
+                      "}" ;
+
+(* ---------------- Responsive Rules ----------------------- *)
+
+ResponsiveRule      = "responsiveRule" Identifier "{"
+                        [ "pattern"     ":" QName ";" ]
+                        [ "sectionKind" ":" SectionKind ";" ]
+                        [ "breakpoint"  ":" QName ";" ]
+                        [ "transform"   ":" StringLit ";" ]
+                        [ "notes"       ":" StringLit ";" ]
+                      "}" ;
+
+(* ---------------- Component Themes ----------------------- *)
+
+ComponentTheme      = "componentTheme" Identifier "{"
+                        "target"       ":" ComponentTarget ";"
+                        [ "variant"    ":" StringLit ";" ]
+                        [ "background" ":" QName ";" ]
+                        [ "foreground" ":" QName ";" ]
+                        [ "borderRadius" ":" QName ";" ]
+                        [ "shadow"      ":" QName ";" ]
+                        [ "padding"     ":" QName ";" ]
+                        [ "textStyle"   ":" QName ";" ]
+                        { ComponentVariant }
+                        { ComponentStateStyle }
+                      "}" ;
+
+ComponentTarget     = "button"
+                    | "card"
+                    | "badge"
+                    | "chip"
+                    | "navBar"
+                    | "navItem"
+                    | "sidebarItem"
+                    | "input"
+                    | "select"
+                    | "textarea"
+                    | "table"
+                    | "stat"
+                    | "avatar"
+                    | "listItem"
+                    | "tag" ;
+
+ComponentVariant    = "variant" Identifier "{"
+                        { VariantProp }
+                      "}" ;
+
+VariantProp         = "prop" Identifier ":" VariantType ";" ;
+
+VariantType         = StringLit
+                    | "enum" "{" { StringLit } "}" ;
+
+ComponentStateStyle = "stateStyle" StateRole "{"
+                        [ "background"   ":" QName ";" ]
+                        [ "foreground"   ":" QName ";" ]
+                        [ "shadow"       ":" QName ";" ]
+                        [ "borderRadius" ":" QName ";" ]
+                        [ "padding"      ":" QName ";" ]
+                      "}" ;
+
+(* --------------------------------------------------------- *)
+(* Site, App Layouts, Forms, Tables, Interactions            *)
+(* --------------------------------------------------------- *)
+
+Site                = "site" Identifier "{"
+                        SiteMeta
+                        { BusinessGoal }
+                        [ "designSystem" ":" QName ";" ]
+                        { NavItem }
+                        { AppLayout }
+                        { FormDef }
+                        { DataTableDef }
+                        { ModalDef }
+                        { DrawerDef }
+                        { InteractionDef }
+                        { PageDesign }
+                      "}" ;
+
+SiteMeta            = "meta" "{"
+                        [ "title"        ":" StringLit ";" ]
+                        [ "description"  ":" StringLit ";" ]
+                        [ "brandTagline" ":" StringLit ";" ]
+                        [ "baseUrl"      ":" StringLit ";" ]
+                        [ "favicon"      ":" StringLit ";" ]
+                        [ "audience"     ":" StringLit ";" ]
+                      "}" ;
+
+BusinessGoal        = "bizGoal" Identifier "{"
+                        "statement" ":" StringLit ";"
+                        [ "metric"   ":" StringLit ";" ]
+                        [ "priority" ":" Number ";" ]
+                      "}" ;
+
+NavItem             = "navItem" Identifier "{"
+                        "label" ":" StringLit ";"
+                        
+                        (* MODIFIED: Link to UXML Views or DBML Contexts *)
+                        ( "href" ":" StringLit ";" | "view" ":" QName ";" )
+
+                        [ "kind" ":" NavKind ";" ]
+                        [ "icon" ":" StringLit ";" ]
+                      "}" ;
+
+NavKind             = "primary" | "secondary" | "footer" | "utility" ;
+
+(* ---------------- App Layouts ---------------------------- *)
+
+AppLayout           = "appLayout" Identifier "{"
+                        "kind"        ":" AppLayoutKind ";"
+                        [ "routePrefix" ":" StringLit ";" ]
+                        [ "layoutPattern" ":" QName ";" ]
+                        { LayoutRegion }
+                      "}" ;
+
+AppLayoutKind       = "sidebar"
+                    | "topNav"
+                    | "splitPane"
+                    | "blank" ;
+
+LayoutRegion        = "region" Identifier "{"
+                        "role" ":" LayoutRegionRole ";"
+                        
+                        (* Existing Static List *)
+                        [ "navItems" "{" { QName } "}" ";" ]
+                        
+                        (* FEATURE MOUNTING: Supports UXML 3.1 Feature Bundles *)
+                        [ "mountFeatures" "{" { QName } "}" ";" ]
+
+                        [ "notes" ":" StringLit ";" ]
+                      "}" ;
+
+LayoutRegionRole    = "sidebar"
+                    | "top"
+                    | "content"
+                    | "footer"
+                    | "custom" ;
+
+(* ---------------- Forms --------------------------------- *)
+
+FormDef             = "form" Identifier "{"
+                        "title"       ":" StringLit ";"
+                        [ "description" ":" StringLit ";" ]
+                        [ "layoutPattern" ":" QName ";" ]
+                        
+                        (* NEW: Bind to UXML View (Logic/Structure inheritance) *)
+                        [ "bind-view" ":" QName ";" ] 
+
+                        (* If bind-view is NOT used, defining fields manually is allowed for CMS pages *)
+                        [ "fields" "{"
+                          { FormField }
+                        "}" ]
+
+                        [ "submission" ":" QName ";" ] (* Refers to InteractionDef *)
+                      "}" ;
+
+FormField           = "field" Identifier "{"
+                        "label"       ":" StringLit ";"
+                        "type"        ":" FieldType ";"
+                        [ "required"  ":" Boolean ";" ]
+                        [ "placeholder" ":" StringLit ";" ]
+                        [ "helpText"  ":" StringLit ";" ]
+                        [ "options" "{" { StringLit } "}" ";" ]
+                      "}" ;
+
+FieldType           = "text"
+                    | "textarea"
+                    | "email"
+                    | "password"
+                    | "number"
+                    | "select"
+                    | "multiSelect"
+                    | "checkbox"
+                    | "radio"
+                    | "date"
+                    | "datetime"
+                    | "switch"
+                    | "hidden" ;
+
+(* ---------------- Data Tables --------------------------- *)
+
+DataTableDef        = "dataTable" Identifier "{"
+                        "title"       ":" StringLit ";"
+                        
+                        (* NEW: Bind to DBML Entity or UXML Component *)
+                        [ "bind-entity"    ":" QName ";" ]
+                        [ "bind-component" ":" QName ";" ]
+
+                        (* If bound, columns are optional overrides. If not, they are required. *)
+                        [ "columns" "{"
+                          { TableColumn }
+                        "}" ]
+                        
+                        [ "pagination" ":" Boolean ";" ]
+                        [ "rowInteraction" ":" QName ";" ]
+                        "actions" "{"
+                          { TableAction }
+                        "}"
+                      "}" ;
+
+TableColumn         = "column" Identifier "{"
+                        "header"  ":" StringLit ";"
+                        "field"   ":" StringLit ";"
+                        [ "type"    ":" ColumnType ";" ]
+                        [ "width"   ":" StringLit ";" ]
+                      "}" ;
+
+ColumnType          = "string"
+                    | "number"
+                    | "boolean"
+                    | "date"
+                    | "badge"
+                    | "tag"
+                    | "icon"
+                    | "custom" ;
+
+TableAction         = "tableAction" Identifier "{"
+                        "label"  ":" StringLit ";"
+                        "kind"   ":" TableActionKind ";"
+                        [ "icon"  ":" StringLit ";" ]
+                        [ "interaction" ":" QName ";" ]
+                      "}" ;
+
+TableActionKind     = "primary"
+                    | "secondary"
+                    | "row"
+                    | "bulk" ;
+
+(* ---------------- Modals & Drawers ---------------------- *)
+
+ModalDef            = "modal" Identifier "{"
+                        "title"   ":" StringLit ";"
+                        [ "size"      ":" ModalSize ";" ]
+                        
+                        (* Bind to UXML content *)
+                        [ "content-view" ":" QName ";" ]
+
+                        [ "primaryAction"   ":" QName ";" ]
+                        [ "secondaryAction" ":" QName ";" ]
+                      "}" ;
+
+ModalSize           = "sm" | "md" | "lg" | "xl" ;
+
+DrawerDef           = "drawer" Identifier "{"
+                        "title"   ":" StringLit ";"
+                        [ "position" ":" DrawerPosition ";" ]
+                        
+                        (* Bind to UXML content *)
+                        [ "content-view" ":" QName ";" ]
+
+                        [ "primaryAction"   ":" QName ";" ]
+                        [ "secondaryAction" ":" QName ";" ]
+                      "}" ;
+
+DrawerPosition      = "left" | "right" | "top" | "bottom" ;
+
+(* ---------------- Interactions & Actions ---------------- *)
+
+InteractionDef      = "interaction" Identifier "{"
+                        "trigger" ":" TriggerEvent ";"
+                        { ActionDef }
+                      "}" ;
+
+TriggerEvent        = StringLit ;
+
+(* UPDATED: Actions now delegate to UXML Logic Engine *)
+ActionDef           = "action" Identifier "{"
+                        "kind" ":" ActionKind ";"
+                        
+                        (* NEW: Delegate logic to UXML *)
+                        [ "invoke-uxml" ":" QName ";" ]
+
+                        (* Legacy/CMS Props (Visual Only) *)
+                        [ "navigateTo" ":" StringLit ";" ]
+                        [ "modal"      ":" QName ";" ]
+                        [ "drawer"     ":" QName ";" ]
+                        [ "toast"      ":" StringLit ";" ]
+                      "}" ;
+
+ActionKind          = "uxml"       (* Triggers UXML Logic/Action *)
+                    | "navigate"
+                    | "openModal"
+                    | "closeModal"
+                    | "openDrawer"
+                    | "closeDrawer"
+                    | "showToast" ;
+
+(* --------------------------------------------------------- *)
+(* Page Designs                                             *)
+(* --------------------------------------------------------- *)
+
+PageDesign          = "pageDesign" Identifier "{"
+                        PageMeta
+                        "route" ":" StringLit ";"
+                        [ "layoutPattern" ":" QName ";" ]
+                        
+                        (* NEW: Bind this visual design to a UXML View/Feature *)
+                        [ "bind-feature" ":" QName ";" ]
+
+                        { Section }
+                        { ImplementationHint }
+                        { RawImplementation }
+                      "}" ;
+
+PageMeta            = "meta" "{"
+                        [ "title"        ":" StringLit ";" ]
+                        [ "description"  ":" StringLit ";" ]
+                        [ "seoIndex"     ":" Boolean ";" ]
+                        [ "audience"     ":" StringLit ";" ]
+                      "}" ;
+
+(* --------------------------------------------------------- *)
+(* Sections                                                  *)
+(* --------------------------------------------------------- *)
+
+Section             = "section" Identifier "{"
+                        "kind"           ":" SectionKind ";"
+                        [ "layoutPattern" ":" QName ";" ]
+                        [ "theme"         ":" QName ";" ]
+                        [ "background"    ":" BackgroundSpec ";" ]
+                        [ "copyTone"      ":" StringLit ";" ]
+                        [ AttributeBag ]
+                        { SectionContent }
+                        { SectionSlot }
+                        
+                        (* References to WDML wrappers *)
+                        [ "formRef"       ":" QName ";" ]
+                        [ "dataTableRef" ":" QName ";" ]
+                      "}" ;
+
+SectionKind         = "hero"
+                    | "featureList"
+                    | "valueProposition"
+                    | "stats"
+                    | "testimonial"
+                    | "logoWall"
+                    | "pricing"
+                    | "faq"
+                    | "cta"
+                    | "blogList"
+                    | "blogPost"
+                    | "gallery"
+                    | "timeline"
+                    | "team"
+                    | "contact"
+                    | "formSection"
+                    | "dataTable"
+                    | "dashboard"
+                    | "custom" ;
+
+BackgroundSpec      = "solid"    ":" QName
+                    | "gradient" ":" StringLit
+                    | "image"    ":" StringLit
+                    | "mixed"    ":" StringLit ;
+
+AttributeBag        = "attrs" "{"
+                        { Identifier ":" StringLit ";" }
+                      "}" ;
+
+SectionContent      = HeadingContent
+                    | BodyContent
+                    | ListContent
+                    | MediaContent
+                    | CTAContent
+                    | DataContent ;
+
+HeadingContent      = "heading" Identifier "{"
+                        "text"    ":" StringLit ";"
+                        [ "style" ":" QName ";" ]
+                        [ "level" ":" Number ";" ]
+                      "}" ;
+
+BodyContent         = "body" Identifier "{"
+                        "text"  ":" StringLit ";"
+                        [ "style" ":" QName ";" ]
+                      "}" ;
+
+ListContent         = "list" Identifier "{"
+                        [ "variant" ":" StringLit ";" ]
+                        { "item" StringLit ";" }
+                      "}" ;
+
+MediaContent        = "media" Identifier "{"
+                        "kind"   ":" MediaKind ";"
+                        "src"    ":" StringLit ";"
+                        [ "alt"  ":" StringLit ";" ]
+                        [ "align" ":" StringLit ";" ]
+                      "}" ;
+
+MediaKind           = "image" | "illustration" | "icon" | "video" | "lottie" ;
+
+CTAContent          = "cta" Identifier "{"
+                        "label"    ":" StringLit ";"
+                        "intent"   ":" StringLit ";"
+                        [ "interaction" ":" QName ";" ]
+                      "}" ;
+
+DataContent         = "data" Identifier "{"
+                        "kind"   ":" DataBlockKind ";"
+                        { DataItem }
+                      "}" ;
+
+DataBlockKind       = "statBlock" | "metricRow" | "kpiGrid" ;
+
+DataItem            = "item" Identifier "{"
+                        "label" ":" StringLit ";"
+                        "value" ":" StringLit ";"
+                        [ "icon" ":" StringLit ";" ]
+                      "}" ;
+
+SectionSlot         = "slot" Identifier "{"
+                        "role"       ":" SlotRole ";"
+                        [ "component" ":" QName ";" ]
+                        [ "interaction" ":" QName ";" ]
+                      "}" ;
+
+SlotRole            = "primaryCta" | "secondaryCta" | "card" | "feature" | "form" | "custom" ;
+
+(* --------------------------------------------------------- *)
+(* Implementation hints & raw code                          *)
+(* --------------------------------------------------------- *)
+
+ImplementationHint  = "implementation" Identifier "{"
+                        [ "framework" ":" FrameworkKind ";" ]
+                        [ "css"       ":" CssStrategy ";" ]
+                        { MappingRule }
+                      "}" ;
+
+FrameworkKind       = "react" | "nextjs" | "vue" | "nuxt" | "sveltekit" ;
+CssStrategy         = "tailwind" | "cssModules" | "styledComponents" | "plainCss" ;
+
+MappingRule         = "map" Identifier "{"
+                        "from"  ":" MappingSource ";"
+                        "to"    ":" StringLit ";"
+                      "}" ;
+
+MappingSource       = "sectionKind"     ":" SectionKind
+                    | "slotRole"        ":" SlotRole
+                    | "componentTarget" ":" ComponentTarget
+                    | "textRole"        ":" TextRole ;
+
+RawImplementation   = "implRaw" "{"
+                        "language" ":" StringLit ";"
+                        "content"  ":" StringLit ";"
+                      "}" ;
+
+(* --------------------------------------------------------- *)
+(* Lexical                                                  *)
+(* --------------------------------------------------------- *)
+
+Identifier          = Letter { Letter | Digit | "_" } ;
+QName               = Identifier { "." Identifier } ;
+
+StringLit           = "\"" { StringChar } "\"" ;
+StringChar          = ? any character except "\"" or line break ? ;
+
+Number              = Digit { Digit } [ "." Digit { Digit } ] ;
+Boolean             = "true" | "false" ;
+
+Letter              = "A" | "B" | "C" | "D" | "E" | "F" | "G"
+                    | "H" | "I" | "J" | "K" | "L" | "M" | "N"
+                    | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
+                    | "V" | "W" | "X" | "Y" | "Z"
+                    | "a" | "b" | "c" | "d" | "e" | "f"
+                    | "g" | "h" | "i" | "j" | "k" | "l" | "m"
+                    | "n" | "o" | "p" | "q" | "r" | "s" | "t"
+                    | "u" | "v" | "w" | "x" | "y" | "z" ;
+
+Digit               = "0" | "1" | "2" | "3" | "4"
+                    | "5" | "6" | "7" | "8" | "9" ;

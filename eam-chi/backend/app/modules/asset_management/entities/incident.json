@@ -1,0 +1,177 @@
+{
+  "name": "incident",
+  "label": "Incident",
+  "module": "Asset Management",
+  "table_name": "incident",
+  "title_field": "title",
+  "in_sidebar": 1,
+  "naming": "IR-{####}",
+  "icon": "alert-triangle",
+  "group": "Incidents",
+  "search": true,
+  "links": [
+    {
+      "entity": "incident_employee",
+      "fk_field": "incident",
+      "label": "Employees Involved"
+    },
+    {
+      "entity": "maintenance_request",
+      "fk_field": "incident",
+      "label": "Maintenance Requests"
+    },
+    {
+      "entity": "work_order",
+      "fk_field": "incident",
+      "label": "Work Orders"
+    }
+  ],
+  "fields": [
+    {
+      "name": "title",
+      "label": "Title",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text",
+      "required": false
+    },
+    {
+      "name": "incident_type",
+      "label": "Incident Type",
+      "field_type": "select",
+      "options": [
+        {
+          "label": "Equipment Damage",
+          "value": "Equipment Damage"
+        },
+        {
+          "label": "Property Damage",
+          "value": "Property Damage"
+        },
+        {
+          "label": "Fire/Explosion",
+          "value": "Fire/Explosion"
+        },
+        {
+          "label": "Electrical Incident",
+          "value": "Electrical Incident"
+        },
+        {
+          "label": "Safety Incident",
+          "value": "Safety Incident"
+        },
+        {
+          "label": "Theft/Vandalism",
+          "value": "Theft/Vandalism"
+        },
+        {
+          "label": "Spill/Leak/Release",
+          "value": "Spill/Leak/Release"
+        }
+      ],
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "incident_datetime",
+      "label": "Incident Date/Time",
+      "field_type": "datetime",
+      "required": false
+    },
+    {
+      "name": "date_reported",
+      "label": "Date Reported",
+      "field_type": "date",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "location",
+      "label": "Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "in_list_view": true
+    },
+    {
+      "name": "asset",
+      "label": "Asset",
+      "field_type": "link",
+      "link_entity": "asset"
+    },
+    {
+      "name": "reported_by",
+      "label": "Reported By",
+      "field_type": "link",
+      "link_entity": "users",
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department"
+    },
+    {
+      "name": "severity",
+      "label": "Severity",
+      "field_type": "select",
+      "options": [
+        {
+          "label": "Low",
+          "value": "Low"
+        },
+        {
+          "label": "Medium",
+          "value": "Medium"
+        },
+        {
+          "label": "High",
+          "value": "High"
+        },
+        {
+          "label": "Critical",
+          "value": "Critical"
+        }
+      ],
+      "in_list_view": true
+    },
+    {
+      "name": "immediate_action_taken",
+      "label": "Immediate Action Taken",
+      "field_type": "text"
+    },
+    {
+      "name": "preventive_actions",
+      "label": "Preventive Actions",
+      "field_type": "text"
+    },
+    {
+      "name": "assigned_to",
+      "label": "Assigned To",
+      "field_type": "link",
+      "link_entity": "employee"
+    },
+    {
+      "name": "closed_date",
+      "label": "Closed Date",
+      "field_type": "date"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

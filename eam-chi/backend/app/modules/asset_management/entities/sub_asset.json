@@ -1,0 +1,31 @@
+{
+  "name": "sub_asset",
+  "label": "Sub Asset",
+  "module": "Asset Management",
+  "table_name": "sub_asset",
+  "title_field": "id",
+  "in_sidebar": 0,
+  "naming": "hash",
+  "icon": "git-branch",
+  "group": "Assets",
+  "search": true,
+  "fields": [
+    {
+      "name": "main_asset",
+      "label": "Main Asset",
+      "field_type": "link",
+      "link_entity": "asset"
+    },
+    {
+      "name": "child_asset",
+      "label": "Child Asset",
+      "field_type": "link",
+      "link_entity": "asset"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

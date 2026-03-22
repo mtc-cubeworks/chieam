@@ -1,0 +1,40 @@
+{
+  "name": "maintenance_order",
+  "label": "Maintenance Order",
+  "module": "Maintenance Management",
+  "table_name": "maintenance_order",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "MTORD-{#####}",
+  "icon": "file-text",
+  "group": "Maintenance Execution",
+  "search": true,
+  "fields": [
+    {
+      "name": "created_date",
+      "label": "Created Date",
+      "field_type": "date",
+      "in_list_view": true
+    },
+    {
+      "name": "work_order",
+      "label": "Work Order",
+      "field_type": "link",
+      "link_entity": "work_order",
+      "readonly": true,
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  },
+  "links": [
+    {
+      "entity": "maintenance_order_detail",
+      "fk_field": "maintenance_order",
+      "label": "Details"
+    }
+  ]
+}

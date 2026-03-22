@@ -1,0 +1,183 @@
+(* SDML v2.0 — Security Design Modeling Language *)
+
+SDML            = { SecurityModel } ;
+
+SecurityModel   = "model", Identifier, "{",
+                    { SDMLSection },
+                  "}" ;
+
+SDMLSection     = SystemSection
+                | AssetSection
+                | ThreatSection
+                | RiskSection
+                | ControlSection
+                | PolicySection
+                | MappingSection
+                | WorkflowSection ;
+
+(* ---------------------------------------------------- *)
+(* SYSTEMS                                              *)
+(* ---------------------------------------------------- *)
+
+SystemSection   = "system", QualifiedName, "{",
+                    [ "description", ":", String ],
+                    [ "owner", ":", String ],
+                    [ "boundary", ":", String ],
+                    [ "components", ":", ComponentList ],
+                  "}" ;
+
+ComponentList   = "[", { Identifier }, "]" ;
+
+(* ---------------------------------------------------- *)
+(* ASSETS                                               *)
+(* ---------------------------------------------------- *)
+
+AssetSection    = "asset", QualifiedName, "{",
+                    [ "type", ":", AssetType ],
+                    [ "criticality", ":", Criticality ],
+                    [ "confidentiality", ":", SecurityLevel ],
+                    [ "integrity", ":", SecurityLevel ],
+                    [ "availability", ":", SecurityLevel ],
+                    [ "description", ":", String ],
+                  "}" ;
+
+AssetType       = "data" | "application" | "infrastructure" | "identity" ;
+Criticality     = "low" | "medium" | "high" ;
+SecurityLevel   = "low" | "moderate" | "high" ;
+
+(* ---------------------------------------------------- *)
+(* THREATS                                              *)
+(* ---------------------------------------------------- *)
+
+ThreatSection   = "threat", QualifiedName, "{",
+                    [ "vector", ":", ThreatVector ],
+                    [ "description", ":", String ],
+                    [ "targets", ":", "[", { Identifier }, "]" ],
+                    [ "likelihood", ":", Likelihood ],
+                  "}" ;
+
+ThreatVector    = "network"
+                 | "physical"
+                 | "credential"
+                 | "supply_chain"
+                 | "software"
+                 | "insider"
+                 | "misconfiguration" ;
+
+Likelihood      = "low" | "medium" | "high" ;
+
+(* ---------------------------------------------------- *)
+(* RISKS                                                *)
+(* ---------------------------------------------------- *)
+
+RiskSection     = "risk", QualifiedName, "{",
+                    [ "description", ":", String ],
+                    [ "threat", ":", QualifiedName ],
+                    [ "asset", ":", QualifiedName ],
+                    [ "impact", ":", Impact ],
+                    [ "likelihood", ":", Likelihood ],
+                    [ "level", ":", RiskLevel ],
+                    [ "mitigations", ":", "[", { QualifiedName }, "]" ],
+                  "}" ;
+
+Impact          = "low" | "medium" | "high" ;
+RiskLevel       = "low" | "medium" | "high" | "critical" ;
+
+(* ---------------------------------------------------- *)
+(* CONTROLS: NIST CSF                                   *)
+(* ---------------------------------------------------- *)
+
+ControlSection  = "control", QualifiedName, "{",
+                    [ "function", ":", NISTFunction ],
+                    [ "category", ":", NISTCategory ],
+                    [ "subcategory", ":", Identifier ],
+                    [ "applies_to_entities", ":", "[", { QualifiedName }, "]" ],
+                    [ "implementation", ":", String ],
+                    [ "owner", ":", String ],
+                    [ UiImplicationsBlock ],
+                    [ BackendImplicationsBlock ],
+                  "}" ;
+
+NISTFunction    = "IDENTIFY" | "PROTECT" | "DETECT" | "RESPOND" | "RECOVER" ;
+
+NISTCategory    = "ID_AM" | "ID_BE" | "ID_RM" | "ID_RA" | "ID_SC"
+                 | "PR_AC" | "PR_AT" | "PR_DS" | "PR_IP" | "PR_PB"
+                 | "DE_AE" | "DE_CM" | "DE_DPI"
+                 | "RS_AN" | "RS_CO" | "RS_IE" | "RS_MA"
+                 | "RC_RP" | "RC_IM" ;
+
+UiImplicationsBlock =
+                  "ui_implications", "{",
+                     { UiImplication },
+                  "}" ;
+
+UiImplication   = Identifier, "=", Scalar, ";" ;
+
+BackendImplicationsBlock =
+                  "backend_implications", "{",
+                     { BackendImplication },
+                  "}" ;
+
+BackendImplication = Identifier, "=", Scalar, ";" ;
+
+(* ---------------------------------------------------- *)
+(* POLICIES                                             *)
+(* ---------------------------------------------------- *)
+
+PolicySection   = "policy", QualifiedName, "{",
+                    [ "description", ":", String ],
+                    [ "applies_to_entities", ":", "[", { QualifiedName }, "]" ],
+                    [ "requirements", ":", RequirementList ],
+                  "}" ;
+
+RequirementList = "[", { Requirement }, "]" ;
+Requirement     = String ;
+
+(* ---------------------------------------------------- *)
+(* CONTROL MAPPINGS                                     *)
+(* ---------------------------------------------------- *)
+
+MappingSection  = "mapping", QualifiedName, "{",
+                    [ "risk", ":", QualifiedName ],
+                    [ "controls", ":", "[", { QualifiedName }, "]" ],
+                    [ "coverage", ":", Coverage ],
+                    [ "residual_risk", ":", RiskLevel ],
+                  "}" ;
+
+Coverage        = "none" | "partial" | "full" ;
+
+(* ---------------------------------------------------- *)
+(* WORKFLOWS (Security Ops)                             *)
+(* ---------------------------------------------------- *)
+
+WorkflowSection = "workflow", QualifiedName, "{",
+                    [ "description", ":", String ],
+                    [ "trigger", ":", String ],
+                    [ "steps", ":", StepList ],
+                    [ "roles", ":", "[", { Identifier }, "]" ],
+                  "}" ;
+
+StepList        = "[", { Step }, "]" ;
+Step            = "step", Number, ":", String ;
+
+(* ---------------------------------------------------- *)
+(* LEXICAL GRAMMAR                                      *)
+(* ---------------------------------------------------- *)
+
+QualifiedName   = Identifier, { ".", Identifier } ;
+
+Identifier      = Letter, { Letter | Digit | "_" } ;
+
+String          = '"', { ANY_CHAR }, '"' ;
+
+Scalar          = String | Number | Boolean ;
+
+Number          = Digit, { Digit }, [ ".", { Digit } ] ;
+
+Boolean         = "true" | "false" ;
+
+Letter          = "A"…"Z" | "a"…"z" ;
+
+Digit           = "0"…"9" ;
+
+ANY_CHAR        = ? any character except " ? ;

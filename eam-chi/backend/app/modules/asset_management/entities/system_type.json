@@ -1,0 +1,28 @@
+{
+  "name": "system_type",
+  "label": "System Type",
+  "module": "Asset Management",
+  "table_name": "system_type",
+  "title_field": "name",
+  "in_sidebar": 1,
+  "naming": "ST-{####}",
+  "icon": "folder",
+  "group": "Asset Classification",
+  "fields": [
+    {
+      "name": "name",
+      "label": "Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ],
+    "AssetManager": [
+      "read"
+    ]
+  }
+}

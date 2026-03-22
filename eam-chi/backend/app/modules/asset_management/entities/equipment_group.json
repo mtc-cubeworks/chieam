@@ -1,0 +1,25 @@
+{
+  "name": "equipment_group",
+  "label": "Equipment Group",
+  "module": "Asset Management",
+  "table_name": "equipment_group",
+  "title_field": "name",
+  "in_sidebar": 0,
+  "naming": "EQPGRP-{####}",
+  "icon": "folder",
+  "group": "Asset Structure",
+  "fields": [
+    {
+      "name": "name",
+      "label": "Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

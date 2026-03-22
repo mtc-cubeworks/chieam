@@ -1,0 +1,51 @@
+{
+  "name": "leave_application",
+  "label": "Leave Application",
+  "module": "Enterprise",
+  "table_name": "leave_application",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "LVAPP-{#####}",
+  "icon": "plane-takeoff",
+  "group": "Scheduling",
+  "search": true,
+  "fields": [
+    {
+      "name": "labor",
+      "label": "Labor",
+      "field_type": "link",
+      "link_entity": "labor",
+      "in_list_view": true
+    },
+    {
+      "name": "leave_type",
+      "label": "Leave Type",
+      "field_type": "link",
+      "link_entity": "leave_type",
+      "in_list_view": true
+    },
+    {
+      "name": "from_date",
+      "label": "From",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "to_date",
+      "label": "To",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "reason",
+      "label": "Reason",
+      "field_type": "text",
+      "in_list_view": true
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

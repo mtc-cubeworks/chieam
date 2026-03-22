@@ -1,0 +1,84 @@
+{
+  "name": "sensor",
+  "label": "Sensor",
+  "module": "Maintenance Management",
+  "table_name": "sensor",
+  "title_field": "sensor_name",
+  "in_sidebar": 1,
+  "naming": "SNR-{#####}",
+  "icon": "activity",
+  "group": "Condition Monitoring",
+  "search": true,
+  "fields": [
+    {
+      "name": "sensor_name",
+      "label": "Sensor Name",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "asset",
+      "label": "Asset",
+      "field_type": "link",
+      "link_entity": "asset",
+      "in_list_view": true
+    },
+    {
+      "name": "asset_name",
+      "label": "Asset Name",
+      "field_type": "text",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "asset_property",
+      "label": "Property",
+      "field_type": "link",
+      "link_entity": "asset_property",
+      "in_list_view": true
+    },
+    {
+      "name": "uom_short_name",
+      "label": "UoM",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "property_type",
+      "label": "Property Type",
+      "field_type": "string",
+      "hidden": true,
+      "readonly": true
+    },
+    {
+      "name": "root_topic_name",
+      "label": "Topic",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "collection_frequency",
+      "label": "Frequency",
+      "field_type": "select",
+      "options": [
+        "hourly",
+        "daily",
+        "weekly",
+        "monthly"
+      ],
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    }
+  ],
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}

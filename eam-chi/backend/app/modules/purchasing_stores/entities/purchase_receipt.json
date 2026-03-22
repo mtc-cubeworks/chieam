@@ -1,0 +1,146 @@
+{
+  "name": "purchase_receipt",
+  "label": "Purchase Receipt",
+  "module": "Procurement",
+  "table_name": "purchase_receipt",
+  "title_field": "id",
+  "in_sidebar": 1,
+  "naming": "PRC-{#####}",
+  "icon": "file-text",
+  "group": "Receiving",
+  "search": true,
+  "actions": [
+    {
+      "action": "confirm_receipt",
+      "label": "Confirm Receipt",
+      "method": "app.modules.purchasing_stores.apis.purchase_receipt.confirm_receipt",
+      "confirm": "Are you sure you want to confirm this receipt? This will update inventory and procurement documents.",
+      "show_when": {
+        "generated_inventory": [
+          false
+        ]
+      }
+    },
+    {
+      "action": "update_inventory_serialno",
+      "label": "Update Serial Numbers",
+      "method": "app.modules.purchasing_stores.apis.purchase_receipt.update_inventory_serialno",
+      "show_when": {
+        "generated_inventory": [
+          true
+        ]
+      }
+    }
+  ],
+  "fields": [
+    {
+      "name": "purchase_order_line",
+      "label": "PO Line",
+      "field_type": "link",
+      "link_entity": "purchase_order_line",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "purchase_request_line",
+      "label": "PR Line",
+      "field_type": "link",
+      "link_entity": "purchase_request_line",
+      "required": false,
+      "readonly": true
+    },
+    {
+      "name": "pr_row_no",
+      "label": "Row No",
+      "field_type": "int",
+      "readonly": true,
+      "fetch_from": "purchase_request_line.row_no",
+      "in_list_view": true
+    },
+    {
+      "name": "is_received",
+      "label": "Is Received",
+      "field_type": "boolean",
+      "hidden": true
+    },
+    {
+      "name": "item",
+      "label": "Item",
+      "field_type": "link",
+      "link_entity": "item",
+      "readonly": true,
+      "fetch_from": "purchase_request_line.item",
+      "in_list_view": true
+    },
+    {
+      "name": "quantity_received",
+      "label": "Qty Received",
+      "field_type": "int",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "date_received",
+      "label": "Date Received",
+      "field_type": "date",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "receiving_location",
+      "label": "Receiving Location",
+      "field_type": "link",
+      "link_entity": "location",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site",
+      "required": false,
+      "fetch_from": "purchase_request_line.site"
+    },
+    {
+      "name": "department",
+      "label": "Department",
+      "field_type": "link",
+      "link_entity": "department",
+      "required": false,
+      "fetch_from": "purchase_request_line.department"
+    },
+    {
+      "name": "cost_code",
+      "label": "Cost Code",
+      "field_type": "link",
+      "link_entity": "cost_code",
+      "required": false
+    },
+    {
+      "name": "generated_inventory",
+      "label": "Generated Inventory",
+      "field_type": "boolean",
+      "hidden": true
+    },
+    {
+      "name": "account_code",
+      "label": "Account Code",
+      "field_type": "link",
+      "link_entity": "account",
+      "fetch_from": "purchase_request_line.account_code"
+    }
+  ],
+  "form_state": {
+    "editable_when": {
+      "generated_inventory": [
+        false
+      ]
+    }
+  },
+  "rbac": {
+    "SystemManager": [
+      "*"
+    ]
+  }
+}
