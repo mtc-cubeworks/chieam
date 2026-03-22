@@ -622,6 +622,33 @@ async def overdue_wo_check():
                            error_tb=traceback.format_exc(), cron_expression="0 6 * * *")
 
 
+async def daily_kpi_calculation():
+    """Daily KPI calculation - computes MTBF, MTTR, PM Compliance for the trailing 30 days."""
+    started_at = datetime.now()
+    try:
+        async with async_session_maker() as db:
+            from app.services.kpi import calculate_all_kpis
+
+            end = datetime.now()
+            start = end - timedelta(days=30)
+            result = await calculate_all_kpis(db, start_date=start, end_date=end)
+            kpis = result.get("kpis", {})
+
+            logger.info(
+                f"KPI calculation complete — "
+                f"MTBF: {kpis.get('mtbf', {}).get('mtbf_hours', 'N/A')}h, "
+                f"MTTR: {kpis.get('mttr', {}).get('mttr_hours', 'N/A')}h, "
+                f"PM Compliance: {kpis.get('pm_compliance', {}).get('compliance_pct', 'N/A')}%"
+            )
+            await _log_job("daily_kpi_calculation", "Daily KPI Calculation",
+                           started_at, "Success", cron_expression="0 7 * * *")
+    except Exception as e:
+        logger.error(f"KPI calculation failed: {e}")
+        await _log_job("daily_kpi_calculation", "Daily KPI Calculation",
+                       started_at, "Error", error_message=str(e),
+                       error_tb=traceback.format_exc(), cron_expression="0 7 * * *")
+
+
 def start_scheduler():
     """Start the APScheduler with all maintenance jobs."""
     # Daily maintenance interval check - runs at 2:00 AM (like Frappe)
@@ -669,6 +696,15 @@ def start_scheduler():
         replace_existing=True,
     )
 
+    # Daily KPI calculation - runs at 7:00 AM
+    scheduler.add_job(
+        daily_kpi_calculation,
+        CronTrigger(hour=7, minute=0),
+        id="daily_kpi_calculation",
+        name="Daily KPI Calculation",
+        replace_existing=True,
+    )
+
     scheduler.start()
     logger.info("📅 Scheduler started:")
     logger.info("  - PM calendar: Daily at 1:00 AM")
@@ -676,6 +712,7 @@ def start_scheduler():
     logger.info("  - Reorder check: Daily at 3:00 AM")
     logger.info("  - SLA monitoring: Every 4 hours at :30")
     logger.info("  - Overdue WO check: Daily at 6:00 AM")
+    logger.info("  - KPI calculation: Daily at 7:00 AM")
 
 
 def stop_scheduler():

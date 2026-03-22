@@ -1,5 +1,7 @@
 # Work Management Models
 from .category_of_failure import CategoryOfFailure
+from .cause_code import CauseCode
+from .remedy_code import RemedyCode
 from .work_order import WorkOrder
 from .work_order_activity import WorkOrderActivity
 from .work_order_activity_logs import WorkOrderActivityLogs
@@ -16,6 +18,8 @@ from .work_order_parts_reservation import WorkOrderPartsReservation
 
 __all__ = [
     "CategoryOfFailure",
+    "CauseCode",
+    "RemedyCode",
     "WorkOrder",
     "WorkOrderActivity",
     "WorkOrderActivityLogs",

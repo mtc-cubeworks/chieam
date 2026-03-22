@@ -166,3 +166,4 @@ def register_hooks():
     """Called by the module loader. Hooks are already registered via decorators above."""
     # Import server action modules to trigger their @server_actions.register decorators
     import app.modules.work_mgmt.apis.work_order_activity_actions  # noqa: F401
+    import app.modules.work_mgmt.apis.parts_reservation_actions  # noqa: F401

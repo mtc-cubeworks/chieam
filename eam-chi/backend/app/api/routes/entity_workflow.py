@@ -18,6 +18,7 @@ from app.services.workflow import WorkflowDBService
 from app.application.hooks.registry import hook_registry
 from app.application.hooks.context import WorkflowContext
 from app.services.socketio_manager import socket_manager
+from app.services.audit import audit_service
 from app.infrastructure.database.repositories.entity_repository import get_entity_model
 
 router = APIRouter(tags=["entity"])
@@ -115,6 +116,14 @@ async def workflow_action(
     setattr(doc, "workflow_state", target_state)
     await db.commit()
     await db.refresh(doc)
+
+    # Audit trail for workflow state transition (SM-6)
+    await audit_service.log_workflow(
+        db, entity, request.id, current_state, target_state, request.action,
+        user_id=user.id if user else None,
+        username=user.username if user else None,
+    )
+    await db.commit()
 
     doc_dict = record_to_dict(doc)
     await socket_manager.emit_workflow(entity, doc_dict, request.action, current_state, target_state)

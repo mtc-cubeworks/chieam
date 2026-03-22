@@ -185,6 +185,12 @@ async def purchase_request_workflow(doc: Any, action: str, db: AsyncSession, use
             return {"status": "success", "message": "All Purchase Request Lines moved to Pending Approval"}
 
         elif action == "Approve":
+            # Multi-level approval: verify user has authority for this PR total
+            from app.services.approval_engine import validate_pr_approval
+            approval = await validate_pr_approval(pr_id, user, db)
+            if approval["status"] == "error":
+                return approval
+
             for line in pr_lines:
                 if line.get("workflow_state") not in ("rejected", "approved"):
                     result = await _apply_line_workflow(
@@ -193,7 +199,7 @@ async def purchase_request_workflow(doc: Any, action: str, db: AsyncSession, use
                     if result["status"] == "error":
                         await db.rollback()
                         return result
-            return {"status": "success", "message": "All Purchase Request Lines approved"}
+            return {"status": "success", "message": approval["message"]}
 
         elif action == "Reject Purchase Request":
             for line in pr_lines:
@@ -257,6 +263,12 @@ async def purchase_order_workflow(doc: Any, action: str, db: AsyncSession, user:
     try:
         po_lines = await get_list("purchase_order_line", {"po_id": po_id}, db=db)
         if action == "Approve":
+            # Multi-level approval: verify user has authority for this PO total
+            from app.services.approval_engine import validate_po_approval
+            approval = await validate_po_approval(po_id, user, db)
+            if approval["status"] == "error":
+                return approval
+
             # Draft → Open: move all PO lines to 'approved'
             for line in po_lines:
                 result = await _apply_line_workflow(
@@ -265,7 +277,7 @@ async def purchase_order_workflow(doc: Any, action: str, db: AsyncSession, user:
                 if result["status"] == "error":
                     await db.rollback()
                     return result
-            return {"status": "success", "message": "Purchase Order approved, all lines moved to Approved"}
+            return {"status": "success", "message": approval["message"]}
 
         elif action == "Reject":
             # Draft → Rejected: move all PO lines to 'rejected'

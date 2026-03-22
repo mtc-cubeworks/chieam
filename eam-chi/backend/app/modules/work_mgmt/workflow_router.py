@@ -108,6 +108,12 @@ async def work_order_workflow(doc: Any, action: str, db: AsyncSession, user: Any
                         await save_doc(woa_doc, db, commit=False)
 
             await db.commit()
+            # Record downtime start when WO begins
+            wo_doc = await get_doc("work_order", wo_id, db)
+            if wo_doc and not getattr(wo_doc, "downtime_start", None):
+                from datetime import datetime
+                wo_doc.downtime_start = datetime.now()
+                await save_doc(wo_doc, db)
             return {"status": "success", "message": "Work Order started, all activities moved to In Progress"}
 
         elif action == "Complete":
@@ -123,10 +129,65 @@ async def work_order_workflow(doc: Any, action: str, db: AsyncSession, user: Any
                     "status": "error",
                     "message": "Cannot complete Work Order because not all Work Order Activities are complete"
                 }
+            # Calculate downtime hours on completion
+            wo_doc = await get_doc("work_order", wo_id, db)
+            if wo_doc and getattr(wo_doc, "downtime_start", None):
+                from datetime import datetime
+                wo_doc.downtime_end = datetime.now()
+                delta = wo_doc.downtime_end - wo_doc.downtime_start
+                wo_doc.downtime_hours = round(delta.total_seconds() / 3600, 2)
+                await save_doc(wo_doc, db)
+
+            # Log asset maintenance history for each WO Activity's asset
+            from app.services.document import new_doc as _new_doc
+            from datetime import datetime as _dt
+            wo_doc = wo_doc or await get_doc("work_order", wo_id, db)
+            for activity in wo_activities:
+                asset_id = activity.get("work_item")
+                if not asset_id:
+                    continue
+                history = await _new_doc("asset_maintenance_history", db,
+                    asset=asset_id,
+                    work_order=wo_id,
+                    work_order_activity=activity.get("id"),
+                    maintenance_type=_get_attr(wo_doc, "work_order_type") if wo_doc else None,
+                    description=activity.get("description"),
+                    completed_date=_dt.now(),
+                    downtime_hours=getattr(wo_doc, "downtime_hours", None) if wo_doc else None,
+                    total_cost=getattr(wo_doc, "total_cost", None) if wo_doc else None,
+                    category_of_failure=_get_attr(wo_doc, "category_of_failure") if wo_doc else None,
+                    cause_code=_get_attr(wo_doc, "cause_code") if wo_doc else None,
+                    remedy_code=_get_attr(wo_doc, "remedy_code") if wo_doc else None,
+                    site=activity.get("site") or (_get_attr(wo_doc, "site") if wo_doc else None),
+                )
+                if history:
+                    await save_doc(history, db, commit=False)
+
+                # Increment asset repair count
+                asset_doc = await get_doc("asset", asset_id, db)
+                if asset_doc:
+                    asset_doc.number_of_repairs = (getattr(asset_doc, "number_of_repairs", 0) or 0) + 1
+                    await save_doc(asset_doc, db, commit=False)
+
+            await db.commit()
             return {"status": "success", "message": "Work Order completed"}
 
         elif action == "Reopen":
             return {"status": "success", "message": "Work Order reopened"}
+
+        elif action == "Cancel":
+            # Release all parts reservations for this WO
+            from app.services.parts_reservation import release_all_reservations_for_wo_parts
+
+            for activity in wo_activities:
+                woa_id = activity.get("id")
+                if woa_id:
+                    wo_parts_list = await get_list("work_order_parts", {"work_order_activity": woa_id}, db=db)
+                    for wp in wo_parts_list:
+                        wp_id = wp.get("id")
+                        if wp_id:
+                            await release_all_reservations_for_wo_parts(wp_id, db)
+            return {"status": "success", "message": "Work Order cancelled, reservations released"}
 
         return {"status": "success", "message": f"Work Order workflow '{action}' allowed"}
 

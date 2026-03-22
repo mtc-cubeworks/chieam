@@ -20,6 +20,7 @@ from .incident_employee import IncidentEmployee
 from .breakdown import Breakdown
 from .disposed import Disposed
 from .sub_asset import SubAsset
+from .asset_maintenance_history import AssetMaintenanceHistory
 
 __all__ = [
     "LocationType",
@@ -43,6 +44,7 @@ __all__ = [
     "Breakdown",
     "Disposed",
     "SubAsset",
+    "AssetMaintenanceHistory",
 ]
 from .equipment_availability import EquipmentAvailability
 from .equipment_availability_details import EquipmentAvailabilityDetails

@@ -1,0 +1,86 @@
+{
+  "name": "asset_maintenance_history",
+  "label": "Asset Maintenance History",
+  "module": "Asset Management",
+  "table_name": "asset_maintenance_history",
+  "title_field": "asset",
+  "in_sidebar": 1,
+  "naming": "AMH-{#####}",
+  "icon": "clock",
+  "group": "Asset Data",
+  "search": true,
+  "fields": [
+    {
+      "name": "asset",
+      "label": "Asset",
+      "field_type": "link",
+      "link_entity": "asset",
+      "in_list_view": true
+    },
+    {
+      "name": "work_order",
+      "label": "Work Order",
+      "field_type": "link",
+      "link_entity": "work_order",
+      "in_list_view": true
+    },
+    {
+      "name": "work_order_activity",
+      "label": "Work Order Activity",
+      "field_type": "link",
+      "link_entity": "work_order_activity"
+    },
+    {
+      "name": "maintenance_type",
+      "label": "Maintenance Type",
+      "field_type": "string",
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text"
+    },
+    {
+      "name": "completed_date",
+      "label": "Completed Date",
+      "field_type": "datetime",
+      "in_list_view": true
+    },
+    {
+      "name": "downtime_hours",
+      "label": "Downtime Hours",
+      "field_type": "float"
+    },
+    {
+      "name": "total_cost",
+      "label": "Total Cost",
+      "field_type": "float"
+    },
+    {
+      "name": "category_of_failure",
+      "label": "Failure Category",
+      "field_type": "link",
+      "link_entity": "category_of_failure"
+    },
+    {
+      "name": "cause_code",
+      "label": "Cause Code",
+      "field_type": "string"
+    },
+    {
+      "name": "remedy_code",
+      "label": "Remedy Code",
+      "field_type": "string"
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    }
+  ],
+  "rbac": {
+    "SystemManager": ["*"]
+  }
+}

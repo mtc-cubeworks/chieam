@@ -283,3 +283,4 @@ def register_hooks():
     import app.modules.purchasing_stores.apis.stock_count  # noqa: F401
     import app.modules.purchasing_stores.apis.inventory_adjustment  # noqa: F401
     import app.modules.purchasing_stores.apis.transfer_receipt  # noqa: F401
+    import app.modules.purchasing_stores.apis.pr_consolidation_actions  # noqa: F401

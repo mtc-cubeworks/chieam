@@ -1,0 +1,55 @@
+{
+  "name": "remedy_code",
+  "label": "Remedy Code",
+  "module": "Work Management",
+  "table_name": "remedy_code",
+  "title_field": "remedy_name",
+  "in_sidebar": 1,
+  "naming": "RC-{#####}",
+  "icon": "tool",
+  "group": "Failure Analysis",
+  "search": true,
+  "fields": [
+    {
+      "name": "code",
+      "label": "Code",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "remedy_name",
+      "label": "Remedy Name",
+      "field_type": "string",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "description",
+      "label": "Description",
+      "field_type": "text"
+    },
+    {
+      "name": "category_of_failure",
+      "label": "Failure Category",
+      "field_type": "link",
+      "link_entity": "category_of_failure",
+      "required": false,
+      "in_list_view": true
+    },
+    {
+      "name": "site",
+      "label": "Site",
+      "field_type": "link",
+      "link_entity": "site"
+    },
+    {
+      "name": "active",
+      "label": "Active",
+      "field_type": "boolean"
+    }
+  ],
+  "rbac": {
+    "SystemManager": ["*"]
+  }
+}
