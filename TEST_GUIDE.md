@@ -1,7 +1,7 @@
 # EAM-CHI System Test Guide
 
 **Enterprise Asset Management — CHI**
-**Version 1.0 | March 2026**
+**Version 1.1 | June 2025**
 
 ---
 
@@ -29,8 +29,16 @@
 20. [TC-18: Cross-Workflow Integration](#tc-18-cross-workflow-integration)
 21. [TC-19: Vendor Performance Auto-Calculation](#tc-19-vendor-performance-auto-calculation)
 22. [TC-20: End-to-End Scenario Tests](#tc-20-end-to-end-scenario-tests)
-23. [Defect Log Template](#defect-log-template)
-24. [Sign-Off Sheet](#sign-off-sheet)
+23. [TC-21: Row-Level Data Scoping](#tc-21-row-level-data-scoping)
+24. [TC-22: RBAC Bypass & Security](#tc-22-rbac-bypass--security)
+25. [TC-23: Workflow Concurrency & Dead-End States](#tc-23-workflow-concurrency--dead-end-states)
+26. [TC-24: Hierarchy Circular References](#tc-24-hierarchy-circular-references)
+27. [TC-25: Naming Series & ID Generation](#tc-25-naming-series--id-generation)
+28. [TC-26: Server Action Robustness](#tc-26-server-action-robustness)
+29. [TC-27: Data Integrity & Boundary Values](#tc-27-data-integrity--boundary-values)
+30. [TC-28: Backward Transitions & Field Resets](#tc-28-backward-transitions--field-resets)
+31. [Defect Log Template](#defect-log-template)
+32. [Sign-Off Sheet](#sign-off-sheet)
 
 ---
 
@@ -77,13 +85,20 @@ This guide provides step-by-step test cases to validate all workflows, business 
 
 Create these accounts before starting (or verify they exist):
 
-| Username | Role | Purpose |
-|----------|------|---------|
-| `admin` | SystemManager | Full admin access |
-| `manager1` | Editor + approvals | Manager workflow testing |
-| `tech1` | Editor (limited) | Technician workflow testing |
-| `viewer1` | Viewer | Read-only access testing |
-| `store1` | Editor (purchasing module) | Procurement testing |
+| Username | Role | Data Scope | Purpose |
+|----------|------|------------|---------|
+| `admin` | SystemManager | all | Full admin access |
+| `exec1` | Executive | all | Executive-level read access |
+| `sitemgr1` | SiteManager | site | Site-level management testing |
+| `supervisor1` | Supervisor | team | Department/team-level testing |
+| `tech1` | Technician | own | Technician — own records only |
+| `viewer1` | Viewer | site | Read-only access testing |
+| `assetmgr1` | AssetManager | site | Asset module testing |
+| `purchmgr1` | PurchaseManager | site | Procurement management testing |
+| `buyer1` | Buyer | site | PO creation/approval testing |
+| `reqnr1` | Requisitioner | own | PR creation — own records only |
+| `storemgr1` | StoresManager | site | Stores/inventory management |
+| `storekeeper1` | Storekeeper | site | Stores operations testing |
 
 ### 2.3 Prerequisite Data
 
@@ -161,7 +176,7 @@ These records must exist (create in TC-03 if not present):
 | 1 | Login as `admin` | | | |
 | 2 | Navigate to **Admin → Permissions** | Permission matrix displays (Role × Entity grid) | | |
 | 3 | Find the "Viewer" role row for "Work Order" | Only `can_read` is checked | | |
-| 4 | Verify "Editor" role for "Work Order" | `can_read`, `can_create`, `can_update` checked; `can_delete` unchecked | | |
+| 4 | Verify "Technician" role for "Work Order" | `can_read`, `can_create`, `can_update` checked; `can_delete` unchecked | | |
 
 ### TC-02.2 — Read-Only Access (Viewer Role)
 
@@ -187,7 +202,7 @@ These records must exist (create in TC-03 if not present):
 | Step | Action | Expected Result | Result | Comments |
 |------|--------|----------------|--------|----------|
 | 1 | As `admin`, configure a WO transition "Approve" with `allowed_roles: ["SystemManager"]` | | | |
-| 2 | Login as `tech1` (Editor role, not SystemManager) | | | |
+| 2 | Login as `tech1` (Technician role, scope=own) | | | |
 | 3 | Open a Work Order in "Requested" state | "Approve" action is NOT available | | |
 | 4 | Login as `admin` (SystemManager) | "Approve" action IS available | | |
 
@@ -211,7 +226,7 @@ These records must exist (create in TC-03 if not present):
 | Step | Action | Expected Result | Result | Comments |
 |------|--------|----------------|--------|----------|
 | 1 | Create **Employee** "John Smith" linked to user `tech1`, Site A, Dept X | EMP-##### generated | | |
-| 2 | Create **Employee** "Jane Doe" linked to user `manager1`, Site A, Dept X | | | |
+| 2 | Create **Employee** "Jane Doe" linked to user `sitemgr1`, Site A, Dept X | | | |
 | 3 | Create **Employee** "Bob Wilson" (no user link), Site B | | | |
 | 4 | Create **Trade** "Electrician" | | | |
 | 5 | Create **Trade** "Mechanic" | | | |
@@ -339,7 +354,7 @@ These records must exist (create in TC-03 if not present):
 | 2 | Create **Maintenance Request**: Requestor=John Smith, Asset="Test Motor 001", Priority=High, Category=Corrective, Description="Motor vibration excessive", Site=Site A, Dept=Dept X | MTREQ-##### generated; State = **Draft** | | |
 | 3 | Click **Submit for Approval** | State → **Pending Approval** | | |
 | 4 | Verify description, asset, requestor are **read-only** in this state | Fields non-editable | | |
-| 5 | Login as `manager1` | | | |
+| 5 | Login as `sitemgr1` | | | |
 | 6 | Open the MR | "Approve" action available | | |
 | 7 | Click **Approve** | State → **Approved** | | |
 | 8 | Click **Submit for Resolution** | State → **Release** | | |
@@ -962,10 +977,555 @@ These records must exist (create in TC-03 if not present):
 | Step | Action | Expected Result | Result | Comments |
 |------|--------|----------------|--------|----------|
 | 1 | `tech1` creates MR and submits for approval | State = Pending Approval | | |
-| 2 | Both `manager1` and `admin` open the same MR | Both see the record | | |
-| 3 | `manager1` clicks Approve | State → Approved | | |
+| 2 | Both `sitemgr1` and `admin` open the same MR | Both see the record | | |
+| 3 | `sitemgr1` clicks Approve | State → Approved | | |
 | 4 | `admin` (still on old view) clicks Approve | Should fail gracefully (already transitioned) or show updated state | | |
 | 5 | Verify Socket.IO notification arrived | Real-time update | | |
+
+---
+
+## TC-21: Row-Level Data Scoping
+
+> Tests for the row-level data scoping system based on Role `data_scope` (own/team/site/all), `created_by`/`modified_by` auto-injection, and scope filter enforcement across all routes.
+
+### TC-21.1 — "own" Scope Visibility
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Login as `tech1` (Technician, scope=own) | | | |
+| 2 | Create a Maintenance Request (MR-A) | MR created; `created_by` = tech1's user ID | | |
+| 3 | Navigate to Maintenance Request list | Only MR-A visible (plus any other records created by tech1) | | |
+| 4 | Login as `admin` (SystemManager, scope=all) | | | |
+| 5 | Create a Maintenance Request (MR-B) | MR-B created; `created_by` = admin's user ID | | |
+| 6 | Login as `tech1` again | | | |
+| 7 | Verify MR list does NOT show MR-B | MR-B invisible to tech1 | | |
+| 8 | Attempt to access MR-B via direct URL/API | 404 or permission denied | | |
+
+### TC-21.2 — "site" Scope Visibility
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Login as `sitemgr1` (SiteManager, scope=site, assigned to Site-A) | | | |
+| 2 | Create a Work Order at Site-A | WO created | | |
+| 3 | Login as `admin`, create a Work Order at Site-B | WO created at Site-B | | |
+| 4 | Login as `sitemgr1` again | | | |
+| 5 | Verify WO list shows Site-A WO but NOT Site-B WO | Correct scope filtering | | |
+| 6 | Attempt direct API access to Site-B WO | 404 or permission denied | | |
+
+### TC-21.3 — "team" Scope Visibility (Department-Based)
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Login as `supervisor1` (Supervisor, scope=team, assigned to Dept-X) | | | |
+| 2 | Create a Maintenance Request in Dept-X | MR created with dept=Dept-X | | |
+| 3 | Login as `admin`, create MR in Dept-Y (different department) | MR created | | |
+| 4 | Login as `supervisor1` | | | |
+| 5 | Verify list shows Dept-X MR but NOT Dept-Y MR | Team scope filters by department | | |
+
+### TC-21.4 — "all" Scope Visibility
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Login as `admin` (SystemManager, scope=all) | | | |
+| 2 | Navigate to any entity list | All records across all sites/depts visible | | |
+| 3 | Verify no scope filter applied | Full dataset returned | | |
+
+### TC-21.5 — created_by / modified_by Auto-Injection
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Login as `tech1` | | | |
+| 2 | Create any entity record (e.g., Maintenance Request) | `created_by` = tech1 user ID in DB | | |
+| 3 | Login as `admin` | | | |
+| 4 | Edit that same record (change description) | `modified_by` = admin user ID; `created_by` unchanged = tech1 | | |
+| 5 | Verify `created_by` is immutable on update | `created_by` still tech1's ID | | |
+
+### TC-21.6 — Legacy Records with NULL created_by
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Via DB, set `created_by = NULL` on a test record | Record has no ownership | | |
+| 2 | Login as `tech1` (scope=own) | | | |
+| 3 | Verify the NULL-created_by record is NOT visible in list | SQL `NULL != user_id` → invisible | | |
+| 4 | Login as `admin` (scope=all) | | | |
+| 5 | Verify the record IS visible | All-scope users see everything | | |
+
+### TC-21.7 — User with No Employee Linkage
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create user `noemployee1` with SiteManager role but no linked Employee | | | |
+| 2 | Login as `noemployee1` | | | |
+| 3 | Navigate to entity list (scope=site with empty site_ids) | Degrades to own-scope behavior; sees only self-created records | | |
+
+### TC-21.8 — Scope on Update and Delete
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Login as `tech1` (scope=own), create record R1 | | | |
+| 2 | Login as `reqnr1` (scope=own, different user) | | | |
+| 3 | Attempt to UPDATE R1 via API | Fails — record out of scope | | |
+| 4 | Attempt to DELETE R1 via API | Fails — record out of scope | | |
+| 5 | Login as `admin` (scope=all), update R1 | Succeeds | | |
+
+---
+
+## TC-22: RBAC Bypass & Security
+
+> Tests for known RBAC bypass paths where scope filters are NOT applied.
+
+### TC-22.1 — Export Bypasses Row-Level Scope
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Login as `admin`, create records at Site-A and Site-B | | | |
+| 2 | Login as `sitemgr1` (scope=site, Site-A only) | | | |
+| 3 | Export the entity to Excel | **KNOWN GAP**: Exported file may contain ALL records, not just Site-A | | |
+| 4 | Document whether export respects scope or exposes all data | Note actual behavior | | |
+
+### TC-22.2 — Import Bypasses created_by Injection
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Login as `tech1` | | | |
+| 2 | Import records via Excel template | Records created in DB | | |
+| 3 | Check DB: verify `created_by` on imported records | **KNOWN GAP**: May be NULL (import bypasses entity_crud.py) | | |
+| 4 | Verify imported records are visible to the importer in list view | May be invisible if created_by is NULL and user is own-scope | | |
+
+### TC-22.3 — Import Update Mode Bypasses Scope
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Login as `tech1` (scope=own) | | | |
+| 2 | Prepare import Excel with IDs of records NOT created by tech1 | | | |
+| 3 | Import in update mode | **KNOWN GAP**: May update records outside user's scope | | |
+
+### TC-22.4 — Server Action Endpoint Bypasses Scope
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Login as `tech1` (scope=own) | | | |
+| 2 | Execute a server action on a record NOT created by tech1 (using direct API call) | **KNOWN GAP**: Action may execute on any record (no scope filter on action endpoint) | | |
+
+### TC-22.5 — Child Record Endpoint Scope
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Login as `tech1` (scope=own) | | | |
+| 2 | Access child records of a parent entity not owned by tech1 (via API) | **KNOWN GAP**: Child records may be returned without scope filter | | |
+
+### TC-22.6 — Role data_scope Invalid Value
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Via API or DB, set a Role's `data_scope` = `"galaxy"` (invalid value) | | | |
+| 2 | Login as user with that role | | | |
+| 3 | Navigate to entity list | Should degrade to "own" scope (safe default) — verify behavior | | |
+
+### TC-22.7 — NULL data_scope on Role
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Via DB, set a Role's `data_scope = NULL` | | | |
+| 2 | Login as user with that role | | | |
+| 3 | Navigate to entity list | **KNOWN GAP**: NULL coerces to `"all"` — unrestricted access | | |
+
+---
+
+## TC-23: Workflow Concurrency & Dead-End States
+
+> Tests for race conditions in concurrent workflow transitions and states with no outgoing paths.
+
+### TC-23.1 — Concurrent Approval Race Condition
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create a Maintenance Request, submit for approval | State = Pending Approval | | |
+| 2 | Open the MR in two separate browser sessions (User A and User B) | Both see Pending Approval | | |
+| 3 | User A clicks "Approve" | MR → Approved; WO + WOA generated | | |
+| 4 | User B (still seeing Pending Approval) clicks "Approve" | Should fail gracefully — no duplicate WO created | | |
+| 5 | Verify only ONE Work Order was generated | Single WO exists | | |
+
+### TC-23.2 — Concurrent Naming Series Race
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Open two browser sessions as `admin` | | | |
+| 2 | Simultaneously create two records of the same entity type | Both save successfully | | |
+| 3 | Verify both records have UNIQUE IDs | No duplicate IDs (e.g., AST-0005 and AST-0006, not two AST-0005) | | |
+
+### TC-23.3 — Asset Dead-End State: Inactive
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Transition an asset: Active → Retire Asset → **Inactive** | Asset now Inactive | | |
+| 2 | Attempt to transition to any other state | **KNOWN GAP**: No outgoing transitions from Inactive. Asset is permanently stuck. | | |
+| 3 | Verify no transition to Decommissioned is available | Missing transition: Inactive → Decommissioned | | |
+
+### TC-23.4 — Condition Monitoring: No De-Escalation
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create Condition Monitoring (Active state) | | | |
+| 2 | Escalate: Active → Warning → Critical | State = Critical | | |
+| 3 | Attempt to de-escalate: Critical → Warning or Critical → Active | **KNOWN GAP**: No backward transitions. Cannot reflect improving conditions. | | |
+| 4 | Attempt to go Active → Resolved directly | **KNOWN GAP**: Must escalate to Warning or Critical first to reach Resolved | | |
+
+### TC-23.5 — Safety Permit: Cannot Cancel Active Permit
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create a Safety Permit, progress: Draft → Requested → Approved → Active | Permit is Active | | |
+| 2 | Attempt to Cancel the Active permit | **KNOWN GAP**: No Active → Cancelled transition. Must wait for expiry. | | |
+
+### TC-23.6 — Purchase Order: Rejected is Terminal
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create PO, submit for approval | State = Open / Pending | | |
+| 2 | Reject the PO | State = Rejected | | |
+| 3 | Attempt to revise or resubmit | **KNOWN GAP**: No Rejected → Draft transition. PO is permanently stuck. | | |
+
+### TC-23.7 — RFQ: No Cancel from Review
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create RFQ, submit for sourcing, progress to Review state | State = Review | | |
+| 2 | All quotes are unacceptable — attempt to Cancel | **KNOWN GAP**: No Review → Cancelled transition | | |
+
+### TC-23.8 — Work Order: Orphaned Activities on Cancel
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create WO with 3 WO Activities, start one activity | 1 WOA in In Progress | | |
+| 2 | Cancel the parent Work Order | WO → Cancelled | | |
+| 3 | Check status of WO Activities | **KNOWN GAP**: WOAs remain in their current state (In Progress), not cascade-cancelled | | |
+
+### TC-23.9 — Inventory Adjustment: Double-Posting Risk
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create Inventory Adjustment, Submit, Post | State = Posted, inventory quantities updated | | |
+| 2 | Attempt to "Submit" the Posted adjustment | **KNOWN GAP**: Posted → Submitted is allowed — may enable double-posting | | |
+
+### TC-23.10 — PR Line Rejection is Permanent
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create PR with 3 lines, submit and reject Line 2 | Line 2 = Rejected | | |
+| 2 | Revise the PR (Rejected → Draft) | PR returns to Draft | | |
+| 3 | Verify Line 2 status | **KNOWN GAP**: Line stays Rejected permanently — no Rejected → Draft transition for lines | | |
+
+---
+
+## TC-24: Hierarchy Circular References
+
+> Tests for self-referential FK fields that lack cycle detection.
+
+### TC-24.1 — Asset Self-Parent
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create Asset AST-001 | | | |
+| 2 | Edit AST-001 and set `parent_asset` = AST-001 (self) | Should reject — circular reference. Document actual behavior. | | |
+| 3 | If accepted, navigate to asset hierarchy view | May infinite-loop or show corrupted tree | | |
+
+### TC-24.2 — Asset Circular Chain (A→B→A)
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create Assets AST-A and AST-B | | | |
+| 2 | Set AST-A.parent_asset = AST-B | | | |
+| 3 | Set AST-B.parent_asset = AST-A | Should reject — circular chain. Document actual behavior. | | |
+
+### TC-24.3 — Location Self-Parent
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create Location LOC-001 | | | |
+| 2 | Set LOC-001.parent_location = LOC-001 | Should reject. Document behavior. | | |
+
+### TC-24.4 — Employee Reports-To Self
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create Employee EMP-001 | | | |
+| 2 | Set EMP-001.reports_to = EMP-001 | Should reject — employee cannot report to self. Document actual behavior. | | |
+
+### TC-24.5 — Employee Circular Reporting Chain
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create EMP-A and EMP-B | | | |
+| 2 | Set EMP-A.reports_to = EMP-B | | | |
+| 3 | Set EMP-B.reports_to = EMP-A | Should reject — mutual reporting cycle. Document actual behavior. | | |
+
+### TC-24.6 — Asset Class / Item Class / System Hierarchy Cycles
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create two Asset Classes: AC-A and AC-B | | | |
+| 2 | Set AC-A.parent_asset_class = AC-B, then AC-B.parent_asset_class = AC-A | Should reject. Document behavior. | | |
+| 3 | Repeat with Item Class and System hierarchies | Same test for all self-referential hierarchies | | |
+
+---
+
+## TC-25: Naming Series & ID Generation
+
+> Tests for NamingService edge cases including series exhaustion, race conditions, and padding.
+
+### TC-25.1 — Normal ID Generation
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Check series table for entity prefix (e.g., `AST`) | Note current value | | |
+| 2 | Create a new record | ID generated with correct prefix and zero-padded number | | |
+| 3 | Verify series.current incremented by 1 | Correct | | |
+
+### TC-25.2 — Series Overflow Past Digit Limit
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Via DB, set series.current = 9998 for a test entity prefix | | | |
+| 2 | Create record #9999 | ID = PREFIX-9999 | | |
+| 3 | Create record #10000 | ID = PREFIX-10000 (5 digits — breaks 4-digit padding pattern) | | |
+| 4 | Verify no error and sorting still works correctly | Document behavior | | |
+
+### TC-25.3 — Negative Series Value
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Via DB, set series.current = -1 for a test entity | | | |
+| 2 | Create a new record | ID may be PREFIX--000 or PREFIX-0000. Document behavior. | | |
+
+### TC-25.4 — Rapid Concurrent Creation
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Use API tool (curl/Postman) to send 10 create requests in rapid succession | All 10 records created | | |
+| 2 | Verify all 10 records have unique IDs | No duplicates | | |
+| 3 | Verify series.current = original + 10 | Correctly incremented | | |
+
+---
+
+## TC-26: Server Action Robustness
+
+> Tests for server action edge cases including broken imports, idempotency, and missing ctx.doc.
+
+### TC-26.1 — Generate Maintenance Order Idempotency
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create and approve a Maintenance Request | State = Approved | | |
+| 2 | Execute "Generate Maintenance Order" action | MO + WO created | | |
+| 3 | Execute "Generate Maintenance Order" again on same MR | Should prevent duplicate MO, or raise error. Document behavior. | | |
+
+### TC-26.2 — Create Purchase Request from MR
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create and approve a Maintenance Request | | | |
+| 2 | Execute "Create Purchase Request" action | PR created | | |
+| 3 | Verify PR has correct requestor, site, department from MR | Fields populated | | |
+| 4 | Verify PR has line items (or note if empty) | **KNOWN GAP**: PR may be created with zero line items | | |
+
+### TC-26.3 — Clone Asset Action
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Open a fully-populated asset (with properties, positions) | | | |
+| 2 | Execute "Clone Asset" action | New asset created with copied data | | |
+| 3 | Verify cloned asset has own `created_by` and new ID | Not NULL, not same as original | | |
+| 4 | Verify cloned asset is in initial workflow state | Not inherited from source | | |
+| 5 | If action fails, document the error message | Note if "Server action not found" | | |
+
+### TC-26.4 — Calculate RPN Action
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create Failure Analysis with severity=8, occurrence=5, detection=3 | | | |
+| 2 | Execute "Calculate RPN" | RPN = 8 × 5 × 3 = 120 | | |
+| 3 | Try with non-numeric values or values > 10 | Should clamp or reject. Document behavior. | | |
+| 4 | If action fails, document the error message | Note any AttributeError or import error | | |
+
+### TC-26.5 — Server Action on Non-Existent Record
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Via API, call a server action with a fake record ID | Should return 404 or meaningful error | | |
+| 2 | Verify no partial data created | Clean rollback | | |
+
+### TC-26.6 — Server Action Permission Check
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Login as `viewer1` (read-only) | | | |
+| 2 | Attempt to execute any server action via API | Should be denied | | |
+
+---
+
+## TC-27: Data Integrity & Boundary Values
+
+> Tests for field constraints, invalid data, and boundary conditions on critical model fields.
+
+### TC-27.1 — Negative Financial Values
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create Work Order Labor with `rate = -50` | Should reject or accept? Document behavior. | | |
+| 2 | Create WO Parts with `quantity_required = -5` | Document behavior | | |
+| 3 | Create Purchase Order Line with `price = 0` | Document behavior | | |
+| 4 | Verify WO total_cost calculation with negative values | Verify mathematical correctness | | |
+
+### TC-27.2 — Zero Division in Currency Conversion
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create or edit a Currency with `conversion_factor = 0` | | | |
+| 2 | Create a PR Line referencing that currency | Should handle gracefully (no division by zero crash) | | |
+
+### TC-27.3 — Float Precision for Financial Totals
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create WO Labor: rate=0.10, hours=3.00 | Expected total = 0.30 | | |
+| 2 | Add another WO Labor: rate=0.20, hours=1.00 | Added = 0.20, Running = 0.50 | | |
+| 3 | Verify WO total_labor_cost | Should be exactly 0.50 (check for 0.50000000001 type drift) | | |
+
+### TC-27.4 — Meter Reading Backwards
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create Meter for an asset, set last_reading = 5000 | | | |
+| 2 | Create Meter Reading with reading_value = 3000 (lower than last) | Should warn or reject? Document behavior. | | |
+| 3 | Verify meter.last_reading after save | Is it updated to 3000 or stayed at 5000? | | |
+
+### TC-27.5 — Overlapping Date Ranges
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create Work Schedule with `end_date` < `start_date` | Should reject. Document behavior. | | |
+| 2 | Create Asset with `warranty_end` < `warranty_start` | Document behavior. | | |
+| 3 | Create Safety Permit with `valid_to` < `valid_from` | Document behavior. | | |
+
+### TC-27.6 — Over-Receipt of Purchase Order
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create PO with line: quantity_ordered = 10 | | | |
+| 2 | Create Receipt with quantity_received = 15 (more than ordered) | Should prevent or allow? Document behavior. | | |
+| 3 | Check PO Line: quantity_received > quantity_ordered | Note if over-receipt is accepted | | |
+
+### TC-27.7 — WO Parts Over-Issuance
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Add WO Parts with quantity_required = 5 | | | |
+| 2 | Set quantity_issued = 10 | Should prevent or allow? Document behavior. | | |
+| 3 | Set quantity_returned = 15 (more than issued) | Document behavior | | |
+
+### TC-27.8 — Null/Empty Required Fields on Workflow Transitions
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create an Asset with NO site, NO department, NO class | Empty entity with just ID | | |
+| 2 | Attempt to transition through workflow (Acquired → Inspected → Active) | Should it require site/dept before activation? Document behavior. | | |
+
+### TC-27.9 — EmployeeSite Multiple Defaults
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create EmployeeSite for Employee A → Site-1 with `default = True` | | | |
+| 2 | Create EmployeeSite for Employee A → Site-2 with `default = True` | **KNOWN GAP**: No unique constraint — both can be default | | |
+
+### TC-27.10 — Free-Text Status Fields
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Via API, create a Safety Permit with `permit_type = "InvalidType"` | Should reject or accept? Document behavior. | | |
+| 2 | Create an Asset with `criticality = "ZZZZZ"` | Document behavior | | |
+| 3 | Create a WorkOrder with `priority = "Super Ultra Urgent"` | Document behavior | | |
+
+---
+
+## TC-28: Backward Transitions & Field Resets
+
+> Tests that reopened/reverted records properly reset dependent fields and child states.
+
+### TC-28.1 — Work Order Reopen Field Reset
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create WO, approve, start, complete, close | WO Closed with downtime_end, downtime_hours, actual_end_date set | | |
+| 2 | Reopen the WO (Closed → In Progress) | State = In Progress | | |
+| 3 | Verify `downtime_end` is cleared | **KNOWN GAP**: May retain stale value | | |
+| 4 | Verify `downtime_hours` is cleared/reset | **KNOWN GAP**: May retain stale value | | |
+| 5 | Verify `actual_end_date` is cleared | **KNOWN GAP**: May retain stale value | | |
+| 6 | Verify child WO Activities remain in their current state | Check if WOAs are also reopened or stay closed | | |
+
+### TC-28.2 — Maintenance Request Reopen Cascade
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Complete a Maintenance Request (full cycle) | MR Completed, `closed_date` set | | |
+| 2 | Reopen the MR | MR → Release | | |
+| 3 | Verify `closed_date` is cleared on MR | Should be NULL | | |
+| 4 | Verify linked WOA `end_date` is cleared | **KNOWN GAP**: WOA end_date may retain stale value | | |
+| 5 | Verify linked WO state is reset to In Progress | Check cascade | | |
+
+### TC-28.3 — WO Activity Reopen and Asset State
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Complete WO Activity (asset transitions to Active on completion) | WOA Completed, Asset Active | | |
+| 2 | Reopen WOA (Completed → In Progress) | WOA back In Progress | | |
+| 3 | Verify Asset state | **KNOWN GAP**: Asset may stay Active when it should return to Under Maintenance | | |
+
+### TC-28.4 — Purchase Request Revision with Rejected Lines
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create PR with 3 lines | | | |
+| 2 | Submit, get Lines 1+3 approved, Line 2 rejected | Mixed line states | | |
+| 3 | Revise the PR (Rejected → Draft) | PR back to Draft | | |
+| 4 | Verify Line 2 state | **KNOWN GAP**: Line stays Rejected permanently; cannot be edited or re-approved | | |
+
+### TC-28.5 — Safety Permit Renew Data Reset
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create Safety Permit, progress through full cycle to Expired | Permit Expired, dates set | | |
+| 2 | Renew (Expired → Draft) | Permit back to Draft | | |
+| 3 | Verify `valid_from` and `valid_to` are cleared | **KNOWN GAP**: Dates may retain old expired values | | |
+| 4 | Verify audit trail shows it was a renewal vs. original | Note if any indication exists | | |
+
+### TC-28.6 — Service Contract Renew Overwrites History
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create Service Contract with terms, pricing, dates | Full contract | | |
+| 2 | Progress to Expired | Contract Expired | | |
+| 3 | Renew (Expired → Draft) | Contract back to Draft, same record | | |
+| 4 | Verify original terms, dates, and pricing are preserved | **KNOWN GAP**: Previous values may be overwritten with no history | | |
+
+### TC-28.7 — Parent-Child State Sync on Cancel
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create WO with 3 WO Activities, start 2 of them | 2 WOAs In Progress, 1 in Ready | | |
+| 2 | Cancel the parent WO | WO → Cancelled | | |
+| 3 | Check all 3 WOA states | **KNOWN GAP**: WOAs not cascade-cancelled — remain in their pre-cancel states | | |
+| 4 | Cancel a PO with mixed-state lines | Check if partially-received lines block cancellation | | |
+
+### TC-28.8 — Asset Decommission with Open Work
+
+| Step | Action | Expected Result | Result | Comments |
+|------|--------|----------------|--------|----------|
+| 1 | Create an asset with open MRs, WOs, and active meters | Active asset with linked records | | |
+| 2 | Decommission the asset | Asset → Decommissioned | | |
+| 3 | Verify open MRs for this asset | **KNOWN GAP**: MRs remain active for a decommissioned asset | | |
+| 4 | Verify open WOs for this asset | **KNOWN GAP**: WOs remain active | | |
+| 5 | Verify meter readings can still be entered | Document behavior | | |
 
 ---
 
@@ -1018,7 +1578,15 @@ Use this table to log any issues found during testing.
 | Cross-Workflow (TC-18) | 5 | | | | | | |
 | Vendor Performance (TC-19) | 1 | | | | | | |
 | E2E Scenarios (TC-20) | 5 | | | | | | |
-| **TOTAL** | **80** | | | | | | |
+| Row-Level Data Scoping (TC-21) | 8 | | | | | | |
+| RBAC Bypass & Security (TC-22) | 7 | | | | | | |
+| Workflow Concurrency & Dead-Ends (TC-23) | 10 | | | | | | |
+| Hierarchy Circular Refs (TC-24) | 6 | | | | | | |
+| Naming Series & ID Gen (TC-25) | 4 | | | | | | |
+| Server Action Robustness (TC-26) | 6 | | | | | | |
+| Data Integrity & Boundaries (TC-27) | 10 | | | | | | |
+| Backward Transitions & Resets (TC-28) | 8 | | | | | | |
+| **TOTAL** | **144** | | | | | | |
 
 ### Final Approval
 
