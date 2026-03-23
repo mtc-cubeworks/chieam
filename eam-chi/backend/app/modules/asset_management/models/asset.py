@@ -8,9 +8,9 @@ class Asset(BaseModel):
     """Asset entity model."""
     __tablename__ = "asset"
     
-    workflow_state: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
+    workflow_state: Mapped[str] = mapped_column(String(255), nullable=True, default=None, index=True)
     asset_tag: Mapped[str] = mapped_column(String(255), nullable=True, unique=True, default=None)
-    asset_class: Mapped[str] = mapped_column(String(50), ForeignKey("asset_class.id"), nullable=True, default=None)
+    asset_class: Mapped[str] = mapped_column(String(50), ForeignKey("asset_class.id"), nullable=True, default=None, index=True)
     description: Mapped[str] = mapped_column(Text, nullable=True, default=None)
     series: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
     model: Mapped[str] = mapped_column(String(50), ForeignKey("model.id"), nullable=True, default=None)
@@ -19,9 +19,9 @@ class Asset(BaseModel):
     cost: Mapped[float] = mapped_column(Float, nullable=True, default=None)
     block_number: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     number_of_repairs: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
-    location: Mapped[str] = mapped_column(String(50), ForeignKey("location.id"), nullable=True, default=None)
-    site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None)
-    department: Mapped[str] = mapped_column(String(50), ForeignKey("department.id"), nullable=True, default=None)
+    location: Mapped[str] = mapped_column(String(50), ForeignKey("location.id"), nullable=True, default=None, index=True)
+    site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None, index=True)
+    department: Mapped[str] = mapped_column(String(50), ForeignKey("department.id"), nullable=True, default=None, index=True)
     assigned_to: Mapped[str] = mapped_column(String(50), ForeignKey("employee.id"), nullable=True, default=None)
     inventory: Mapped[str] = mapped_column(String(50), ForeignKey("inventory.id"), nullable=True, default=None)
     system: Mapped[str] = mapped_column(String(50), ForeignKey("system.id"), nullable=True, default=None)

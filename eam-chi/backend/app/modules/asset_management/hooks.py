@@ -208,6 +208,12 @@ async def asset_transfer_workflow_hook(ctx):
     return {"status": "success", "message": f"Asset transfer workflow '{action}' allowed"}
 
 
+@hook_registry.workflow("warranty_claim")
+async def warranty_claim_workflow_hook(ctx):
+    from app.modules.asset_management.workflow_router import route_workflow
+    return await route_workflow("warranty_claim", ctx.doc, ctx.action, ctx.db, ctx.user)
+
+
 def register_hooks():
     """Called by the module loader. Hooks are already registered via decorators above."""
     # Import server action modules to trigger their @server_actions.register decorators

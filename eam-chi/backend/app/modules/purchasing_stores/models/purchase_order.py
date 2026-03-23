@@ -8,14 +8,14 @@ class PurchaseOrder(BaseModel):
     """Purchase Order entity model."""
     __tablename__ = "purchase_order"
     
-    workflow_state: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
+    workflow_state: Mapped[str] = mapped_column(String(255), nullable=True, default=None, index=True)
     source_rfq: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
-    vendor: Mapped[str] = mapped_column(String(50), ForeignKey("vendor.id"), nullable=True, default=None)
+    vendor: Mapped[str] = mapped_column(String(50), ForeignKey("vendor.id"), nullable=True, default=None, index=True)
     vendor_name: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
     date_ordered: Mapped[date] = mapped_column(Date, nullable=True, default=None)
     total_amount: Mapped[float] = mapped_column(Float, nullable=True, default=None)
-    site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None)
-    department: Mapped[str] = mapped_column(String(50), ForeignKey("department.id"), nullable=True, default=None)
+    site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None, index=True)
+    department: Mapped[str] = mapped_column(String(50), ForeignKey("department.id"), nullable=True, default=None, index=True)
     cost_code: Mapped[str] = mapped_column(String(50), ForeignKey("cost_code.id"), nullable=True, default=None)
     # PO-4: Amendment trail
     amendment_number: Mapped[int] = mapped_column(Integer, nullable=True, default=None)

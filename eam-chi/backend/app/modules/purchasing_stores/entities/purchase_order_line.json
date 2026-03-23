@@ -26,7 +26,7 @@
   ],
   "workflow": {
     "enabled": true,
-    "show_actions": false,
+    "show_actions": true,
     "state_field": "workflow_state",
     "initial_state": "Draft",
     "states": [

@@ -393,6 +393,18 @@ async def vendor_invoice_workflow_hook(ctx):
     return await route_workflow("vendor_invoice", ctx.doc, ctx.action, ctx.db, ctx.user)
 
 
+@hook_registry.workflow("sales_order")
+async def sales_order_workflow_hook(ctx):
+    from app.modules.purchasing_stores.workflow_router import route_workflow
+    return await route_workflow("sales_order", ctx.doc, ctx.action, ctx.db, ctx.user)
+
+
+@hook_registry.workflow("service_contract")
+async def service_contract_workflow_hook(ctx):
+    from app.modules.purchasing_stores.workflow_router import route_workflow
+    return await route_workflow("service_contract", ctx.doc, ctx.action, ctx.db, ctx.user)
+
+
 def register_hooks():
     """Called by the module loader. Hooks are already registered via decorators above."""
     # Import server action modules to trigger their @server_actions.register decorators

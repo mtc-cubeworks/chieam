@@ -107,8 +107,114 @@ async def list_workflow_transitions(db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/workflow/save")
-async def save_workflow_config(payload: dict[str, Any]):
-    return ActionResponse(status="error", message="Not implemented")
+async def save_workflow_config(
+    payload: dict[str, Any],
+    db: AsyncSession = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user_from_token),
+):
+    """
+    Save workflow transitions for an entity.
+    Payload: {
+        "entity": "purchase_order",
+        "transitions": [
+            {"from_state": "Draft", "action": "Submit", "to_state": "Pending Approval", "allowed_roles": ["PurchaseManager"]},
+            ...
+        ]
+    }
+    """
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=403, detail="Access denied: Superuser required")
+
+    entity = payload.get("entity")
+    transitions_data = payload.get("transitions", [])
+    if not entity:
+        return ActionResponse(status="error", message="entity is required")
+
+    from app.models.workflow import Workflow, WorkflowTransition, WorkflowState, WorkflowAction
+    import uuid as uuid_mod
+
+    # Find or create the Workflow for this entity
+    result = await db.execute(select(Workflow).where(Workflow.target_entity == entity))
+    workflow = result.scalar_one_or_none()
+    if not workflow:
+        workflow = Workflow(
+            id=str(uuid_mod.uuid4()),
+            name=f"{entity} workflow",
+            target_entity=entity,
+            is_active=True,
+        )
+        db.add(workflow)
+        await db.flush()
+
+    # Load all states and actions for lookup
+    states_result = await db.execute(select(WorkflowState))
+    states_by_name = {s.label: s for s in states_result.scalars().all()}
+    # Also match by slug
+    for s in list(states_by_name.values()):
+        if s.slug:
+            states_by_name[s.slug] = s
+
+    actions_result = await db.execute(select(WorkflowAction))
+    actions_by_label = {a.label: a for a in actions_result.scalars().all()}
+    for a in list(actions_by_label.values()):
+        if a.slug:
+            actions_by_label[a.slug] = a
+
+    # Delete existing transitions for this workflow
+    existing = await db.execute(
+        select(WorkflowTransition).where(WorkflowTransition.workflow_id == workflow.id)
+    )
+    for t in existing.scalars().all():
+        await db.delete(t)
+    await db.flush()
+
+    # Create new transitions
+    created = []
+    for idx, t_data in enumerate(transitions_data):
+        from_name = t_data.get("from_state", "")
+        action_name = t_data.get("action", "")
+        to_name = t_data.get("to_state", "")
+        allowed_roles = t_data.get("allowed_roles")
+
+        from_state = states_by_name.get(from_name)
+        to_state = states_by_name.get(to_name)
+        action_obj = actions_by_label.get(action_name)
+
+        if not from_state or not to_state or not action_obj:
+            missing = []
+            if not from_state:
+                missing.append(f"state '{from_name}'")
+            if not to_state:
+                missing.append(f"state '{to_name}'")
+            if not action_obj:
+                missing.append(f"action '{action_name}'")
+            return ActionResponse(
+                status="error",
+                message=f"Row {idx + 1}: not found: {', '.join(missing)}",
+            )
+
+        new_t = WorkflowTransition(
+            id=str(uuid_mod.uuid4()),
+            workflow_id=workflow.id,
+            from_state_id=from_state.id,
+            action_id=action_obj.id,
+            to_state_id=to_state.id,
+            sort_order=idx,
+        )
+        if allowed_roles:
+            new_t.set_allowed_roles(allowed_roles)
+        db.add(new_t)
+        created.append({
+            "from_state": from_name,
+            "action": action_name,
+            "to_state": to_name,
+        })
+
+    await db.commit()
+    return ActionResponse(
+        status="success",
+        message=f"Saved {len(created)} transitions for '{entity}'",
+    )
 
 
 @router.get("/roles")

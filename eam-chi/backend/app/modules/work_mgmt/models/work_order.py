@@ -8,7 +8,7 @@ class WorkOrder(BaseModel):
     """Work Order entity model."""
     __tablename__ = "work_order"
     
-    workflow_state: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
+    workflow_state: Mapped[str] = mapped_column(String(255), nullable=True, default=None, index=True)
     work_order_type: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
     description: Mapped[str] = mapped_column(Text, nullable=True, default=None)
     category_of_failure: Mapped[str] = mapped_column(String(50), ForeignKey("category_of_failure.id"), nullable=True, default=None)
@@ -16,8 +16,8 @@ class WorkOrder(BaseModel):
     priority: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
     severity: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
     incident: Mapped[str] = mapped_column(String(50), ForeignKey("incident.id"), nullable=True, default=None)
-    site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None)
-    department: Mapped[str] = mapped_column(String(50), ForeignKey("department.id"), nullable=True, default=None)
+    site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None, index=True)
+    department: Mapped[str] = mapped_column(String(50), ForeignKey("department.id"), nullable=True, default=None, index=True)
     cost_code: Mapped[str] = mapped_column(String(50), ForeignKey("cost_code.id"), nullable=True, default=None)
     # Downtime Tracking (WO-6)
     downtime_start: Mapped[datetime] = mapped_column(DateTime, nullable=True, default=None)

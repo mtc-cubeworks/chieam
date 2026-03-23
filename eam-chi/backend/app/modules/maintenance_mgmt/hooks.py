@@ -478,6 +478,24 @@ async def master_data_change_workflow_hook(ctx):
     return {"status": "success", "message": f"Master data change workflow '{action}' allowed"}
 
 
+@hook_registry.workflow("condition_monitoring")
+async def condition_monitoring_workflow_hook(ctx):
+    from app.modules.maintenance_mgmt.workflow_router import route_workflow
+    return await route_workflow("condition_monitoring", ctx.doc, ctx.action, ctx.db, ctx.user)
+
+
+@hook_registry.workflow("corrective_action")
+async def corrective_action_workflow_hook(ctx):
+    from app.modules.maintenance_mgmt.workflow_router import route_workflow
+    return await route_workflow("corrective_action", ctx.doc, ctx.action, ctx.db, ctx.user)
+
+
+@hook_registry.workflow("failure_analysis")
+async def failure_analysis_workflow_hook(ctx):
+    from app.modules.maintenance_mgmt.workflow_router import route_workflow
+    return await route_workflow("failure_analysis", ctx.doc, ctx.action, ctx.db, ctx.user)
+
+
 def register_hooks():
     """Called by the module loader. Hooks are already registered via decorators above."""
     # Import server action modules to trigger their @server_actions.register decorators

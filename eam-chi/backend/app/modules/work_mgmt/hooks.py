@@ -195,6 +195,18 @@ async def work_order_failure_rca_hook(ctx):
     return result
 
 
+@hook_registry.workflow("safety_permit")
+async def safety_permit_workflow_hook(ctx):
+    from app.modules.work_mgmt.workflow_router import route_workflow
+    return await route_workflow("safety_permit", ctx.doc, ctx.action, ctx.db, ctx.user)
+
+
+@hook_registry.workflow("tool_checkout")
+async def tool_checkout_workflow_hook(ctx):
+    from app.modules.work_mgmt.workflow_router import route_workflow
+    return await route_workflow("tool_checkout", ctx.doc, ctx.action, ctx.db, ctx.user)
+
+
 def register_hooks():
     """Called by the module loader. Hooks are already registered via decorators above."""
     # Import server action modules to trigger their @server_actions.register decorators

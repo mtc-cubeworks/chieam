@@ -8,11 +8,11 @@ class PurchaseRequestLine(BaseModel):
     """Purchase Request Line entity model."""
     __tablename__ = "purchase_request_line"
     
-    workflow_state: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
-    purchase_request: Mapped[str] = mapped_column(String(50), ForeignKey("purchase_request.id"), nullable=True, default=None)
+    workflow_state: Mapped[str] = mapped_column(String(255), nullable=True, default=None, index=True)
+    purchase_request: Mapped[str] = mapped_column(String(50), ForeignKey("purchase_request.id"), nullable=True, default=None, index=True)
     financial_asset_number: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
     row_no: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
-    item: Mapped[str] = mapped_column(String(50), ForeignKey("item.id"), nullable=True, default=None)
+    item: Mapped[str] = mapped_column(String(50), ForeignKey("item.id"), nullable=True, default=None, index=True)
     item_description: Mapped[str] = mapped_column(Text, nullable=True, default=None)
     unit_of_measure: Mapped[str] = mapped_column(String(50), ForeignKey("unit_of_measure.id"), nullable=True, default=None)
     unit_cost: Mapped[float] = mapped_column(Float, nullable=True, default=None)

@@ -12,6 +12,7 @@ from jose import jwt
 
 from app.core.database import get_db
 from app.core.config import settings
+from app.infrastructure.rate_limit import limiter
 from app.models.auth import User
 from app.routers.meta import get_meta_list
 from app.routers.meta import MODULE_ICONS, MODULE_LABELS, _module_order_key
@@ -153,7 +154,9 @@ def create_refresh_token(data: dict) -> str:
 
 
 @router.post("/login")
+@limiter.limit("5/minute")
 async def login(
+    request: Request,
     response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
@@ -211,8 +214,22 @@ async def login(
     }
 
 
+@router.post("/logout")
+async def logout(response: Response):
+    """Clear refresh token cookie to log the user out."""
+    response.delete_cookie(
+        key=settings.REFRESH_TOKEN_COOKIE_NAME,
+        path="/",
+        samesite=settings.REFRESH_TOKEN_COOKIE_SAMESITE,
+        secure=settings.REFRESH_TOKEN_COOKIE_SECURE,
+    )
+    return {"status": "success", "message": "Logged out successfully"}
+
+
 @router.post("/boot")
+@limiter.limit("5/minute")
 async def boot_info(
+    request: Request,
     response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),

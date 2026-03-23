@@ -5,6 +5,9 @@ import socketio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from app.core.config import settings
@@ -13,6 +16,7 @@ from app.core.seed import run_seeds
 from app.core.loader import load_modules
 from app.core.exceptions import register_exception_handlers
 from app.entities import load_all_entities
+from app.infrastructure.rate_limit import limiter
 from app.routers import meta
 from app.services.socketio_manager import sio
 
@@ -31,6 +35,13 @@ class TimingMiddleware(BaseHTTPMiddleware):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Security: reject default SECRET_KEY in production (PostgreSQL)
+    if "postgresql" in settings.DATABASE_URL and settings.SECRET_KEY == "your-secret-key-change-in-production":
+        raise RuntimeError(
+            "SECURITY: SECRET_KEY is still set to the default value. "
+            "Set a strong SECRET_KEY in your .env file before running in production."
+        )
+
     # Load all module models (dynamic)
     load_modules()
     # Load entity metadata
@@ -68,6 +79,11 @@ fastapi_app = FastAPI(
 
 # Register custom exception handlers
 register_exception_handlers(fastapi_app)
+
+# Rate limiting
+fastapi_app.state.limiter = limiter
+fastapi_app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+fastapi_app.add_middleware(SlowAPIMiddleware)
 
 fastapi_app.add_middleware(
     CORSMiddleware,

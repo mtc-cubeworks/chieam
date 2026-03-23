@@ -30,7 +30,8 @@ class BaseModel(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime, 
         default=datetime.utcnow,
-        nullable=False
+        nullable=False,
+        index=True
     )
     
     updated_at: Mapped[datetime] = mapped_column(
@@ -43,11 +44,13 @@ class BaseModel(Base):
     created_by: Mapped[str] = mapped_column(
         String(50),
         nullable=True,
-        default=None
+        default=None,
+        index=True
     )
 
     modified_by: Mapped[str] = mapped_column(
         String(50),
         nullable=True,
-        default=None
+        default=None,
+        index=True
     )

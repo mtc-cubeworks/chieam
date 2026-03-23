@@ -8,19 +8,19 @@ class Inventory(BaseModel):
     """Inventory entity model."""
     __tablename__ = "inventory"
     
-    workflow_state: Mapped[str] = mapped_column(String(50), ForeignKey("workflow_states.id"), nullable=True, default=None)
+    workflow_state: Mapped[str] = mapped_column(String(50), ForeignKey("workflow_states.id"), nullable=True, default=None, index=True)
     transaction_type: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
     date: Mapped[date] = mapped_column(Date, nullable=True, default=None)
     assigned_to: Mapped[str] = mapped_column(String(50), ForeignKey("employee.id"), nullable=True, default=None)
     serial_number: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
     financial_asset_number: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
-    site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None)
+    site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None, index=True)
     location: Mapped[str] = mapped_column(String(50), ForeignKey("location.id"), nullable=True, default=None)
     location_name: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
-    store_location: Mapped[str] = mapped_column(String(50), ForeignKey("store.id"), nullable=True, default=None)
+    store_location: Mapped[str] = mapped_column(String(50), ForeignKey("store.id"), nullable=True, default=None, index=True)
     zone: Mapped[str] = mapped_column(String(50), ForeignKey("zone.id"), nullable=True, default=None)
     bin_location: Mapped[str] = mapped_column(String(50), ForeignKey("bin.id"), nullable=True, default=None)
-    item: Mapped[str] = mapped_column(String(50), ForeignKey("item.id"), nullable=True, default=None)
+    item: Mapped[str] = mapped_column(String(50), ForeignKey("item.id"), nullable=True, default=None, index=True)
     item_type: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
     item_name: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
     asset_tag: Mapped[str] = mapped_column(String(255), nullable=True, default=None)

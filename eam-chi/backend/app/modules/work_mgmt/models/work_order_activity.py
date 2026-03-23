@@ -8,8 +8,8 @@ class WorkOrderActivity(BaseModel):
     """Work Order Activity entity model."""
     __tablename__ = "work_order_activity"
     
-    workflow_state: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
-    work_order: Mapped[str] = mapped_column(String(50), ForeignKey("work_order.id"), nullable=True, default=None)
+    workflow_state: Mapped[str] = mapped_column(String(255), nullable=True, default=None, index=True)
+    work_order: Mapped[str] = mapped_column(String(50), ForeignKey("work_order.id"), nullable=True, default=None, index=True)
     work_order_name: Mapped[str] = mapped_column(Text, nullable=True, default=None)
     description: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
     work_item_type: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
