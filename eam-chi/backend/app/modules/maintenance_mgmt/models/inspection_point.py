@@ -11,7 +11,9 @@ class InspectionPoint(BaseModel):
     sequence: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     asset: Mapped[str] = mapped_column(String(50), ForeignKey("asset.id"), nullable=True, default=None)
     location: Mapped[str] = mapped_column(String(50), ForeignKey("location.id"), nullable=True, default=None)
-    description: Mapped[str] = mapped_column(Text, nullable=True, default=None)
     measurement_type: Mapped[str] = mapped_column(String(100), nullable=True, default=None)  # Visual, Reading, Pass/Fail
+    parameter_name: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
     expected_value: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
     tolerance: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
+    unit_of_measure: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
+    instructions: Mapped[str] = mapped_column(Text, nullable=True, default=None)
