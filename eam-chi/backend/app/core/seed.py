@@ -54,12 +54,21 @@ def hash_password(password: str) -> str:
 async def seed_roles(db: AsyncSession):
     """Create default roles with RBAC permissions and data scopes."""
     roles_data = [
+        # General roles
         {"name": "SystemManager", "description": "Full system access - can do everything", "data_scope": "all"},
         {"name": "Executive", "description": "Read access to all data across all sites", "data_scope": "all"},
         {"name": "SiteManager", "description": "Full access within assigned site(s)", "data_scope": "site"},
         {"name": "Supervisor", "description": "Access to own department/team data", "data_scope": "team"},
         {"name": "Technician", "description": "CRUD access to own records within modules", "data_scope": "own"},
         {"name": "Viewer", "description": "Read-only access to own site data", "data_scope": "site"},
+        # Asset management roles
+        {"name": "AssetManager", "description": "Manage assets, locations, systems within assigned site(s)", "data_scope": "site"},
+        # Procurement & stores roles
+        {"name": "PurchaseManager", "description": "Approve and manage all procurement within site(s)", "data_scope": "site"},
+        {"name": "Buyer", "description": "Create and manage purchase orders, RFQs, vendor invoices", "data_scope": "site"},
+        {"name": "Requisitioner", "description": "Create purchase requests and view order status", "data_scope": "own"},
+        {"name": "StoresManager", "description": "Manage inventory, stores, stock counts within site(s)", "data_scope": "site"},
+        {"name": "Storekeeper", "description": "Issue, receive, transfer and count stock", "data_scope": "site"},
     ]
     
     for role_data in roles_data:
