@@ -58,7 +58,9 @@ async def workflow_action(
             errors={"workflow": f"Create a workflow with target_entity='{entity}' first"}
         )
 
-    result = await db.execute(select(model).where(model.id == request.id))
+    result = await db.execute(
+        select(model).where(model.id == request.id).with_for_update()
+    )
     doc = result.scalar_one_or_none()
 
     if not doc:

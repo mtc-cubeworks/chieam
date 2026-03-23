@@ -25,6 +25,11 @@ class ActionContext:
     record_id: Optional[str]
     params: dict[str, Any]
 
+    @property
+    def doc(self):
+        """Convenience accessor for the loaded document record."""
+        return self.params.get("doc")
+
 
 ActionFunction = Callable[[ActionContext], Any]
 

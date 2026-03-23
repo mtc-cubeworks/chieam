@@ -111,7 +111,7 @@ async def execute_import(
     if not validation.valid:
         return ActionResponse(status="error", message="Validation failed", data={"errors": validation.errors, "warnings": validation.warnings})
 
-    result = await service.execute_import(meta, headers, rows, mode=mode)
+    result = await service.execute_import(meta, headers, rows, mode=mode, user=user)
     message = f"Updated {result.updated} records" if mode == "update" else f"Imported {result.count} records"
     if result.duplicates:
         message += f" (skipped {result.duplicates} duplicates)"
@@ -145,7 +145,7 @@ async def execute_import_sheets(
     if not validation.valid:
         return ActionResponse(status="error", message="Validation failed", data={"errors": validation.errors, "warnings": validation.warnings})
 
-    result = await service.execute_import(meta, headers, rows, mode=mode)
+    result = await service.execute_import(meta, headers, rows, mode=mode, user=user)
     message = f"Updated {result.updated} records" if mode == "update" else f"Imported {result.count} records"
     if result.duplicates:
         message += f" (skipped {result.duplicates} duplicates)"
@@ -175,7 +175,11 @@ async def export_entity(
     if not model:
         raise HTTPException(status_code=404, detail="Model not found")
 
-    records = (await db.execute(select(model))).scalars().all()
+    export_query = select(model)
+    scope_filter = RBACService.build_scope_filter(user, model)
+    if scope_filter is not None:
+        export_query = export_query.where(scope_filter)
+    records = (await db.execute(export_query)).scalars().all()
     content = await ie.export_records(db, meta, records, format=format)
     
     if format == "xlsx":

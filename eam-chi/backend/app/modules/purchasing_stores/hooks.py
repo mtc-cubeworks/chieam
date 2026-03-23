@@ -211,12 +211,6 @@ async def item_return_workflow_hook(ctx):
     return await route_workflow("item_return", ctx.doc, ctx.action, ctx.db, ctx.user)
 
 
-@hook_registry.workflow("stock_count")
-async def stock_count_workflow_hook(ctx):
-    from app.modules.purchasing_stores.workflow_router import route_workflow
-    return await route_workflow("stock_count", ctx.doc, ctx.action, ctx.db, ctx.user)
-
-
 @hook_registry.workflow("inventory_adjustment")
 async def inventory_adjustment_workflow_hook(ctx):
     from app.modules.purchasing_stores.workflow_router import route_workflow

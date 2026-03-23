@@ -373,6 +373,7 @@ async def create_records(
     db: AsyncSession,
     meta: EntityMeta,
     records: list[dict[str, Any]],
+    user: Any = None,
 ) -> tuple[int, list[dict[str, Any]]]:
     """Create records with auto-generated IDs and duplicate checking."""
     model = get_entity_model(meta.name)
@@ -407,6 +408,10 @@ async def create_records(
             else:
                 raise ValueError(f"Cannot import '{meta.name}' without 'id' because naming is disabled")
 
+        # Inject created_by from current user
+        if user and hasattr(model, "created_by"):
+            record_data.setdefault("created_by", getattr(user, "id", None))
+
         # Create new record
         try:
             obj = model(**record_data)
@@ -425,10 +430,17 @@ async def update_records(
     db: AsyncSession,
     meta: EntityMeta,
     records: list[dict[str, Any]],
+    user: Any = None,
 ) -> tuple[int, list[dict[str, Any]]]:
     model = get_entity_model(meta.name)
     if not model:
         raise ValueError("Model not found")
+
+    # Build scope filter once for all records
+    scope_clause = None
+    if user:
+        from app.services.rbac import RBACService
+        scope_clause = RBACService.build_scope_filter(user, model)
 
     updated_count = 0
     missing: list[dict[str, Any]] = []
@@ -440,7 +452,10 @@ async def update_records(
                 missing.append(record)
                 continue
 
-            existing = await db.execute(select(model).where(getattr(model, "id") == str(record_id).strip()))
+            stmt = select(model).where(getattr(model, "id") == str(record_id).strip())
+            if scope_clause is not None:
+                stmt = stmt.where(scope_clause)
+            existing = await db.execute(stmt)
             obj = existing.scalar_one_or_none()
             if obj is None:
                 missing.append(record)
@@ -452,6 +467,10 @@ async def update_records(
                 if value is None:
                     continue
                 setattr(obj, key, value)
+
+            # Inject modified_by from current user
+            if user and hasattr(model, "modified_by"):
+                obj.modified_by = getattr(user, "id", None)
 
             await db.flush()
             updated_count += 1

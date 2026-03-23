@@ -144,12 +144,6 @@ async def _rollup_wo_costs(doc, ctx):
 # Workflow Hooks - All routed through central workflow_router
 # =============================================================================
 
-@hook_registry.workflow("work_order")
-async def work_order_workflow_hook(ctx):
-    from app.modules.work_mgmt.workflow_router import route_workflow
-    return await route_workflow("work_order", ctx.doc, ctx.action, ctx.db, ctx.user)
-
-
 @hook_registry.workflow("work_order_activity")
 async def work_order_activity_workflow_hook(ctx):
     from app.modules.work_mgmt.workflow_router import route_workflow

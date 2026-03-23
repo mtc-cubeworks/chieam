@@ -55,7 +55,11 @@ async def document_action(
         return ActionResponse(status="error", message=f"Model for '{entity}' not found")
 
     from sqlalchemy import select
-    result = await db.execute(select(model).where(model.id == id))
+    stmt = select(model).where(model.id == id)
+    scope_filter = RBACService.build_scope_filter(user, model)
+    if scope_filter is not None:
+        stmt = stmt.where(scope_filter)
+    result = await db.execute(stmt)
     doc = result.scalar_one_or_none()
 
     if not doc:

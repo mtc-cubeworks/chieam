@@ -66,6 +66,7 @@ class ImportExportService:
         headers: list[str],
         rows: list[dict[str, Any]],
         mode: ImportMode = "create",
+        user: Any = None,
     ) -> ImportExecutionSummary:
         validation = await self.validate_import(meta, headers, rows, mode=mode)
         if not validation.valid:
@@ -74,8 +75,8 @@ class ImportExportService:
         validated, _ = await ie.validate_rows(self.db, meta, rows, mode=mode)
 
         if mode == "update":
-            updated_count, missing = await ie.update_records(self.db, meta, validated)
+            updated_count, missing = await ie.update_records(self.db, meta, validated, user=user)
             return ImportExecutionSummary(count=updated_count, updated=updated_count, missing=len(missing))
 
-        created_count, duplicates = await ie.create_records(self.db, meta, validated)
+        created_count, duplicates = await ie.create_records(self.db, meta, validated, user=user)
         return ImportExecutionSummary(count=created_count, duplicates=len(duplicates))

@@ -68,7 +68,7 @@ async def get_current_user_from_token(
                 _SCOPE_RANK = {"own": 0, "team": 1, "site": 2, "all": 3}
                 highest_scope = "own"
                 for r in user.roles:
-                    rs = getattr(r, "data_scope", "all") or "all"
+                    rs = getattr(r, "data_scope", "own") or "own"
                     if _SCOPE_RANK.get(rs, 0) > _SCOPE_RANK.get(highest_scope, 0):
                         highest_scope = rs
 

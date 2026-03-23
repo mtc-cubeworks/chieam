@@ -408,6 +408,9 @@ async def get_entity_detail(
                     count_stmt = select(func.count()).select_from(link_model).where(
                         getattr(link_model, fk_field) == record.id
                     )
+                    link_scope = RBACService.build_scope_filter(user, link_model)
+                    if link_scope is not None:
+                        count_stmt = count_stmt.where(link_scope)
                     count_result = await db.execute(count_stmt)
                     linked_counts[link_entity] = count_result.scalar() or 0
     # print(f"[TIMING] {entity}/{id} linked_counts ({len(linked_counts)} links): {(_time.time()-_t3)*1000:.0f}ms")

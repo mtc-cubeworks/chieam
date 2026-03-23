@@ -72,8 +72,11 @@ async def get_child_records(
     if not child_model:
         raise NotFoundError("Model", child_entity)
 
-    # Query all child records
+    # Query all child records (with row-level scoping)
     stmt = select(child_model).where(getattr(child_model, fk_field) == record_id)
+    scope_filter = RBACService.build_scope_filter(user, child_model)
+    if scope_filter is not None:
+        stmt = stmt.where(scope_filter)
     result = await db.execute(stmt)
     records = result.scalars().all()
 

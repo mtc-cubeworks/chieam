@@ -31,13 +31,16 @@ class NamingService:
         if not naming or not naming.enabled:
             return None
         
-        # Get or create series for this prefix
-        result = await db.execute(select(Series).where(Series.name == naming.prefix))
+        # Get or create series for this prefix (lock row to prevent race condition)
+        result = await db.execute(
+            select(Series).where(Series.name == naming.prefix).with_for_update()
+        )
         series = result.scalar_one_or_none()
         
         if not series:
             series = Series(name=naming.prefix, current=0)
             db.add(series)
+            await db.flush()
         
         # Increment sequence
         series.current += 1
