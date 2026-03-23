@@ -35,14 +35,12 @@ async def get_current_user_from_token(
     from app.core.config import settings
     from app.models.auth import User
     
-    # Default anonymous user with no permissions
+    # Require valid auth token
     if not authorization or not authorization.startswith("Bearer "):
-        return CurrentUser(
-            id="anonymous",
-            username="anonymous",
-            roles=[],
-            role_ids=[],
-            is_superuser=False
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required",
+            headers={"WWW-Authenticate": "Bearer"},
         )
     
     token = authorization.replace("Bearer ", "")
@@ -132,3 +130,20 @@ def get_current_user() -> CurrentUser:
         role_ids=[],
         is_superuser=False
     )
+
+
+async def get_optional_user_from_token(
+    authorization: Optional[str] = Header(None),
+    db: AsyncSession = Depends(get_db)
+) -> CurrentUser:
+    """Like get_current_user_from_token but returns anonymous for missing tokens.
+    Use for routes that work with or without authentication."""
+    if not authorization or not authorization.startswith("Bearer "):
+        return CurrentUser(
+            id="anonymous",
+            username="anonymous",
+            roles=[],
+            role_ids=[],
+            is_superuser=False
+        )
+    return await get_current_user_from_token(authorization, db)

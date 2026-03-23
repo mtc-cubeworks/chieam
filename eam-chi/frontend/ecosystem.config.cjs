@@ -12,7 +12,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         HOST: '127.0.0.1',
-        PORT: '3010',
+        PORT: '3015',
         NUXT_PUBLIC_API_URL: '/api'
       }
     }

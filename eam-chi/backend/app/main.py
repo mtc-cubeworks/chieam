@@ -24,6 +24,16 @@ from app.services.socketio_manager import sio
 logging.getLogger("slow_queries").setLevel(logging.WARNING)
 
 
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+        response.headers["X-XSS-Protection"] = "0"
+        return response
+
+
 class TimingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         start = time.time()
@@ -35,12 +45,18 @@ class TimingMiddleware(BaseHTTPMiddleware):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Security: reject default SECRET_KEY in production (PostgreSQL)
-    if "postgresql" in settings.DATABASE_URL and settings.SECRET_KEY == "your-secret-key-change-in-production":
-        raise RuntimeError(
-            "SECURITY: SECRET_KEY is still set to the default value. "
-            "Set a strong SECRET_KEY in your .env file before running in production."
-        )
+    # Security: reject weak SECRET_KEY in production (PostgreSQL)
+    _WEAK_KEYS = {
+        "your-secret-key-change-in-production",
+        "change-me-to-a-random-string",
+        "test-secret-key-not-for-production",
+    }
+    if "postgresql" in settings.DATABASE_URL:
+        if settings.SECRET_KEY in _WEAK_KEYS or len(settings.SECRET_KEY) < 32:
+            raise RuntimeError(
+                "SECURITY: SECRET_KEY is weak or still set to a default value. "
+                "Set a strong SECRET_KEY (>= 32 chars) in your .env file before running in production."
+            )
 
     # Load all module models (dynamic)
     load_modules()
@@ -96,6 +112,7 @@ fastapi_app.add_middleware(
 )
 
 fastapi_app.add_middleware(TimingMiddleware)
+fastapi_app.add_middleware(SecurityHeadersMiddleware)
 fastapi_app.mount("/uploads", StaticFiles(directory=settings.UPLOAD_DIR), name="uploads")
 
 # New Clean Architecture routes
