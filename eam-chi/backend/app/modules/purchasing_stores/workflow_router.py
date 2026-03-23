@@ -133,6 +133,48 @@ async def _auto_close_parent(
     }
 
 
+async def _cancel_po_line_and_revert_pr(doc: "Any", db: "AsyncSession") -> dict:
+    """
+    Cancel a PO Line and revert its linked PR Line back to 'approved'.
+    This ensures the PR Line is available for re-procurement.
+    """
+    from app.services.document import get_doc, save_doc
+
+    pr_line_id = _get_attr(doc, 'pr_line_id')
+    if pr_line_id:
+        pr_line_doc = await get_doc("purchase_request_line", pr_line_id, db)
+        if pr_line_doc:
+            current_state = getattr(pr_line_doc, 'workflow_state', '')
+            if current_state not in ('draft', 'approved', 'rejected', 'complete'):
+                pr_line_doc.workflow_state = "approved"
+                pr_line_doc.qty_received = 0
+                await save_doc(pr_line_doc, db, commit=False)
+
+    return {"status": "success", "message": "Purchase Order Line cancelled. Linked PR Line reverted to Approved."}
+
+
+async def _revert_po_lines_to_pr(po_lines: list[dict], db: "AsyncSession") -> None:
+    """
+    After cancelling all PO Lines, revert their linked PR Lines back to
+    'approved' so they can be re-procured.
+    """
+    from app.services.document import get_doc, save_doc
+
+    for line in po_lines:
+        pr_line_id = line.get("pr_line_id")
+        if not pr_line_id:
+            continue
+        pr_line_doc = await get_doc("purchase_request_line", pr_line_id, db)
+        if pr_line_doc:
+            current_state = getattr(pr_line_doc, 'workflow_state', '')
+            if current_state not in ('draft', 'approved', 'rejected', 'complete'):
+                pr_line_doc.workflow_state = "approved"
+                pr_line_doc.qty_received = 0
+                await save_doc(pr_line_doc, db, commit=False)
+
+    await db.flush()
+
+
 # =============================================================================
 # Purchase Request Workflow
 # =============================================================================
@@ -222,7 +264,21 @@ async def purchase_request_workflow(doc: Any, action: str, db: AsyncSession, use
             return {"status": "success", "message": "Purchase Request closed"}
 
         elif action == "Revise Purchase Request":
-            return {"status": "success", "message": "Purchase Request reverted to Draft for revision"}
+            # Revert non-rejected lines back to draft
+            for line in pr_lines:
+                if line.get("workflow_state") not in ("rejected",):
+                    result = await _apply_line_workflow(
+                        "purchase_request_line", line["id"], "reopen", db
+                    )
+                    # Fallback: directly set state if no reopen transition exists
+                    if result["status"] == "error":
+                        from app.services.document import get_doc as _get_doc
+                        prl_doc = await _get_doc("purchase_request_line", line["id"], db)
+                        if prl_doc:
+                            prl_doc.workflow_state = "draft"
+                            from app.services.document import save_doc as _save_doc
+                            await _save_doc(prl_doc, db, commit=False)
+            return {"status": "success", "message": "Purchase Request reverted to Draft for revision. Non-rejected lines reset to Draft."}
 
         return {"status": "success", "message": f"Purchase Request workflow '{action}' allowed"}
 
@@ -322,7 +378,9 @@ async def purchase_order_workflow(doc: Any, action: str, db: AsyncSession, user:
                 if result["status"] == "error":
                     await db.rollback()
                     return result
-            return {"status": "success", "message": "Purchase Order cancelled, all lines cancelled"}
+            # Revert linked PR Lines back to approved
+            await _revert_po_lines_to_pr(po_lines, db)
+            return {"status": "success", "message": "Purchase Order cancelled, all lines cancelled. Linked PR Lines reverted to Approved."}
 
         return {"status": "success", "message": f"Purchase Order workflow '{action}' allowed"}
 
@@ -396,7 +454,7 @@ async def purchase_order_line_workflow(doc: Any, action: str, db: AsyncSession, 
             return {"status": "success", "message": "Purchase Order Line completed"}
 
         elif action == "Cancel":
-            return {"status": "success", "message": "Purchase Order Line cancelled"}
+            return await _cancel_po_line_and_revert_pr(doc, db)
 
         return {"status": "success", "message": f"Purchase Order Line workflow '{action}' allowed"}
 

@@ -192,7 +192,27 @@ async def work_order_workflow(doc: Any, action: str, db: AsyncSession, user: Any
             return {"status": "success", "message": "Work Order completed"}
 
         elif action == "Reopen":
-            return {"status": "success", "message": "Work Order reopened"}
+            # Clear computed fields from the completed state
+            wo_doc = await get_doc("work_order", wo_id, db)
+            if wo_doc:
+                wo_doc.downtime_end = None
+                wo_doc.downtime_hours = None
+                await save_doc(wo_doc, db, commit=False)
+
+            # Revert all WOAs that are completed/closed back to in_progress
+            for activity in wo_activities:
+                woa_state = activity.get("workflow_state")
+                if woa_state in ("completed", "closed"):
+                    woa_id = activity.get("id")
+                    if woa_id:
+                        woa_doc = await get_doc("work_order_activity", woa_id, db)
+                        if woa_doc:
+                            woa_doc.workflow_state = "in_progress"
+                            woa_doc.end_date = None
+                            await save_doc(woa_doc, db, commit=False)
+
+            await db.commit()
+            return {"status": "success", "message": "Work Order reopened. Downtime cleared, completed activities reverted to In Progress."}
 
         elif action == "Cancel":
             # Release all parts reservations for this WO
@@ -206,7 +226,17 @@ async def work_order_workflow(doc: Any, action: str, db: AsyncSession, user: Any
                         wp_id = wp.get("id")
                         if wp_id:
                             await release_all_reservations_for_wo_parts(wp_id, db)
-            return {"status": "success", "message": "Work Order cancelled, reservations released"}
+
+                    # Cascade cancel to WOA
+                    woa_state = activity.get("workflow_state")
+                    if woa_state not in ("cancelled", "closed", "completed"):
+                        woa_doc = await get_doc("work_order_activity", woa_id, db)
+                        if woa_doc:
+                            woa_doc.workflow_state = "cancelled"
+                            await save_doc(woa_doc, db, commit=False)
+
+            await db.commit()
+            return {"status": "success", "message": "Work Order cancelled. All activities cancelled, reservations released."}
 
         return {"status": "success", "message": f"Work Order workflow '{action}' allowed"}
 

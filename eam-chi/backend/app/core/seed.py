@@ -69,6 +69,10 @@ async def seed_roles(db: AsyncSession):
         {"name": "Requisitioner", "description": "Create purchase requests and view order status", "data_scope": "own"},
         {"name": "StoresManager", "description": "Manage inventory, stores, stock counts within site(s)", "data_scope": "site"},
         {"name": "Storekeeper", "description": "Issue, receive, transfer and count stock", "data_scope": "site"},
+        # Maintenance management roles
+        {"name": "MaintenanceManager", "description": "Manage all maintenance activities within assigned site(s)", "data_scope": "site"},
+        {"name": "Planner", "description": "Plan and schedule maintenance activities within assigned site(s)", "data_scope": "site"},
+        {"name": "MaintenanceSupervisor", "description": "Supervise maintenance team and approve work orders", "data_scope": "team"},
     ]
     
     for role_data in roles_data:
