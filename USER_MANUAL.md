@@ -1,7 +1,7 @@
 # EAM-CHI User Manual
 
 **Enterprise Asset Management — CHI**
-**Version 1.0 | March 2026**
+**Version 1.1 | March 2026**
 
 ---
 
@@ -20,8 +20,9 @@
 11. [Administration](#11-administration)
 12. [Workflows & State Machines](#12-workflows--state-machines)
 13. [Import & Export](#13-import--export)
-14. [Appendix A — Entity Reference](#appendix-a--entity-reference)
-15. [Appendix B — Keyboard Shortcuts & Tips](#appendix-b--keyboard-shortcuts--tips)
+14. [Known Limitations & Edge Cases](#14-known-limitations--edge-cases)
+15. [Appendix A — Entity Reference](#appendix-a--entity-reference)
+16. [Appendix B — Keyboard Shortcuts & Tips](#appendix-b--keyboard-shortcuts--tips)
 
 ---
 
@@ -192,8 +193,11 @@ Personnel records linked to user accounts.
 | Position | Job title/position |
 | Site | Primary work site |
 | Department | Associated department |
+| Reports To | Direct manager (employee link — used for team-based data scoping) |
 
 *Naming pattern: EMP-{#####}*
+
+> ⚠️ **Important:** For row-level data scoping to work correctly, each employee must have EmployeeSite records linking them to their site(s) and department(s). The `Reports To` field defines the management hierarchy used by `team` scope.
 
 ### 4.5 Labor
 
@@ -457,6 +461,8 @@ Active → Warning → Critical → Resolved
 | Warn | Reading exceeds warning threshold |
 | Escalate | Reading exceeds critical threshold |
 | Resolve | Issue addressed; return to monitoring |
+
+> ⚠️ **Note:** Condition Monitoring states only escalate forward (Active → Warning → Critical). There is no de-escalation path. If conditions improve, resolve the current record and create a new one.
 
 ---
 
@@ -1175,18 +1181,29 @@ Every list view supports **Export to Excel**:
 
 **Default Roles:**
 
-| Role | Description |
-|------|-------------|
-| SystemManager | Full access to all entities and admin functions |
-| Viewer | Read-only access across all entities |
-| Admin | Full CRUD on all entities |
-| Editor | Create and update (no delete) |
+| Role | Data Scope | Description |
+|------|------------|-------------|
+| SystemManager | all | Full access to all entities and admin functions |
+| Executive | all | Executive-level access across all sites |
+| SiteManager | site | Full access within assigned site(s) |
+| Supervisor | team | Access to records within own department(s) |
+| Technician | own | Access limited to self-created records |
+| Viewer | site | Read-only access within assigned site(s) |
+| AssetManager | site | Asset module management within site(s) |
+| PurchaseManager | site | Procurement management within site(s) |
+| Buyer | site | Purchase order creation/approval within site(s) |
+| Requisitioner | own | Purchase request creation — own records only |
+| StoresManager | site | Stores and inventory management within site(s) |
+| Storekeeper | site | Stores receiving and issuing within site(s) |
+
+**Data Scope** controls row-level visibility (see §11.9 below).
 
 **Managing Roles:**
 
 1. Navigate to **Admin → Roles**
 2. Create custom roles with descriptive names
-3. Assign permissions per entity (see below)
+3. Set the **Data Scope** (own, team, site, or all)
+4. Assign permissions per entity (see below)
 
 ### 11.3 Permission Management
 
@@ -1259,6 +1276,31 @@ Customize application appearance:
 - **Colors** — Primary, secondary, accent colors
 - **Application Name** — Custom title
 
+### 11.9 Row-Level Data Scoping
+
+🔒 *SystemManager role required to configure.*
+
+Beyond entity-level permissions (can_read, can_create, etc.), each role has a **Data Scope** that controls which *rows* a user can see and modify:
+
+| Scope | Visibility |
+|-------|------------|
+| **own** | Only records where `created_by` = current user |
+| **team** | Records in user's department(s) + own records |
+| **site** | Records in user's assigned site(s) + own records |
+| **all** | All records — no row-level filtering |
+
+**How it works:**
+- Every record is stamped with `created_by` (the creating user) and `modified_by` (the last editor). These are set automatically.
+- When listing, viewing, updating, or deleting records, the system applies a scope filter based on the user's role.
+- If a user has multiple roles with different scopes, the **most permissive** scope wins.
+
+**Employee Linkage:**
+For `site` and `team` scopes to work correctly, the user must be linked to an **Employee** record, and that Employee must have **EmployeeSite** assignments. Without this linkage, `site`/`team` scopes degrade to `own` behavior.
+
+> ⚠️ **Note:** Records with `created_by = NULL` (e.g., migrated data) are invisible to `own`-scoped users. An admin should backfill `created_by` on legacy records.
+
+---
+
 ### 11.8 Scheduled Jobs
 
 The system runs automated background jobs:
@@ -1330,6 +1372,8 @@ Every state transition is logged with:
 3. Click **Export**
 4. An Excel file downloads containing all matching records
 
+> ⚠️ **Known Limitation:** The export function checks `can_read` permission but does **not** apply row-level data scoping. A user with `site` scope may receive all records in the export, not just their site's records. Restrict export access via the `can_export` permission on sensitive entities.
+
 ### 13.2 Importing Data
 
 1. Open any entity list view
@@ -1342,6 +1386,103 @@ Every state transition is logged with:
 8. **Execute** — Import validated records
 
 > 💡 **Tip:** Always download a fresh template before importing to ensure column headers match the current entity configuration.
+
+> ⚠️ **Known Limitations:**
+> - Imported records may not have `created_by` set automatically. Run a backfill query if ownership tracking is critical.
+> - Import bypasses workflow hooks, naming validation, and auto-calculations. Manually verify computed fields after bulk import.
+> - Import update mode does not enforce row-level scoping — ensure spreadsheets contain only records the user should modify.
+
+---
+
+## 14. Known Limitations & Edge Cases
+
+This section documents known system behaviors and edge cases that users and administrators should be aware of.
+
+### 14.1 Workflow Dead-End States
+
+Some workflow states have no outgoing transitions. Records reaching these states cannot be progressed further without admin intervention:
+
+| Entity | Dead-End State | Impact |
+|--------|---------------|--------|
+| Asset | Inactive | No transition to Decommissioned or back to Active. Create a new transfer or contact admin. |
+| Condition Monitoring | Resolved | Cannot be reactivated. Create a new CM record if the condition recurs. |
+| Purchase Order | Rejected | Cannot be revised or resubmitted. Create a new PO. |
+| Safety Permit | Active (no cancel) | Cannot be cancelled while active. Must wait for expiry, then renew if needed. |
+| RFQ | Review (no cancel) | Cannot cancel from Review state. Must award or leave in Review. |
+| Sales Order | Approved | No completion or close transition. Contact admin to close. |
+
+### 14.2 Workflow Backward Transitions
+
+When records are **reopened** (e.g., Work Order Closed → In Progress), some computed fields may retain stale values from the prior completion:
+
+| Entity | Fields That May Not Reset |
+|--------|--------------------------|
+| Work Order | `downtime_end`, `downtime_hours`, `actual_end_date` |
+| Maintenance Request | WO Activity `end_date` (MR `closed_date` does reset) |
+| WO Activity | Asset state may not revert to Under Maintenance |
+| Purchase Request | Rejected line items remain permanently rejected after PR revision |
+| Safety Permit | `valid_from` and `valid_to` dates may retain expired values after renewal |
+
+**Recommendation:** After reopening a record, manually verify and clear any stale date or cost fields.
+
+### 14.3 Concurrent Access
+
+The system does not use pessimistic locking (SELECT FOR UPDATE) or optimistic locking (version columns) on workflow transitions. If two users attempt the same transition simultaneously:
+
+- The first user's transition succeeds.
+- The second user may see a stale state; their transition could fail gracefully or — in rare cases — create duplicate side-effect records (e.g., duplicate Work Orders from a Maintenance Request approval).
+
+**Recommendation:** Use the real-time Socket.IO notifications to stay aware of state changes by other users. Refresh the page before performing critical transitions.
+
+### 14.4 Hierarchy Circular References
+
+Self-referential hierarchies (Asset parent, Location parent, Employee reports_to, Asset Class parent, Item Class parent, System parent) do **not** have built-in circular reference detection. Setting `A.parent = B` and `B.parent = A` will be accepted by the system and may cause infinite loops in tree displays.
+
+**Recommendation:** Avoid setting parent references that create cycles. Administrators should periodically audit hierarchies for accidental loops.
+
+### 14.5 Naming Series
+
+- IDs are auto-generated using a prefix + incrementing number (e.g., `AST-00001`).
+- If the series counter exceeds the digit padding (e.g., > 9999 for 4-digit padding), IDs will have inconsistent lengths (e.g., `AST-10000`). This is cosmetic and does not cause data loss.
+- Under very high concurrent load, there is a theoretical risk of duplicate ID generation. The database unique constraint will catch this as an error.
+
+### 14.6 Financial Data Precision
+
+Monetary fields (costs, rates, amounts, budgets) use floating-point storage. In rare cases, this can produce rounding artifacts (e.g., a total of `$10.000000001` instead of `$10.00`). This does not affect business operations but may appear in exports or reports.
+
+### 14.7 Parent-Child State Synchronization
+
+When a parent record changes state, child records may not automatically follow:
+
+| Parent Action | Child Impact |
+|--------------|-------------|
+| Work Order cancelled | WO Activities remain in their current state (not auto-cancelled) |
+| PO cancelled | PO Lines are cancelled, but linked PR Lines are not updated |
+| PR revised (Rejected → Draft) | PR Lines stay Rejected (permanently locked) |
+| Asset decommissioned | Open MRs and WOs for the asset remain active |
+
+**Recommendation:** After cancelling or decommissioning a parent, manually verify and close any orphaned child records.
+
+### 14.8 Server Actions
+
+Server actions (Clone Asset, Generate Maintenance Order, Create Purchase Request, Calculate RPN) have these known behaviors:
+
+- **No idempotency**: Executing an action twice may create duplicate records (e.g., two Maintenance Orders from one MR).
+- **No scope check**: Server actions do not enforce row-level data scoping on the source record.
+- **Partial failures**: If an action fails mid-execution, partial data may be committed.
+
+**Recommendation:** Use server actions deliberately and verify results. Do not double-click action buttons.
+
+### 14.9 Data Scoping Edge Cases
+
+| Scenario | Behavior |
+|----------|----------|
+| User has no role | All entity access denied |
+| Role with `data_scope = NULL` in DB | Treated as `"all"` (unrestricted) — admin should fix |
+| Role with invalid scope value | Degrades to `"own"` behavior |
+| User with no Employee linkage | `site`/`team` scopes degrade to `"own"` |
+| Legacy record with `created_by = NULL` | Invisible to `own`-scoped users; visible to `all`-scoped users |
+| Multiple roles with different scopes | Most permissive scope wins |
 
 ---
 
@@ -1381,6 +1522,9 @@ Every state transition is logged with:
 | Safety Permit | Draft → Requested → Approved → Active → Expired/Cancelled | Submit, Approve, Activate, Expire, Cancel, Renew |
 | Condition Monitoring | Active → Warning → Critical → Resolved | Warn, Escalate, Resolve |
 | Purchase Order | Draft → Open → Closed/Rejected/Cancelled | Approve, Reject, Complete, Cancel |
+| Purchase Request | Draft → Pending Review → Pending Approval → Approved → Closed/Rejected | Submit, Review, Approve, Reject, Complete, Revise |
+
+> ⚠️ See **Chapter 14 — Known Limitations** for dead-end states, backward transition field resets, and concurrent access considerations.
 
 ---
 
@@ -1409,4 +1553,4 @@ Every state transition is logged with:
 
 ---
 
-*End of User Manual — EAM-CHI v1.0*
+*End of User Manual — EAM-CHI v1.1*
