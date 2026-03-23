@@ -54,6 +54,11 @@ class Role(Base):
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=True)  # TEMP: required disabled
     description: Mapped[str] = mapped_column(String(500), nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Data scope: own = own records only, team = same department,
+    # site = same site(s), all = unrestricted
+    data_scope: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="all", server_default="all"
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     users: Mapped[list["User"]] = relationship(

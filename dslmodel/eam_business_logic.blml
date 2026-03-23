@@ -1,0 +1,564 @@
+blml model eam_business_logic {
+
+  import "core_eam.dbml" as core;
+  import "asset_management.dbml" as asset;
+  import "maintenance_mgmt.dbml" as maint;
+  import "work_mgmt.dbml" as work;
+  import "purchasing_stores.dbml" as purch;
+
+  (* ========================================== *)
+  (* CONTEXTS                                   *)
+  (* ========================================== *)
+
+  context maintenance-planning {
+    label = "Maintenance Planning";
+    description = "Business logic context for preventive/predictive maintenance scheduling";
+    domain = maint.MaintenanceRequest;
+  }
+
+  context work-order-costing {
+    label = "Work Order Costing";
+    description = "Business logic context for work order cost calculation and budget control";
+    domain = work.WorkOrder;
+  }
+
+  context inventory-management {
+    label = "Inventory Management";
+    description = "Business logic context for inventory replenishment and valuation";
+    domain = purch.Inventory;
+  }
+
+  context asset-lifecycle {
+    label = "Asset Lifecycle";
+    description = "Business logic context for asset depreciation, health scoring, and criticality";
+    domain = asset.Asset;
+  }
+
+  context procurement {
+    label = "Procurement";
+    description = "Business logic context for procurement approval routing and budget validation";
+    domain = purch.PurchaseRequest;
+  }
+
+  (* ========================================== *)
+  (* FORMULAS                                   *)
+  (* ========================================== *)
+
+  formula straight-line-depreciation {
+    expression = (acquisition_cost - salvage_value) / useful_life_years;
+    unit = "currency/year";
+  }
+
+  formula declining-balance-depreciation {
+    expression = book_value * (depreciation_rate / 100);
+    unit = "currency/year";
+  }
+
+  formula asset-health-score {
+    expression = (100 - age_factor * 0.3 - failure_factor * 0.4 - condition_factor * 0.3);
+    unit = "percentage";
+  }
+
+  formula mean-time-between-failures {
+    expression = total_operating_hours / number_of_failures;
+    unit = "hours";
+  }
+
+  formula mean-time-to-repair {
+    expression = total_repair_hours / number_of_repairs;
+    unit = "hours";
+  }
+
+  formula overall-equipment-effectiveness {
+    expression = availability * performance * quality;
+    unit = "percentage";
+  }
+
+  formula pm-compliance-rate {
+    expression = (completed_pm_count / scheduled_pm_count) * 100;
+    unit = "percentage";
+  }
+
+  formula inventory-turnover {
+    expression = cost_of_goods_issued / average_inventory_value;
+    unit = "ratio";
+  }
+
+  formula reorder-point {
+    expression = (average_daily_usage * lead_time_days) + safety_stock;
+    unit = "quantity";
+  }
+
+  formula economic-order-quantity {
+    expression = (2 * annual_demand * ordering_cost / holding_cost) ** 0.5;
+    unit = "quantity";
+  }
+
+  formula work-order-total-cost {
+    expression = labor_cost + material_cost + equipment_cost + overhead_cost;
+    unit = "currency";
+  }
+
+  formula overhead-allocation {
+    expression = direct_labor_hours * overhead_rate;
+    unit = "currency";
+  }
+
+  formula sla-response-due {
+    expression = request_date + response_sla_hours;
+    unit = "datetime";
+  }
+
+  formula sla-resolution-due {
+    expression = request_date + resolution_sla_hours;
+    unit = "datetime";
+  }
+
+  formula vendor-rating-score {
+    expression = (delivery_score * 0.3) + (quality_score * 0.4) + (price_score * 0.3);
+    unit = "score";
+  }
+
+  (* ========================================== *)
+  (* RULES                                      *)
+  (* ========================================== *)
+
+  rule budget-approval-routing {
+    if total_amount > 50000;
+    then {
+      approval_level = "executive";
+      notify("finance-director", "High-value PR requires executive approval");
+    }
+    else {
+      approval_level = "manager";
+    }
+  }
+
+  rule critical-asset-priority-escalation {
+    if asset_criticality == "critical" and priority == "medium";
+    then {
+      priority = "high";
+      notify("maintenance-manager", "Critical asset priority auto-escalated");
+    }
+  }
+
+  rule emergency-work-order-bypass {
+    if wo_type == "emergency";
+    then {
+      skip_approval = "true";
+      notify("all-supervisors", "Emergency WO created — approval bypassed");
+    }
+  }
+
+  rule sla-breach-escalation {
+    if is_overdue == true and sla_status == "breached";
+    then {
+      notify("site-manager", "SLA breach on maintenance request");
+      escalation_level = "high";
+    }
+  }
+
+  rule inventory-below-minimum {
+    if quantity_on_hand < min_stock and quantity_on_hand > 0;
+    then {
+      notify("storekeeper", "Item below minimum stock level");
+      auto_create_pr("reorder");
+    }
+  }
+
+  rule inventory-stockout {
+    if quantity_on_hand == 0 and is_critical == true;
+    then {
+      notify("store-manager", "Critical item stockout");
+      create_emergency_pr("critical-stockout");
+    }
+  }
+
+  rule warranty-claim-auto-route {
+    if asset_under_warranty == true and failure_type == "manufacturer_defect";
+    then {
+      route_to_warranty("vendor");
+      notify("procurement-team", "Warranty claim auto-routed to vendor");
+    }
+  }
+
+  rule condition-monitoring-threshold-breach {
+    if reading_value >= critical_threshold;
+    then {
+      alert_status = "critical";
+      create_maintenance_request("condition-triggered");
+      notify("maintenance-planner", "Critical threshold breached");
+    }
+  }
+
+  rule three-way-match-validation {
+    if invoice_qty != receipt_qty or invoice_price != po_price;
+    then {
+      match_status = "mismatch";
+      route_for_review("accounts-payable");
+    }
+    else {
+      match_status = "matched";
+    }
+  }
+
+  rule contract-renewal-notice {
+    if days_to_expiry <= renewal_notice_days and auto_renew == false;
+    then {
+      notify("procurement-manager", "Service contract approaching expiry");
+    }
+  }
+
+  (* ========================================== *)
+  (* CONSTRAINTS                                *)
+  (* ========================================== *)
+
+  constraint positive-quantity {
+    enforce quantity > 0;
+    severity = error;
+  }
+
+  constraint budget-not-exceeded {
+    enforce actual_cost <= approved_budget;
+    severity = warning;
+  }
+
+  constraint po-amount-limit {
+    enforce total_amount <= po_approval_limit;
+    severity = error;
+  }
+
+  constraint valid-date-range {
+    enforce planned_finish >= planned_start;
+    severity = error;
+  }
+
+  constraint safety-permit-required {
+    enforce has_safety_permit == true;
+    severity = error;
+  }
+
+  constraint min-stock-less-than-max {
+    enforce min_stock < max_stock;
+    severity = error;
+  }
+
+  constraint transfer-different-stores {
+    enforce from_store != to_store;
+    severity = error;
+  }
+
+  constraint warranty-within-period {
+    enforce claim_date <= warranty_end_date;
+    severity = error;
+  }
+
+  (* ========================================== *)
+  (* MATRICES                                   *)
+  (* ========================================== *)
+
+  matrix criticality-priority {
+    critical -> emergency : 1;
+    critical -> corrective : 2;
+    high -> corrective : 3;
+    high -> preventive : 4;
+    medium -> corrective : 5;
+    medium -> preventive : 6;
+    low -> corrective : 7;
+    low -> preventive : 8;
+  }
+
+  matrix sla-response-hours {
+    emergency -> all : 1;
+    critical -> all : 4;
+    high -> all : 8;
+    medium -> all : 24;
+    low -> all : 72;
+  }
+
+  matrix sla-resolution-hours {
+    emergency -> all : 4;
+    critical -> all : 12;
+    high -> all : 24;
+    medium -> all : 72;
+    low -> all : 168;
+  }
+
+  matrix approval-authority {
+    manager -> purchase-request : 10000;
+    director -> purchase-request : 50000;
+    executive -> purchase-request : 250000;
+    manager -> work-order : 25000;
+    director -> work-order : 100000;
+  }
+
+  (* ========================================== *)
+  (* FUNCTIONS                                  *)
+  (* ========================================== *)
+
+  function calculate_available_qty(on_hand, reserved) {
+    result = on_hand - reserved;
+    return result;
+  }
+
+  function calculate_variance(system_qty, actual_qty) {
+    variance = actual_qty - system_qty;
+    return variance;
+  }
+
+  function calculate_book_value(acquisition_cost, accumulated_depreciation) {
+    book_value = acquisition_cost - accumulated_depreciation;
+    return book_value;
+  }
+
+  function calculate_pm_next_due(last_maintenance_date, frequency_days) {
+    next_due = last_maintenance_date + frequency_days;
+    return next_due;
+  }
+
+  (* ========================================== *)
+  (* OPTIMIZERS                                 *)
+  (* ========================================== *)
+
+  optimizer maintenance-schedule-optimizer {
+    objective = minimize total_downtime;
+    variables {
+      schedule_start;
+      schedule_end;
+      resource_allocation;
+    }
+    constraints {
+      maintenance-planning.valid-date-range;
+      maintenance-planning.resource-availability;
+    }
+  }
+
+  optimizer inventory-cost-optimizer {
+    objective = minimize total_inventory_cost;
+    variables {
+      order_quantity;
+      reorder_point;
+      safety_stock;
+    }
+    constraints {
+      inventory-management.positive-quantity;
+      inventory-management.min-stock-less-than-max;
+    }
+  }
+
+  optimizer work-order-scheduling-optimizer {
+    objective = minimize total_completion_time;
+    variables {
+      labor_assignment;
+      equipment_assignment;
+      start_time;
+    }
+    constraints {
+      work-order-costing.valid-date-range;
+      work-order-costing.safety-permit-required;
+    }
+  }
+
+  (* ========================================== *)
+  (* BAYESIAN NETWORKS                          *)
+  (* ========================================== *)
+
+  bayesianNetwork asset-failure-prediction {
+    nodes {
+      asset-age { young; middle; old; }
+      operating-environment { normal; harsh; extreme; }
+      maintenance-history { good; average; poor; }
+      vibration-level { low; medium; high; }
+      failure-probability { low; medium; high; critical; }
+    }
+
+    edges {
+      asset-age -> failure-probability;
+      operating-environment -> failure-probability;
+      maintenance-history -> failure-probability;
+      vibration-level -> failure-probability;
+    }
+
+    cpt {
+      failure-probability {
+        when asset-age == "old" and maintenance-history == "poor" : failure-probability = 0.85;
+        when asset-age == "old" and maintenance-history == "average" : failure-probability = 0.55;
+        when asset-age == "middle" and vibration-level == "high" : failure-probability = 0.60;
+        when asset-age == "young" and maintenance-history == "good" : failure-probability = 0.05;
+      }
+    }
+
+    inference predict-failure {
+      output = "failure-probability";
+    }
+  }
+
+  bayesianNetwork spare-parts-demand {
+    nodes {
+      equipment-age { new; mid; eol; }
+      pm-compliance { high; medium; low; }
+      season { summer; winter; monsoon; normal; }
+      demand-level { low; normal; high; surge; }
+    }
+
+    edges {
+      equipment-age -> demand-level;
+      pm-compliance -> demand-level;
+      season -> demand-level;
+    }
+
+    cpt {
+      demand-level {
+        when equipment-age == "eol" and pm-compliance == "low" : demand-level = 0.80;
+        when equipment-age == "mid" and pm-compliance == "high" : demand-level = 0.15;
+        when season == "monsoon" : demand-level = 0.45;
+      }
+    }
+
+    inference predict-demand {
+      output = "demand-level";
+    }
+  }
+
+  (* ========================================== *)
+  (* DECISION TABLES                            *)
+  (* ========================================== *)
+
+  decisionTable work-order-priority-assignment {
+    inputs {
+      asset_criticality;
+      failure_type;
+      safety_impact;
+    }
+    outputs {
+      priority;
+    }
+
+    row {
+      when safety_impact == "high";
+      emit emergency;
+    }
+
+    row {
+      when asset_criticality == "critical" and failure_type == "breakdown";
+      emit critical;
+    }
+
+    row {
+      when asset_criticality == "critical" and failure_type == "degradation";
+      emit high;
+    }
+
+    row {
+      when asset_criticality == "high" and failure_type == "breakdown";
+      emit high;
+    }
+
+    row {
+      when asset_criticality == "medium";
+      emit medium;
+    }
+
+    row {
+      when asset_criticality == "low";
+      emit low;
+    }
+  }
+
+  decisionTable procurement-approval-level {
+    inputs {
+      total_amount;
+      is_budgeted;
+      vendor_approved;
+    }
+    outputs {
+      approval_level;
+    }
+
+    row {
+      when total_amount > 250000;
+      emit executive;
+    }
+
+    row {
+      when total_amount > 50000 and total_amount <= 250000;
+      emit director;
+    }
+
+    row {
+      when total_amount > 10000 and total_amount <= 50000 and is_budgeted == true;
+      emit manager;
+    }
+
+    row {
+      when total_amount <= 10000 and vendor_approved == true;
+      emit auto-approve;
+    }
+  }
+
+  decisionTable inventory-replenishment-action {
+    inputs {
+      quantity_on_hand;
+      reorder_point;
+      is_critical;
+      pending_po_exists;
+    }
+    outputs {
+      action;
+    }
+
+    row {
+      when quantity_on_hand == 0 and is_critical == true;
+      emit emergency-purchase;
+    }
+
+    row {
+      when quantity_on_hand <= reorder_point and pending_po_exists == false;
+      emit create-purchase-request;
+    }
+
+    row {
+      when quantity_on_hand <= reorder_point and pending_po_exists == true;
+      emit expedite-po;
+    }
+
+    row {
+      when quantity_on_hand > reorder_point;
+      emit no-action;
+    }
+  }
+
+  (* ========================================== *)
+  (* POLICIES                                   *)
+  (* ========================================== *)
+
+  policy maintenance-compliance {
+    intent = "Ensure all scheduled maintenance is completed within SLA and regulatory requirements";
+    scope = "maintenance_mgmt";
+    use rule eam_business_logic.sla-breach-escalation;
+    use rule eam_business_logic.critical-asset-priority-escalation;
+    use rule eam_business_logic.condition-monitoring-threshold-breach;
+  }
+
+  policy procurement-governance {
+    intent = "Enforce budget controls, approval hierarchies, and vendor management for all procurement";
+    scope = "purchasing_stores";
+    use rule eam_business_logic.budget-approval-routing;
+    use rule eam_business_logic.three-way-match-validation;
+    use rule eam_business_logic.contract-renewal-notice;
+  }
+
+  policy inventory-control {
+    intent = "Maintain optimal inventory levels, prevent stockouts, and minimize carrying costs";
+    scope = "purchasing_stores";
+    use rule eam_business_logic.inventory-below-minimum;
+    use rule eam_business_logic.inventory-stockout;
+  }
+
+  policy safety-management {
+    intent = "Enforce safety permit requirements and hazard assessments for all work execution";
+    scope = "work_mgmt";
+    use rule eam_business_logic.emergency-work-order-bypass;
+  }
+
+}

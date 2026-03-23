@@ -206,6 +206,12 @@ async def get_entity_list(
     query = select(model)
     count_query = select(func.count()).select_from(model)
 
+    # --- Row-level data scoping ---
+    scope_filter = RBACService.build_scope_filter(user, model)
+    if scope_filter is not None:
+        query = query.where(scope_filter)
+        count_query = count_query.where(scope_filter)
+
     if filter_field and filter_value is not None:
         if filter_field not in selectable_columns:
             return ActionResponse(status="error", message=f"Invalid filter field '{filter_field}'")
@@ -293,6 +299,12 @@ async def get_entity_list_view(
     query = select(model)
     count_query = select(func.count()).select_from(model)
 
+    # --- Row-level data scoping ---
+    scope_filter = RBACService.build_scope_filter(user, model)
+    if scope_filter is not None:
+        query = query.where(scope_filter)
+        count_query = count_query.where(scope_filter)
+
     if filter_field and filter_value is not None:
         if filter_field not in selectable_columns:
             return ActionResponse(status="error", message=f"Invalid filter field '{filter_field}'")
@@ -366,7 +378,13 @@ async def get_entity_detail(
     if not model:
         raise NotFoundError("Model", entity)
 
-    result = await db.execute(select(model).where(model.id == id))
+    detail_query = select(model).where(model.id == id)
+    # --- Row-level data scoping ---
+    scope_filter = RBACService.build_scope_filter(user, model)
+    if scope_filter is not None:
+        detail_query = detail_query.where(scope_filter)
+
+    result = await db.execute(detail_query)
     record = result.scalar_one_or_none()
     # print(f"[TIMING] {entity}/{id} main query: {(_time.time()-_t1)*1000:.0f}ms")
 

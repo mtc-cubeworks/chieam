@@ -12,6 +12,8 @@ class BaseModel(Base):
     - id: Human-readable naming code (e.g., AST-0001) - set by NamingService
     - created_at: Auto-set on insert
     - updated_at: Auto-updated on every change
+    - created_by: User ID of record creator (set by CRUD handler)
+    - modified_by: User ID of last modifier (set by CRUD handler)
     
     Note: id is NOT auto-generated here. It must be set by NamingService
     before insert based on the entity's naming configuration.
@@ -36,4 +38,16 @@ class BaseModel(Base):
         default=datetime.utcnow, 
         onupdate=datetime.utcnow,
         nullable=False
+    )
+
+    created_by: Mapped[str] = mapped_column(
+        String(50),
+        nullable=True,
+        default=None
+    )
+
+    modified_by: Mapped[str] = mapped_column(
+        String(50),
+        nullable=True,
+        default=None
     )

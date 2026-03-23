@@ -1,0 +1,3574 @@
+/* ================================================================= */
+/*  EAM-CHI Web Design Model (WDML v3.3)                            */
+/*  Enterprise Asset Management – CHI Implementation                 */
+/*  Generated from completed system: 120 models across 5 modules     */
+/* ================================================================= */
+
+wdml model eam_chi_web {
+
+  import "core_eam.dbml" as core;
+  import "asset_management.dbml" as asset;
+  import "maintenance_mgmt.dbml" as maint;
+  import "work_mgmt.dbml" as work;
+  import "purchasing_stores.dbml" as purch;
+  import "eam_ux.uxml" as ux;
+
+  /* =============================================================== */
+  /*  DESIGN SYSTEM                                                   */
+  /* =============================================================== */
+
+  designSystem eam_ds {
+
+    meta {
+      title: "EAM-CHI Design System";
+      description: "Enterprise asset management design tokens and component themes";
+      brand: "CHI EAM";
+      version: "1.0.0";
+    }
+
+    /* ------------- Color Tokens ---------------------------------- */
+
+    color clr_primary {
+      role: primary;
+      value: "#1565C0";
+      usage: "Primary brand blue for nav, buttons, links";
+    }
+
+    color clr_primary_soft {
+      role: primarySoft;
+      value: "#E3F2FD";
+      usage: "Light primary for backgrounds, hover states";
+    }
+
+    color clr_secondary {
+      role: secondary;
+      value: "#37474F";
+      usage: "Dark slate for secondary actions, headers";
+    }
+
+    color clr_accent {
+      role: accent;
+      value: "#FF6F00";
+      usage: "Amber accent for highlights, badges";
+    }
+
+    color clr_neutral {
+      role: neutral;
+      value: "#78909C";
+      usage: "Blue-grey neutral for borders, dividers";
+    }
+
+    color clr_danger {
+      role: danger;
+      value: "#D32F2F";
+      usage: "Red for errors, critical alerts, overdue items";
+    }
+
+    color clr_success {
+      role: success;
+      value: "#2E7D32";
+      usage: "Green for completed, approved, operational states";
+    }
+
+    color clr_warning {
+      role: warning;
+      value: "#F9A825";
+      usage: "Yellow for pending, caution, approaching deadlines";
+    }
+
+    color clr_info {
+      role: info;
+      value: "#0288D1";
+      usage: "Light blue for informational notices";
+    }
+
+    color clr_background {
+      role: background;
+      value: "#F5F5F5";
+      usage: "Page background, light grey";
+    }
+
+    color clr_surface {
+      role: surface;
+      value: "#FFFFFF";
+      usage: "Card and panel background";
+    }
+
+    color clr_text_primary {
+      role: textPrimary;
+      value: "#212121";
+      usage: "Primary text color";
+    }
+
+    color clr_text_secondary {
+      role: textSecondary;
+      value: "#616161";
+      usage: "Secondary text, labels, hints";
+    }
+
+    /* ------------- Hover/Active State Colors --------------------- */
+
+    color clr_primary_hover {
+      role: primary;
+      state: hover;
+      value: "#0D47A1";
+      usage: "Darker blue on hover";
+    }
+
+    color clr_primary_active {
+      role: primary;
+      state: active;
+      value: "#0A3D91";
+      usage: "Darkest blue on click";
+    }
+
+    color clr_danger_hover {
+      role: danger;
+      state: hover;
+      value: "#B71C1C";
+      usage: "Darker red on hover";
+    }
+
+    /* ------------- Spacing Tokens -------------------------------- */
+
+    space sp_xs {
+      step: 4;
+      usage: "Extra small - inline icon gap";
+    }
+
+    space sp_sm {
+      step: 8;
+      usage: "Small - input padding, tight gap";
+    }
+
+    space sp_md {
+      step: 16;
+      usage: "Medium - card padding, section gap";
+    }
+
+    space sp_lg {
+      step: 24;
+      usage: "Large - section spacing";
+    }
+
+    space sp_xl {
+      step: 32;
+      usage: "Extra large - page margin";
+    }
+
+    space sp_2xl {
+      step: 48;
+      usage: "Double extra large - hero section padding";
+    }
+
+    /* ------------- Radius Tokens --------------------------------- */
+
+    radius rad_sm {
+      value: 4;
+      usage: "Subtle rounding for inputs, badges";
+    }
+
+    radius rad_md {
+      value: 8;
+      usage: "Standard card and panel rounding";
+    }
+
+    radius rad_lg {
+      value: 12;
+      usage: "Prominent rounding for modals, popovers";
+    }
+
+    radius rad_full {
+      value: 999;
+      usage: "Pill shape for chips, avatar";
+    }
+
+    /* ------------- Shadow Tokens --------------------------------- */
+
+    shadow shd_sm {
+      value: "0 1px 3px rgba(0,0,0,0.12)";
+      usage: "Subtle shadow for cards";
+    }
+
+    shadow shd_md {
+      value: "0 4px 6px rgba(0,0,0,0.15)";
+      usage: "Elevated cards, dropdowns";
+    }
+
+    shadow shd_lg {
+      value: "0 10px 25px rgba(0,0,0,0.2)";
+      usage: "Modals, drawers";
+    }
+
+    /* ------------- Typography ------------------------------------ */
+
+    fontFamily ff_sans {
+      stack: "'Inter', 'Segoe UI', 'Roboto', sans-serif";
+      usage: "Primary UI font";
+    }
+
+    fontFamily ff_mono {
+      stack: "'JetBrains Mono', 'Fira Code', monospace";
+      usage: "Code, IDs, technical values";
+    }
+
+    typeScale ts_major_third {
+      baseSize: 16;
+      ratio: 1.25;
+    }
+
+    textStyle txt_display {
+      role: display;
+      font: ff_sans;
+      size: 32;
+      weight: 700;
+      lineHeight: 1.2;
+    }
+
+    textStyle txt_h1 {
+      role: h1;
+      font: ff_sans;
+      size: 28;
+      weight: 700;
+      lineHeight: 1.3;
+    }
+
+    textStyle txt_h2 {
+      role: h2;
+      font: ff_sans;
+      size: 24;
+      weight: 600;
+      lineHeight: 1.3;
+    }
+
+    textStyle txt_h3 {
+      role: h3;
+      font: ff_sans;
+      size: 20;
+      weight: 600;
+      lineHeight: 1.4;
+    }
+
+    textStyle txt_h4 {
+      role: h4;
+      font: ff_sans;
+      size: 18;
+      weight: 600;
+      lineHeight: 1.4;
+    }
+
+    textStyle txt_body {
+      role: body;
+      font: ff_sans;
+      size: 14;
+      weight: 400;
+      lineHeight: 1.5;
+    }
+
+    textStyle txt_body_strong {
+      role: bodyStrong;
+      font: ff_sans;
+      size: 14;
+      weight: 600;
+      lineHeight: 1.5;
+    }
+
+    textStyle txt_caption {
+      role: caption;
+      font: ff_sans;
+      size: 12;
+      weight: 400;
+      lineHeight: 1.4;
+    }
+
+    textStyle txt_label {
+      role: label;
+      font: ff_sans;
+      size: 12;
+      weight: 600;
+      lineHeight: 1.4;
+      letterSpacing: 0.5;
+    }
+
+    textStyle txt_code {
+      role: code;
+      font: ff_mono;
+      size: 13;
+      weight: 400;
+      lineHeight: 1.6;
+    }
+
+    /* ------------- Breakpoints ----------------------------------- */
+
+    breakpoint bp_sm {
+      alias: "mobile";
+      minWidth: 640;
+    }
+
+    breakpoint bp_md {
+      alias: "tablet";
+      minWidth: 768;
+    }
+
+    breakpoint bp_lg {
+      alias: "desktop";
+      minWidth: 1024;
+    }
+
+    breakpoint bp_xl {
+      alias: "wide";
+      minWidth: 1280;
+    }
+
+    breakpoint bp_2xl {
+      alias: "ultrawide";
+      minWidth: 1536;
+    }
+
+    /* ------------- Layout Patterns ------------------------------- */
+
+    layoutPattern lp_sidebar {
+      kind: sidebar;
+      columns: 1;
+      gap: sp_md;
+      notes: "Collapsible sidebar with main content area";
+    }
+
+    layoutPattern lp_form {
+      kind: formLayout;
+      columns: 2;
+      gap: sp_md;
+      maxWidth: 960;
+      notes: "Two-column form layout for entity forms";
+    }
+
+    layoutPattern lp_card_grid {
+      kind: cardGrid;
+      columns: 4;
+      gap: sp_md;
+      notes: "Dashboard KPI card grid";
+    }
+
+    layoutPattern lp_stack {
+      kind: stack;
+      gap: sp_lg;
+      notes: "Vertical stack for list pages";
+    }
+
+    layoutPattern lp_split {
+      kind: split;
+      columns: 2;
+      gap: sp_lg;
+      notes: "Master-detail split view";
+    }
+
+    /* ------------- Density Profiles ------------------------------ */
+
+    densityProfile dp_compact {
+      level: compact;
+      description: "Dense data tables and list views";
+    }
+
+    densityProfile dp_comfortable {
+      level: comfortable;
+      description: "Default form and detail views";
+    }
+
+    /* ------------- Fluid Sizes ----------------------------------- */
+
+    fluidSize fs_page_title {
+      role: h1;
+      min: 22;
+      max: 28;
+      scale: "clamp(1.375rem, 2vw + 1rem, 1.75rem)";
+      usage: "Responsive page title";
+    }
+
+    fluidSize fs_body {
+      role: body;
+      min: 13;
+      max: 16;
+      scale: "clamp(0.8125rem, 1vw + 0.5rem, 1rem)";
+      usage: "Responsive body text";
+    }
+
+    /* ------------- Layout Constraints ---------------------------- */
+
+    layoutConstraint lc_max_content {
+      target: content;
+      property: "max-width";
+      value: "1440px";
+      notes: "Maximum content width on ultra-wide screens";
+    }
+
+    layoutConstraint lc_sidebar_width {
+      target: sidebar;
+      property: "width";
+      value: "260px";
+      notes: "Default sidebar width";
+    }
+
+    layoutConstraint lc_sidebar_collapsed {
+      target: sidebar;
+      property: "width";
+      value: "64px";
+      breakpoint: bp_md;
+      notes: "Collapsed sidebar on tablet";
+    }
+
+    /* ------------- Safe Areas ------------------------------------ */
+
+    safeArea sa_web {
+      platform: "web";
+      top: false;
+      bottom: false;
+      left: false;
+      right: false;
+      notes: "No safe area insets for web";
+    }
+
+    /* ------------- Responsive Rules ------------------------------ */
+
+    responsiveRule rr_sidebar_collapse {
+      pattern: lp_sidebar;
+      breakpoint: bp_md;
+      transform: "Collapse sidebar to icon-only on tablet";
+    }
+
+    responsiveRule rr_form_single_col {
+      pattern: lp_form;
+      breakpoint: bp_sm;
+      transform: "Stack form columns to single column on mobile";
+    }
+
+    responsiveRule rr_card_grid_stack {
+      pattern: lp_card_grid;
+      breakpoint: bp_sm;
+      transform: "Stack KPI cards vertically on mobile";
+    }
+
+    /* ------------- Component Themes ------------------------------ */
+
+    componentTheme ct_button_primary {
+      target: button;
+      variant: "primary";
+      background: clr_primary;
+      foreground: clr_surface;
+      borderRadius: rad_sm;
+      padding: sp_sm;
+      textStyle: txt_body_strong;
+
+      stateStyle hover {
+        background: clr_primary_hover;
+      }
+
+      stateStyle active {
+        background: clr_primary_active;
+      }
+
+      stateStyle disabled {
+        background: clr_neutral;
+      }
+    }
+
+    componentTheme ct_button_danger {
+      target: button;
+      variant: "danger";
+      background: clr_danger;
+      foreground: clr_surface;
+      borderRadius: rad_sm;
+      padding: sp_sm;
+      textStyle: txt_body_strong;
+
+      stateStyle hover {
+        background: clr_danger_hover;
+      }
+    }
+
+    componentTheme ct_card {
+      target: card;
+      background: clr_surface;
+      borderRadius: rad_md;
+      shadow: shd_sm;
+      padding: sp_md;
+    }
+
+    componentTheme ct_badge_status {
+      target: badge;
+      borderRadius: rad_full;
+      padding: sp_xs;
+      textStyle: txt_caption;
+    }
+
+    componentTheme ct_nav_item {
+      target: navItem;
+      foreground: clr_text_secondary;
+      padding: sp_sm;
+      borderRadius: rad_sm;
+
+      stateStyle hover {
+        background: clr_primary_soft;
+        foreground: clr_primary;
+      }
+
+      stateStyle active {
+        background: clr_primary_soft;
+        foreground: clr_primary;
+      }
+    }
+
+    componentTheme ct_sidebar_item {
+      target: sidebarItem;
+      foreground: clr_text_secondary;
+      padding: sp_sm;
+      borderRadius: rad_sm;
+
+      stateStyle hover {
+        background: clr_primary_soft;
+        foreground: clr_primary;
+      }
+
+      stateStyle active {
+        background: clr_primary;
+        foreground: clr_surface;
+      }
+    }
+
+    componentTheme ct_input {
+      target: input;
+      background: clr_surface;
+      foreground: clr_text_primary;
+      borderRadius: rad_sm;
+      padding: sp_sm;
+      textStyle: txt_body;
+
+      stateStyle focus {
+        shadow: shd_sm;
+      }
+
+      stateStyle disabled {
+        background: clr_background;
+        foreground: clr_neutral;
+      }
+    }
+
+    componentTheme ct_select {
+      target: select;
+      background: clr_surface;
+      foreground: clr_text_primary;
+      borderRadius: rad_sm;
+      padding: sp_sm;
+      textStyle: txt_body;
+    }
+
+    componentTheme ct_table {
+      target: table;
+      background: clr_surface;
+      borderRadius: rad_md;
+      shadow: shd_sm;
+      padding: sp_sm;
+      textStyle: txt_body;
+    }
+
+    componentTheme ct_stat_card {
+      target: stat;
+      background: clr_surface;
+      borderRadius: rad_md;
+      shadow: shd_sm;
+      padding: sp_md;
+      textStyle: txt_h3;
+    }
+
+    componentTheme ct_tag {
+      target: tag;
+      borderRadius: rad_full;
+      padding: sp_xs;
+      textStyle: txt_caption;
+    }
+
+    componentTheme ct_chip {
+      target: chip;
+      borderRadius: rad_full;
+      padding: sp_xs;
+      textStyle: txt_caption;
+    }
+
+    componentTheme ct_avatar {
+      target: avatar;
+      borderRadius: rad_full;
+    }
+
+  } /* end designSystem */
+
+  /* =============================================================== */
+  /*  SITE DEFINITION                                                 */
+  /* =============================================================== */
+
+  site eam_chi_site {
+
+    meta {
+      title: "CHI EAM";
+      description: "Enterprise Asset Management System for CHI";
+      brandTagline: "Composable Asset Intelligence";
+      baseUrl: "/";
+      favicon: "/favicon.ico";
+      audience: "Maintenance planners, technicians, store managers, procurement officers, administrators";
+    }
+
+    designSystem: eam_ds;
+
+    /* ------------- Business Goals -------------------------------- */
+
+    bizGoal goal_uptime {
+      statement: "Maximize asset uptime through proactive maintenance";
+      metric: "OEE > 85%";
+      priority: 1;
+    }
+
+    bizGoal goal_cost {
+      statement: "Reduce maintenance and procurement costs through optimized workflows";
+      metric: "PM compliance > 90%";
+      priority: 2;
+    }
+
+    bizGoal goal_compliance {
+      statement: "Ensure regulatory compliance with complete audit trails";
+      metric: "100% work order traceability";
+      priority: 3;
+    }
+
+    /* ------------- Navigation ------------------------------------ */
+
+    navItem nav_dashboard {
+      label: "Dashboard";
+      view: ux.eam_chi.dashboard;
+      kind: primary;
+      icon: "mdi-view-dashboard";
+    }
+
+    navItem nav_assets {
+      label: "Assets";
+      view: ux.eam_chi.asset_management;
+      kind: primary;
+      icon: "mdi-cog-box";
+    }
+
+    navItem nav_maintenance {
+      label: "Maintenance";
+      view: ux.eam_chi.maintenance;
+      kind: primary;
+      icon: "mdi-wrench-clock";
+    }
+
+    navItem nav_work_orders {
+      label: "Work Orders";
+      view: ux.eam_chi.work_order;
+      kind: primary;
+      icon: "mdi-clipboard-text";
+    }
+
+    navItem nav_purchasing {
+      label: "Purchasing";
+      view: ux.eam_chi.purchasing;
+      kind: primary;
+      icon: "mdi-cart";
+    }
+
+    navItem nav_inventory {
+      label: "Inventory";
+      view: ux.eam_chi.inventory;
+      kind: primary;
+      icon: "mdi-warehouse";
+    }
+
+    navItem nav_admin {
+      label: "Administration";
+      view: ux.eam_chi.admin;
+      kind: secondary;
+      icon: "mdi-shield-account";
+    }
+
+    navItem nav_reports {
+      label: "Reports";
+      href: "/reports";
+      kind: secondary;
+      icon: "mdi-chart-bar";
+    }
+
+    navItem nav_help {
+      label: "Help";
+      href: "/help";
+      kind: utility;
+      icon: "mdi-help-circle";
+    }
+
+    navItem nav_profile {
+      label: "My Profile";
+      href: "/profile";
+      kind: utility;
+      icon: "mdi-account-circle";
+    }
+
+    /* ------------- App Layout ------------------------------------ */
+
+    appLayout layout_main {
+      kind: sidebar;
+      routePrefix: "/";
+      layoutPattern: eam_ds.lp_sidebar;
+
+      region reg_sidebar {
+        role: sidebar;
+        navItems { nav_dashboard nav_assets nav_maintenance nav_work_orders nav_purchasing nav_inventory };
+        notes: "Primary navigation sidebar with collapsible menu";
+      }
+
+      region reg_top {
+        role: top;
+        navItems { nav_reports nav_help nav_profile };
+        notes: "Top header bar with search, notifications, user menu";
+      }
+
+      region reg_content {
+        role: content;
+        mountFeatures { ux.eam_chi.dashboard ux.eam_chi.asset_management ux.eam_chi.maintenance ux.eam_chi.work_order ux.eam_chi.purchasing ux.eam_chi.inventory ux.eam_chi.admin };
+        notes: "Main content area where feature views are rendered";
+      }
+
+      region reg_footer {
+        role: footer;
+        notes: "Footer with copyright and version info";
+      }
+    }
+
+    appLayout layout_auth {
+      kind: blank;
+      routePrefix: "/auth";
+
+      region reg_auth_content {
+        role: content;
+        notes: "Full-screen authentication pages (login, forgot password)";
+      }
+    }
+
+    /* ============================================================= */
+    /*  FORMS                                                         */
+    /* ============================================================= */
+
+    /* ------------- Asset Forms ----------------------------------- */
+
+    form form_asset {
+      title: "Asset";
+      description: "Create or edit an asset record";
+      layoutPattern: eam_ds.lp_form;
+      bind-view: ux.eam_chi.asset_form_view;
+
+      fields {
+        field asset_code {
+          label: "Asset Code";
+          type: text;
+          required: true;
+          placeholder: "Enter asset code";
+        }
+        field description {
+          label: "Description";
+          type: textarea;
+          required: true;
+        }
+        field serial_number {
+          label: "Serial Number";
+          type: text;
+        }
+        field asset_class_id {
+          label: "Asset Class";
+          type: select;
+          required: true;
+        }
+        field location_id {
+          label: "Location";
+          type: select;
+          required: true;
+        }
+        field system_id {
+          label: "System";
+          type: select;
+        }
+        field manufacturer_id {
+          label: "Manufacturer";
+          type: select;
+        }
+        field model_id {
+          label: "Model";
+          type: select;
+        }
+        field purchase_date {
+          label: "Purchase Date";
+          type: date;
+        }
+        field purchase_cost {
+          label: "Purchase Cost";
+          type: number;
+        }
+        field warranty_expiry {
+          label: "Warranty Expiry";
+          type: date;
+        }
+        field criticality {
+          label: "Criticality";
+          type: select;
+          required: true;
+          options { "Critical" "High" "Medium" "Low" };
+        }
+        field status {
+          label: "Status";
+          type: select;
+          required: true;
+          options { "Active" "Inactive" "Disposed" "In Storage" };
+        }
+      }
+
+      submission: int_submit_asset;
+    }
+
+    form form_location {
+      title: "Location";
+      description: "Create or edit a location";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field code {
+          label: "Location Code";
+          type: text;
+          required: true;
+        }
+        field description {
+          label: "Description";
+          type: textarea;
+          required: true;
+        }
+        field location_type_id {
+          label: "Location Type";
+          type: select;
+          required: true;
+        }
+        field site_id {
+          label: "Site";
+          type: select;
+          required: true;
+        }
+        field parent_location_id {
+          label: "Parent Location";
+          type: select;
+        }
+      }
+
+      submission: int_submit_entity;
+    }
+
+    /* ------------- Maintenance Forms ----------------------------- */
+
+    form form_maintenance_request {
+      title: "Maintenance Request";
+      description: "Submit a new maintenance request";
+      layoutPattern: eam_ds.lp_form;
+      bind-view: ux.eam_chi.maintenance_request_form_view;
+
+      fields {
+        field request_number {
+          label: "Request Number";
+          type: text;
+          required: true;
+          helpText: "Auto-generated if left blank";
+        }
+        field description {
+          label: "Description";
+          type: textarea;
+          required: true;
+          placeholder: "Describe the issue or request";
+        }
+        field asset_id {
+          label: "Asset";
+          type: select;
+          required: true;
+        }
+        field priority {
+          label: "Priority";
+          type: select;
+          required: true;
+          options { "Emergency" "Urgent" "High" "Normal" "Low" };
+        }
+        field category {
+          label: "Category";
+          type: select;
+          options { "Corrective" "Predictive" "Emergency" "Improvement" };
+        }
+        field requested_date {
+          label: "Requested Date";
+          type: date;
+          required: true;
+        }
+        field reported_by {
+          label: "Reported By";
+          type: select;
+        }
+      }
+
+      submission: int_submit_maintenance_request;
+    }
+
+    form form_maintenance_plan {
+      title: "Maintenance Plan";
+      description: "Create or edit a preventive maintenance plan";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field plan_number {
+          label: "Plan Number";
+          type: text;
+          required: true;
+        }
+        field description {
+          label: "Description";
+          type: textarea;
+          required: true;
+        }
+        field asset_id {
+          label: "Asset";
+          type: select;
+          required: true;
+        }
+        field maintenance_type {
+          label: "Maintenance Type";
+          type: select;
+          required: true;
+          options { "Preventive" "Predictive" "Condition-Based" };
+        }
+        field schedule_type {
+          label: "Schedule Type";
+          type: select;
+          required: true;
+          options { "Calendar" "Meter" "Condition" };
+        }
+        field interval_value {
+          label: "Interval Value";
+          type: number;
+        }
+        field interval_unit {
+          label: "Interval Unit";
+          type: select;
+          options { "Days" "Weeks" "Months" "Years" "Hours" "Kilometers" };
+        }
+        field is_active {
+          label: "Active";
+          type: switch;
+        }
+      }
+
+      submission: int_submit_entity;
+    }
+
+    /* ------------- Work Order Forms ------------------------------ */
+
+    form form_work_order {
+      title: "Work Order";
+      description: "Create or edit a work order";
+      layoutPattern: eam_ds.lp_form;
+      bind-view: ux.eam_chi.work_order_form_view;
+
+      fields {
+        field wo_number {
+          label: "WO Number";
+          type: text;
+          required: true;
+        }
+        field description {
+          label: "Description";
+          type: textarea;
+          required: true;
+        }
+        field wo_type {
+          label: "Type";
+          type: select;
+          required: true;
+          options { "Corrective" "Preventive" "Predictive" "Emergency" "Inspection" "Project" };
+        }
+        field priority {
+          label: "Priority";
+          type: select;
+          required: true;
+          options { "Emergency" "Urgent" "High" "Normal" "Low" };
+        }
+        field asset_id {
+          label: "Asset";
+          type: select;
+          required: true;
+        }
+        field location_id {
+          label: "Location";
+          type: select;
+        }
+        field assigned_to {
+          label: "Assigned To";
+          type: select;
+        }
+        field planned_start {
+          label: "Planned Start";
+          type: datetime;
+          required: true;
+        }
+        field planned_end {
+          label: "Planned End";
+          type: datetime;
+          required: true;
+        }
+        field job_plan_id {
+          label: "Job Plan";
+          type: select;
+          helpText: "Select a pre-defined job plan to auto-populate tasks";
+        }
+        field estimated_hours {
+          label: "Estimated Hours";
+          type: number;
+        }
+        field estimated_cost {
+          label: "Estimated Cost";
+          type: number;
+        }
+      }
+
+      submission: int_submit_work_order;
+    }
+
+    form form_safety_permit {
+      title: "Safety Permit";
+      description: "Create a safety permit for work execution";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field permit_number {
+          label: "Permit Number";
+          type: text;
+          required: true;
+        }
+        field permit_type {
+          label: "Permit Type";
+          type: select;
+          required: true;
+          options { "Hot Work" "Confined Space" "Electrical" "Working at Height" "Excavation" "General" };
+        }
+        field work_order_id {
+          label: "Work Order";
+          type: select;
+          required: true;
+        }
+        field description {
+          label: "Description";
+          type: textarea;
+          required: true;
+        }
+        field valid_from {
+          label: "Valid From";
+          type: datetime;
+          required: true;
+        }
+        field valid_to {
+          label: "Valid To";
+          type: datetime;
+          required: true;
+        }
+        field issued_by {
+          label: "Issued By";
+          type: select;
+          required: true;
+        }
+      }
+
+      submission: int_submit_entity;
+    }
+
+    /* ------------- Purchasing Forms ------------------------------ */
+
+    form form_purchase_request {
+      title: "Purchase Request";
+      description: "Create a purchase requisition";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field pr_number {
+          label: "PR Number";
+          type: text;
+          required: true;
+        }
+        field description {
+          label: "Description";
+          type: textarea;
+          required: true;
+        }
+        field department_id {
+          label: "Department";
+          type: select;
+          required: true;
+        }
+        field requested_by {
+          label: "Requested By";
+          type: select;
+          required: true;
+        }
+        field required_date {
+          label: "Required Date";
+          type: date;
+          required: true;
+        }
+        field priority {
+          label: "Priority";
+          type: select;
+          options { "Urgent" "High" "Normal" "Low" };
+        }
+        field cost_code_id {
+          label: "Cost Code";
+          type: select;
+        }
+      }
+
+      submission: int_submit_purchase_request;
+    }
+
+    form form_purchase_order {
+      title: "Purchase Order";
+      description: "Create or edit a purchase order";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field po_number {
+          label: "PO Number";
+          type: text;
+          required: true;
+        }
+        field vendor_id {
+          label: "Vendor";
+          type: select;
+          required: true;
+        }
+        field description {
+          label: "Description";
+          type: textarea;
+        }
+        field order_date {
+          label: "Order Date";
+          type: date;
+          required: true;
+        }
+        field delivery_date {
+          label: "Expected Delivery";
+          type: date;
+        }
+        field currency_id {
+          label: "Currency";
+          type: select;
+          required: true;
+        }
+        field payment_terms {
+          label: "Payment Terms";
+          type: text;
+        }
+        field ship_to_site {
+          label: "Ship To Site";
+          type: select;
+          required: true;
+        }
+      }
+
+      submission: int_submit_purchase_order;
+    }
+
+    form form_rfq {
+      title: "Request for Quotation";
+      description: "Solicit vendor quotations";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field rfq_number {
+          label: "RFQ Number";
+          type: text;
+          required: true;
+        }
+        field description {
+          label: "Description";
+          type: textarea;
+          required: true;
+        }
+        field vendor_id {
+          label: "Vendor";
+          type: select;
+          required: true;
+        }
+        field issue_date {
+          label: "Issue Date";
+          type: date;
+          required: true;
+        }
+        field response_deadline {
+          label: "Response Deadline";
+          type: date;
+          required: true;
+        }
+      }
+
+      submission: int_submit_entity;
+    }
+
+    form form_vendor_invoice {
+      title: "Vendor Invoice";
+      description: "Record a vendor invoice for three-way matching";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field invoice_number {
+          label: "Invoice Number";
+          type: text;
+          required: true;
+        }
+        field vendor_id {
+          label: "Vendor";
+          type: select;
+          required: true;
+        }
+        field purchase_order_id {
+          label: "Purchase Order";
+          type: select;
+          required: true;
+        }
+        field invoice_date {
+          label: "Invoice Date";
+          type: date;
+          required: true;
+        }
+        field due_date {
+          label: "Due Date";
+          type: date;
+          required: true;
+        }
+        field total_amount {
+          label: "Total Amount";
+          type: number;
+          required: true;
+        }
+      }
+
+      submission: int_submit_entity;
+    }
+
+    /* ------------- Inventory Forms ------------------------------- */
+
+    form form_item_issue {
+      title: "Item Issue";
+      description: "Issue items from store to work order";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field issue_number {
+          label: "Issue Number";
+          type: text;
+          required: true;
+        }
+        field store_id {
+          label: "Store";
+          type: select;
+          required: true;
+        }
+        field work_order_id {
+          label: "Work Order";
+          type: select;
+        }
+        field issued_to {
+          label: "Issued To";
+          type: select;
+          required: true;
+        }
+        field issue_date {
+          label: "Issue Date";
+          type: date;
+          required: true;
+        }
+      }
+
+      submission: int_submit_entity;
+    }
+
+    form form_item_return {
+      title: "Item Return";
+      description: "Return items to store";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field return_number {
+          label: "Return Number";
+          type: text;
+          required: true;
+        }
+        field store_id {
+          label: "Store";
+          type: select;
+          required: true;
+        }
+        field work_order_id {
+          label: "Work Order";
+          type: select;
+        }
+        field returned_by {
+          label: "Returned By";
+          type: select;
+          required: true;
+        }
+        field return_date {
+          label: "Return Date";
+          type: date;
+          required: true;
+        }
+        field reason_code_id {
+          label: "Reason";
+          type: select;
+        }
+      }
+
+      submission: int_submit_entity;
+    }
+
+    form form_stock_count {
+      title: "Stock Count";
+      description: "Initiate a physical stock count";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field count_number {
+          label: "Count Number";
+          type: text;
+          required: true;
+        }
+        field store_id {
+          label: "Store";
+          type: select;
+          required: true;
+        }
+        field count_type {
+          label: "Count Type";
+          type: select;
+          required: true;
+          options { "Full" "Cycle" "Spot" };
+        }
+        field planned_date {
+          label: "Planned Date";
+          type: date;
+          required: true;
+        }
+      }
+
+      submission: int_submit_entity;
+    }
+
+    form form_transfer {
+      title: "Stock Transfer";
+      description: "Transfer inventory between stores";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field transfer_number {
+          label: "Transfer Number";
+          type: text;
+          required: true;
+        }
+        field from_store_id {
+          label: "From Store";
+          type: select;
+          required: true;
+        }
+        field to_store_id {
+          label: "To Store";
+          type: select;
+          required: true;
+        }
+        field transfer_date {
+          label: "Transfer Date";
+          type: date;
+          required: true;
+        }
+      }
+
+      submission: int_submit_entity;
+    }
+
+    /* ------------- Admin Forms ----------------------------------- */
+
+    form form_employee {
+      title: "Employee";
+      description: "Create or edit an employee record";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field employee_number {
+          label: "Employee Number";
+          type: text;
+          required: true;
+        }
+        field first_name {
+          label: "First Name";
+          type: text;
+          required: true;
+        }
+        field last_name {
+          label: "Last Name";
+          type: text;
+          required: true;
+        }
+        field email {
+          label: "Email";
+          type: email;
+          required: true;
+        }
+        field department_id {
+          label: "Department";
+          type: select;
+          required: true;
+        }
+        field trade_id {
+          label: "Trade";
+          type: select;
+        }
+        field is_active {
+          label: "Active";
+          type: switch;
+        }
+      }
+
+      submission: int_submit_entity;
+    }
+
+    form form_site {
+      title: "Site";
+      description: "Create or edit a site";
+      layoutPattern: eam_ds.lp_form;
+
+      fields {
+        field code {
+          label: "Site Code";
+          type: text;
+          required: true;
+        }
+        field name {
+          label: "Site Name";
+          type: text;
+          required: true;
+        }
+        field organization_id {
+          label: "Organization";
+          type: select;
+          required: true;
+        }
+        field address {
+          label: "Address";
+          type: textarea;
+        }
+      }
+
+      submission: int_submit_entity;
+    }
+
+    /* ============================================================= */
+    /*  DATA TABLES                                                    */
+    /* ============================================================= */
+
+    /* ------------- Asset Tables ---------------------------------- */
+
+    dataTable dt_assets {
+      title: "Assets";
+      bind-entity: asset.Asset;
+      pagination: true;
+      rowInteraction: int_open_detail;
+
+      columns {
+        column col_code {
+          header: "Asset Code";
+          field: "asset_code";
+          type: string;
+          width: "120px";
+        }
+        column col_desc {
+          header: "Description";
+          field: "description";
+          type: string;
+        }
+        column col_class {
+          header: "Class";
+          field: "asset_class.name";
+          type: string;
+          width: "140px";
+        }
+        column col_location {
+          header: "Location";
+          field: "location.description";
+          type: string;
+        }
+        column col_status {
+          header: "Status";
+          field: "status";
+          type: badge;
+          width: "100px";
+        }
+        column col_criticality {
+          header: "Criticality";
+          field: "criticality";
+          type: badge;
+          width: "100px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New Asset";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create_asset;
+        }
+        tableAction ta_export {
+          label: "Export";
+          kind: secondary;
+          icon: "mdi-download";
+          interaction: int_export_list;
+        }
+        tableAction ta_view {
+          label: "View";
+          kind: row;
+          icon: "mdi-eye";
+          interaction: int_open_detail;
+        }
+        tableAction ta_edit {
+          label: "Edit";
+          kind: row;
+          icon: "mdi-pencil";
+          interaction: int_open_edit;
+        }
+      }
+    }
+
+    dataTable dt_locations {
+      title: "Locations";
+      bind-entity: asset.Location;
+      pagination: true;
+      rowInteraction: int_open_detail;
+
+      columns {
+        column col_code {
+          header: "Code";
+          field: "code";
+          type: string;
+          width: "120px";
+        }
+        column col_desc {
+          header: "Description";
+          field: "description";
+          type: string;
+        }
+        column col_type {
+          header: "Type";
+          field: "location_type.name";
+          type: string;
+          width: "120px";
+        }
+        column col_site {
+          header: "Site";
+          field: "site.name";
+          type: string;
+          width: "120px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New Location";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create;
+        }
+        tableAction ta_view {
+          label: "View";
+          kind: row;
+          icon: "mdi-eye";
+          interaction: int_open_detail;
+        }
+      }
+    }
+
+    dataTable dt_equipment {
+      title: "Equipment";
+      bind-entity: asset.Equipment;
+      pagination: true;
+      rowInteraction: int_open_detail;
+
+      columns {
+        column col_code {
+          header: "Code";
+          field: "equipment_code";
+          type: string;
+          width: "120px";
+        }
+        column col_desc {
+          header: "Description";
+          field: "description";
+          type: string;
+        }
+        column col_group {
+          header: "Group";
+          field: "equipment_group.name";
+          type: string;
+          width: "140px";
+        }
+        column col_status {
+          header: "Status";
+          field: "status";
+          type: badge;
+          width: "100px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New Equipment";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create;
+        }
+      }
+    }
+
+    /* ------------- Maintenance Tables ---------------------------- */
+
+    dataTable dt_maintenance_requests {
+      title: "Maintenance Requests";
+      bind-entity: maint.MaintenanceRequest;
+      pagination: true;
+      rowInteraction: int_open_detail;
+
+      columns {
+        column col_number {
+          header: "Request #";
+          field: "request_number";
+          type: string;
+          width: "130px";
+        }
+        column col_desc {
+          header: "Description";
+          field: "description";
+          type: string;
+        }
+        column col_asset {
+          header: "Asset";
+          field: "asset.asset_code";
+          type: string;
+          width: "120px";
+        }
+        column col_priority {
+          header: "Priority";
+          field: "priority";
+          type: badge;
+          width: "100px";
+        }
+        column col_state {
+          header: "Status";
+          field: "workflow_state";
+          type: badge;
+          width: "120px";
+        }
+        column col_date {
+          header: "Requested";
+          field: "requested_date";
+          type: date;
+          width: "110px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New Request";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create_mr;
+        }
+        tableAction ta_export {
+          label: "Export";
+          kind: secondary;
+          icon: "mdi-download";
+          interaction: int_export_list;
+        }
+        tableAction ta_approve {
+          label: "Approve";
+          kind: row;
+          icon: "mdi-check";
+          interaction: int_approve_request;
+        }
+      }
+    }
+
+    dataTable dt_maintenance_plans {
+      title: "Maintenance Plans";
+      bind-entity: maint.MaintenancePlan;
+      pagination: true;
+      rowInteraction: int_open_detail;
+
+      columns {
+        column col_number {
+          header: "Plan #";
+          field: "plan_number";
+          type: string;
+          width: "120px";
+        }
+        column col_desc {
+          header: "Description";
+          field: "description";
+          type: string;
+        }
+        column col_type {
+          header: "Type";
+          field: "maintenance_type";
+          type: string;
+          width: "120px";
+        }
+        column col_active {
+          header: "Active";
+          field: "is_active";
+          type: boolean;
+          width: "80px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New Plan";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create;
+        }
+      }
+    }
+
+    /* ------------- Work Order Tables ----------------------------- */
+
+    dataTable dt_work_orders {
+      title: "Work Orders";
+      bind-entity: work.WorkOrder;
+      pagination: true;
+      rowInteraction: int_open_detail;
+
+      columns {
+        column col_number {
+          header: "WO #";
+          field: "wo_number";
+          type: string;
+          width: "120px";
+        }
+        column col_desc {
+          header: "Description";
+          field: "description";
+          type: string;
+        }
+        column col_type {
+          header: "Type";
+          field: "wo_type";
+          type: badge;
+          width: "110px";
+        }
+        column col_priority {
+          header: "Priority";
+          field: "priority";
+          type: badge;
+          width: "100px";
+        }
+        column col_asset {
+          header: "Asset";
+          field: "asset.asset_code";
+          type: string;
+          width: "120px";
+        }
+        column col_assigned {
+          header: "Assigned To";
+          field: "assigned_to_employee.full_name";
+          type: string;
+          width: "150px";
+        }
+        column col_state {
+          header: "Status";
+          field: "workflow_state";
+          type: badge;
+          width: "110px";
+        }
+        column col_planned_start {
+          header: "Planned Start";
+          field: "planned_start";
+          type: date;
+          width: "120px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New Work Order";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create_wo;
+        }
+        tableAction ta_export {
+          label: "Export";
+          kind: secondary;
+          icon: "mdi-download";
+          interaction: int_export_list;
+        }
+        tableAction ta_start {
+          label: "Start";
+          kind: row;
+          icon: "mdi-play";
+          interaction: int_start_work_order;
+        }
+        tableAction ta_complete {
+          label: "Complete";
+          kind: row;
+          icon: "mdi-check";
+          interaction: int_complete_work_order;
+        }
+      }
+    }
+
+    dataTable dt_safety_permits {
+      title: "Safety Permits";
+      bind-entity: work.SafetyPermit;
+      pagination: true;
+
+      columns {
+        column col_number {
+          header: "Permit #";
+          field: "permit_number";
+          type: string;
+          width: "120px";
+        }
+        column col_type {
+          header: "Type";
+          field: "permit_type";
+          type: badge;
+          width: "120px";
+        }
+        column col_wo {
+          header: "Work Order";
+          field: "work_order.wo_number";
+          type: string;
+          width: "120px";
+        }
+        column col_state {
+          header: "Status";
+          field: "workflow_state";
+          type: badge;
+          width: "100px";
+        }
+        column col_valid_to {
+          header: "Valid To";
+          field: "valid_to";
+          type: date;
+          width: "120px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New Permit";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create;
+        }
+      }
+    }
+
+    /* ------------- Purchasing Tables ----------------------------- */
+
+    dataTable dt_purchase_requests {
+      title: "Purchase Requests";
+      bind-entity: purch.PurchaseRequest;
+      pagination: true;
+      rowInteraction: int_open_detail;
+
+      columns {
+        column col_number {
+          header: "PR #";
+          field: "pr_number";
+          type: string;
+          width: "120px";
+        }
+        column col_desc {
+          header: "Description";
+          field: "description";
+          type: string;
+        }
+        column col_dept {
+          header: "Department";
+          field: "department.name";
+          type: string;
+          width: "130px";
+        }
+        column col_state {
+          header: "Status";
+          field: "workflow_state";
+          type: badge;
+          width: "110px";
+        }
+        column col_date {
+          header: "Required Date";
+          field: "required_date";
+          type: date;
+          width: "120px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New PR";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create;
+        }
+        tableAction ta_approve {
+          label: "Approve";
+          kind: row;
+          icon: "mdi-check";
+          interaction: int_approve_request;
+        }
+      }
+    }
+
+    dataTable dt_purchase_orders {
+      title: "Purchase Orders";
+      bind-entity: purch.PurchaseOrder;
+      pagination: true;
+      rowInteraction: int_open_detail;
+
+      columns {
+        column col_number {
+          header: "PO #";
+          field: "po_number";
+          type: string;
+          width: "120px";
+        }
+        column col_vendor {
+          header: "Vendor";
+          field: "vendor.name";
+          type: string;
+        }
+        column col_total {
+          header: "Total";
+          field: "total_amount";
+          type: number;
+          width: "120px";
+        }
+        column col_state {
+          header: "Status";
+          field: "workflow_state";
+          type: badge;
+          width: "110px";
+        }
+        column col_date {
+          header: "Order Date";
+          field: "order_date";
+          type: date;
+          width: "120px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New PO";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create;
+        }
+        tableAction ta_send {
+          label: "Send to Vendor";
+          kind: row;
+          icon: "mdi-send";
+          interaction: int_send_to_vendor;
+        }
+      }
+    }
+
+    dataTable dt_vendors {
+      title: "Vendors";
+      bind-entity: purch.Vendor;
+      pagination: true;
+      rowInteraction: int_open_detail;
+
+      columns {
+        column col_code {
+          header: "Code";
+          field: "vendor_code";
+          type: string;
+          width: "100px";
+        }
+        column col_name {
+          header: "Name";
+          field: "name";
+          type: string;
+        }
+        column col_contact {
+          header: "Contact";
+          field: "contact_person";
+          type: string;
+          width: "150px";
+        }
+        column col_status {
+          header: "Status";
+          field: "status";
+          type: badge;
+          width: "100px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New Vendor";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create;
+        }
+      }
+    }
+
+    dataTable dt_vendor_invoices {
+      title: "Vendor Invoices";
+      bind-entity: purch.VendorInvoice;
+      pagination: true;
+      rowInteraction: int_open_detail;
+
+      columns {
+        column col_number {
+          header: "Invoice #";
+          field: "invoice_number";
+          type: string;
+          width: "120px";
+        }
+        column col_vendor {
+          header: "Vendor";
+          field: "vendor.name";
+          type: string;
+        }
+        column col_amount {
+          header: "Amount";
+          field: "total_amount";
+          type: number;
+          width: "120px";
+        }
+        column col_state {
+          header: "Status";
+          field: "workflow_state";
+          type: badge;
+          width: "110px";
+        }
+        column col_due {
+          header: "Due Date";
+          field: "due_date";
+          type: date;
+          width: "110px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New Invoice";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create;
+        }
+        tableAction ta_match {
+          label: "3-Way Match";
+          kind: row;
+          icon: "mdi-check-all";
+          interaction: int_three_way_match;
+        }
+      }
+    }
+
+    /* ------------- Inventory Tables ------------------------------ */
+
+    dataTable dt_inventory {
+      title: "Inventory";
+      bind-entity: purch.Inventory;
+      pagination: true;
+
+      columns {
+        column col_item {
+          header: "Item Code";
+          field: "item.item_code";
+          type: string;
+          width: "120px";
+        }
+        column col_desc {
+          header: "Description";
+          field: "item.description";
+          type: string;
+        }
+        column col_store {
+          header: "Store";
+          field: "store.name";
+          type: string;
+          width: "120px";
+        }
+        column col_onhand {
+          header: "On Hand";
+          field: "quantity_on_hand";
+          type: number;
+          width: "100px";
+        }
+        column col_reserved {
+          header: "Reserved";
+          field: "quantity_reserved";
+          type: number;
+          width: "100px";
+        }
+        column col_available {
+          header: "Available";
+          field: "quantity_available";
+          type: number;
+          width: "100px";
+        }
+      }
+
+      actions {
+        tableAction ta_issue {
+          label: "Issue";
+          kind: row;
+          icon: "mdi-arrow-up-bold";
+          interaction: int_navigate_issue;
+        }
+        tableAction ta_adjust {
+          label: "Adjust";
+          kind: row;
+          icon: "mdi-pencil";
+          interaction: int_navigate_adjustment;
+        }
+        tableAction ta_export {
+          label: "Export";
+          kind: secondary;
+          icon: "mdi-download";
+          interaction: int_export_list;
+        }
+      }
+    }
+
+    dataTable dt_items {
+      title: "Items";
+      bind-entity: purch.Item;
+      pagination: true;
+      rowInteraction: int_open_detail;
+
+      columns {
+        column col_code {
+          header: "Item Code";
+          field: "item_code";
+          type: string;
+          width: "120px";
+        }
+        column col_desc {
+          header: "Description";
+          field: "description";
+          type: string;
+        }
+        column col_class {
+          header: "Class";
+          field: "item_class.name";
+          type: string;
+          width: "120px";
+        }
+        column col_uom {
+          header: "UOM";
+          field: "uom.code";
+          type: string;
+          width: "80px";
+        }
+        column col_reorder {
+          header: "Reorder Lvl";
+          field: "reorder_level";
+          type: number;
+          width: "100px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New Item";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create;
+        }
+      }
+    }
+
+    /* ------------- Admin Tables ---------------------------------- */
+
+    dataTable dt_employees {
+      title: "Employees";
+      bind-entity: core.Employee;
+      pagination: true;
+      rowInteraction: int_open_detail;
+
+      columns {
+        column col_number {
+          header: "Emp #";
+          field: "employee_number";
+          type: string;
+          width: "100px";
+        }
+        column col_name {
+          header: "Name";
+          field: "full_name";
+          type: string;
+        }
+        column col_dept {
+          header: "Department";
+          field: "department.name";
+          type: string;
+          width: "140px";
+        }
+        column col_email {
+          header: "Email";
+          field: "email";
+          type: string;
+        }
+        column col_active {
+          header: "Active";
+          field: "is_active";
+          type: boolean;
+          width: "80px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New Employee";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create;
+        }
+      }
+    }
+
+    dataTable dt_sites {
+      title: "Sites";
+      bind-entity: core.Site;
+      pagination: true;
+
+      columns {
+        column col_code {
+          header: "Code";
+          field: "code";
+          type: string;
+          width: "100px";
+        }
+        column col_name {
+          header: "Name";
+          field: "name";
+          type: string;
+        }
+        column col_org {
+          header: "Organization";
+          field: "organization.name";
+          type: string;
+          width: "150px";
+        }
+      }
+
+      actions {
+        tableAction ta_create {
+          label: "New Site";
+          kind: primary;
+          icon: "mdi-plus";
+          interaction: int_navigate_create;
+        }
+      }
+    }
+
+    /* ============================================================= */
+    /*  MODALS                                                         */
+    /* ============================================================= */
+
+    modal modal_confirm_delete {
+      title: "Confirm Delete";
+      size: sm;
+      primaryAction: int_confirm_delete;
+      secondaryAction: int_close_modal;
+    }
+
+    modal modal_workflow_transition {
+      title: "Workflow Action";
+      size: md;
+      content-view: ux.eam_chi.workflow_status_badge;
+      primaryAction: int_confirm_transition;
+      secondaryAction: int_close_modal;
+    }
+
+    modal modal_approve {
+      title: "Approve Record";
+      size: md;
+      primaryAction: int_confirm_approve;
+      secondaryAction: int_close_modal;
+    }
+
+    modal modal_reject {
+      title: "Reject Record";
+      size: md;
+      primaryAction: int_confirm_reject;
+      secondaryAction: int_close_modal;
+    }
+
+    modal modal_meter_reading {
+      title: "Record Meter Reading";
+      size: md;
+      primaryAction: int_submit_entity;
+      secondaryAction: int_close_modal;
+    }
+
+    modal modal_add_line_item {
+      title: "Add Line Item";
+      size: lg;
+      primaryAction: int_submit_entity;
+      secondaryAction: int_close_modal;
+    }
+
+    modal modal_three_way_match {
+      title: "Three-Way Match Result";
+      size: lg;
+      content-view: ux.eam_chi.purchasing;
+      primaryAction: int_confirm_approve;
+      secondaryAction: int_close_modal;
+    }
+
+    /* ============================================================= */
+    /*  DRAWERS                                                        */
+    /* ============================================================= */
+
+    drawer drawer_asset_detail {
+      title: "Asset Quick View";
+      position: right;
+      content-view: ux.eam_chi.asset_detail_view;
+      primaryAction: int_open_edit;
+      secondaryAction: int_close_drawer;
+    }
+
+    drawer drawer_wo_detail {
+      title: "Work Order Quick View";
+      position: right;
+      content-view: ux.eam_chi.work_order_detail_view;
+      primaryAction: int_open_edit;
+      secondaryAction: int_close_drawer;
+    }
+
+    drawer drawer_notifications {
+      title: "Notifications";
+      position: right;
+    }
+
+    drawer drawer_filters {
+      title: "Advanced Filters";
+      position: right;
+    }
+
+    drawer drawer_activity_log {
+      title: "Activity Log";
+      position: right;
+    }
+
+    /* ============================================================= */
+    /*  INTERACTIONS                                                    */
+    /* ============================================================= */
+
+    /* ------------- Navigation Interactions ------------------------ */
+
+    interaction int_navigate_create {
+      trigger: "click";
+      action act_nav {
+        kind: navigate;
+        navigateTo: "/new";
+      }
+    }
+
+    interaction int_navigate_create_asset {
+      trigger: "click";
+      action act_nav {
+        kind: navigate;
+        navigateTo: "/assets/new";
+      }
+    }
+
+    interaction int_navigate_create_mr {
+      trigger: "click";
+      action act_nav {
+        kind: navigate;
+        navigateTo: "/maintenance/requests/new";
+      }
+    }
+
+    interaction int_navigate_create_wo {
+      trigger: "click";
+      action act_nav {
+        kind: navigate;
+        navigateTo: "/work-orders/new";
+      }
+    }
+
+    interaction int_navigate_issue {
+      trigger: "click";
+      action act_nav {
+        kind: navigate;
+        navigateTo: "/inventory/issues/new";
+      }
+    }
+
+    interaction int_navigate_adjustment {
+      trigger: "click";
+      action act_nav {
+        kind: navigate;
+        navigateTo: "/inventory/adjustments/new";
+      }
+    }
+
+    interaction int_open_detail {
+      trigger: "click";
+      action act_nav {
+        kind: navigate;
+        navigateTo: "/{entity}/{id}";
+      }
+    }
+
+    interaction int_open_edit {
+      trigger: "click";
+      action act_nav {
+        kind: navigate;
+        navigateTo: "/{entity}/{id}/edit";
+      }
+    }
+
+    /* ------------- Modal Interactions ---------------------------- */
+
+    interaction int_open_delete_modal {
+      trigger: "click";
+      action act_modal {
+        kind: openModal;
+        modal: modal_confirm_delete;
+      }
+    }
+
+    interaction int_close_modal {
+      trigger: "click";
+      action act_close {
+        kind: closeModal;
+      }
+    }
+
+    interaction int_open_workflow_modal {
+      trigger: "click";
+      action act_modal {
+        kind: openModal;
+        modal: modal_workflow_transition;
+      }
+    }
+
+    /* ------------- Drawer Interactions ---------------------------- */
+
+    interaction int_open_asset_drawer {
+      trigger: "click";
+      action act_drawer {
+        kind: openDrawer;
+        drawer: drawer_asset_detail;
+      }
+    }
+
+    interaction int_open_wo_drawer {
+      trigger: "click";
+      action act_drawer {
+        kind: openDrawer;
+        drawer: drawer_wo_detail;
+      }
+    }
+
+    interaction int_open_notifications {
+      trigger: "click";
+      action act_drawer {
+        kind: openDrawer;
+        drawer: drawer_notifications;
+      }
+    }
+
+    interaction int_open_filters {
+      trigger: "click";
+      action act_drawer {
+        kind: openDrawer;
+        drawer: drawer_filters;
+      }
+    }
+
+    interaction int_close_drawer {
+      trigger: "click";
+      action act_close {
+        kind: closeDrawer;
+      }
+    }
+
+    /* ------------- UXML-Delegated Interactions ------------------- */
+
+    interaction int_submit_asset {
+      trigger: "submit";
+      action act_uxml {
+        kind: uxml;
+        invoke-uxml: ux.eam_chi.asset_management;
+        toast: "Asset saved successfully";
+      }
+    }
+
+    interaction int_submit_maintenance_request {
+      trigger: "submit";
+      action act_uxml {
+        kind: uxml;
+        invoke-uxml: ux.eam_chi.maintenance;
+        toast: "Maintenance request submitted";
+      }
+    }
+
+    interaction int_submit_work_order {
+      trigger: "submit";
+      action act_uxml {
+        kind: uxml;
+        invoke-uxml: ux.eam_chi.work_order;
+        toast: "Work order saved";
+      }
+    }
+
+    interaction int_submit_purchase_request {
+      trigger: "submit";
+      action act_uxml {
+        kind: uxml;
+        invoke-uxml: ux.eam_chi.purchasing;
+        toast: "Purchase request submitted";
+      }
+    }
+
+    interaction int_submit_purchase_order {
+      trigger: "submit";
+      action act_uxml {
+        kind: uxml;
+        invoke-uxml: ux.eam_chi.purchasing;
+        toast: "Purchase order saved";
+      }
+    }
+
+    interaction int_submit_entity {
+      trigger: "submit";
+      action act_uxml {
+        kind: uxml;
+        toast: "Record saved successfully";
+      }
+    }
+
+    /* ------------- Workflow Interactions -------------------------- */
+
+    interaction int_approve_request {
+      trigger: "click";
+      action act_approve {
+        kind: uxml;
+        toast: "Record approved";
+      }
+    }
+
+    interaction int_confirm_approve {
+      trigger: "click";
+      action act_approve {
+        kind: uxml;
+        toast: "Approved successfully";
+      }
+    }
+
+    interaction int_confirm_reject {
+      trigger: "click";
+      action act_reject {
+        kind: uxml;
+        toast: "Record rejected";
+      }
+    }
+
+    interaction int_confirm_delete {
+      trigger: "click";
+      action act_delete {
+        kind: uxml;
+        toast: "Record deleted";
+      }
+    }
+
+    interaction int_confirm_transition {
+      trigger: "click";
+      action act_transition {
+        kind: uxml;
+        toast: "Workflow transition complete";
+      }
+    }
+
+    interaction int_start_work_order {
+      trigger: "click";
+      action act_start {
+        kind: uxml;
+        invoke-uxml: ux.eam_chi.work_order;
+        toast: "Work order started";
+      }
+    }
+
+    interaction int_complete_work_order {
+      trigger: "click";
+      action act_complete {
+        kind: uxml;
+        invoke-uxml: ux.eam_chi.work_order;
+        toast: "Work order completed";
+      }
+    }
+
+    interaction int_send_to_vendor {
+      trigger: "click";
+      action act_send {
+        kind: uxml;
+        invoke-uxml: ux.eam_chi.purchasing;
+        toast: "PO sent to vendor";
+      }
+    }
+
+    interaction int_three_way_match {
+      trigger: "click";
+      action act_match {
+        kind: openModal;
+        modal: modal_three_way_match;
+      }
+    }
+
+    interaction int_export_list {
+      trigger: "click";
+      action act_export {
+        kind: showToast;
+        toast: "Export started. File will download shortly.";
+      }
+    }
+
+    /* ============================================================= */
+    /*  PAGE DESIGNS                                                   */
+    /* ============================================================= */
+
+    /* ------------- Dashboard ------------------------------------- */
+
+    pageDesign page_dashboard {
+      meta {
+        title: "Dashboard";
+        description: "EAM operations overview with KPIs and charts";
+        audience: "All EAM users";
+      }
+      route: "/dashboard";
+      layoutPattern: eam_ds.lp_stack;
+      bind-feature: ux.eam_chi.dashboard;
+
+      section sec_kpis {
+        kind: stats;
+        layoutPattern: eam_ds.lp_card_grid;
+
+        data kpi_block {
+          kind: kpiGrid;
+
+          item kpi_open_wo {
+            label: "Open Work Orders";
+            value: "dynamic";
+            icon: "mdi-clipboard-text";
+          }
+          item kpi_overdue_wo {
+            label: "Overdue Work Orders";
+            value: "dynamic";
+            icon: "mdi-alert";
+          }
+          item kpi_pm_compliance {
+            label: "PM Compliance";
+            value: "dynamic";
+            icon: "mdi-check-circle";
+          }
+          item kpi_asset_availability {
+            label: "Asset Availability";
+            value: "dynamic";
+            icon: "mdi-cog-box";
+          }
+          item kpi_pending_pr {
+            label: "Pending PRs";
+            value: "dynamic";
+            icon: "mdi-cart-arrow-up";
+          }
+          item kpi_low_stock {
+            label: "Low Stock Alerts";
+            value: "dynamic";
+            icon: "mdi-package-variant-closed";
+          }
+        }
+      }
+
+      section sec_charts {
+        kind: dashboard;
+        layoutPattern: eam_ds.lp_card_grid;
+
+        heading hd_charts {
+          text: "Operational Overview";
+          style: eam_ds.txt_h2;
+          level: 2;
+        }
+
+        slot slot_wo_trend {
+          role: card;
+          component: ux.eam_chi.chart_widget;
+        }
+
+        slot slot_mtbf_chart {
+          role: card;
+          component: ux.eam_chi.chart_widget;
+        }
+
+        slot slot_inventory_chart {
+          role: card;
+          component: ux.eam_chi.chart_widget;
+        }
+
+        slot slot_cost_chart {
+          role: card;
+          component: ux.eam_chi.chart_widget;
+        }
+      }
+
+      section sec_recent_wo {
+        kind: dataTable;
+        dataTableRef: dt_work_orders;
+
+        heading hd_recent {
+          text: "Recent Work Orders";
+          style: eam_ds.txt_h3;
+          level: 3;
+        }
+      }
+
+      section sec_recent_mr {
+        kind: dataTable;
+        dataTableRef: dt_maintenance_requests;
+
+        heading hd_recent_mr {
+          text: "Recent Maintenance Requests";
+          style: eam_ds.txt_h3;
+          level: 3;
+        }
+      }
+
+      implementation impl_dashboard {
+        framework: nuxt;
+        css: tailwind;
+
+        map map_stat {
+          from: sectionKind: stats;
+          to: "components/dashboard/KpiCards.vue";
+        }
+        map map_chart {
+          from: sectionKind: dashboard;
+          to: "components/dashboard/ChartGrid.vue";
+        }
+      }
+    }
+
+    /* ------------- Asset List Page ------------------------------- */
+
+    pageDesign page_asset_list {
+      meta {
+        title: "Assets";
+        description: "Browse and manage all registered assets";
+      }
+      route: "/assets";
+      layoutPattern: eam_ds.lp_stack;
+      bind-feature: ux.eam_chi.asset_management;
+
+      section sec_header {
+        kind: custom;
+
+        heading hd_title {
+          text: "Assets";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+
+        slot slot_filters {
+          role: custom;
+          component: ux.eam_chi.filter_toolbar;
+        }
+      }
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_assets;
+      }
+
+      implementation impl_asset_list {
+        framework: nuxt;
+        css: tailwind;
+      }
+    }
+
+    /* ------------- Asset Detail Page ----------------------------- */
+
+    pageDesign page_asset_detail {
+      meta {
+        title: "Asset Detail";
+        description: "Detailed view of a single asset with tabs";
+      }
+      route: "/assets/:id";
+      layoutPattern: eam_ds.lp_stack;
+      bind-feature: ux.eam_chi.asset_management;
+
+      section sec_header {
+        kind: custom;
+
+        heading hd_title {
+          text: "Asset Detail";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+
+        slot slot_status {
+          role: custom;
+          component: ux.eam_chi.workflow_status_badge;
+        }
+      }
+
+      section sec_details {
+        kind: custom;
+        layoutPattern: eam_ds.lp_split;
+
+        slot slot_info_card {
+          role: card;
+          component: ux.eam_chi.detail_card;
+        }
+
+        slot slot_properties {
+          role: card;
+          component: ux.eam_chi.detail_card;
+        }
+      }
+
+      section sec_tabs {
+        kind: custom;
+
+        slot slot_maintenance_history {
+          role: card;
+        }
+
+        slot slot_work_orders {
+          role: card;
+        }
+
+        slot slot_meter_readings {
+          role: card;
+        }
+
+        slot slot_documents {
+          role: card;
+        }
+      }
+    }
+
+    /* ------------- Asset Form Page ------------------------------- */
+
+    pageDesign page_asset_form {
+      meta {
+        title: "Asset Form";
+        description: "Create or edit asset";
+      }
+      route: "/assets/new";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_form {
+        kind: formSection;
+        formRef: form_asset;
+
+        heading hd_title {
+          text: "New Asset";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Location List Page ---------------------------- */
+
+    pageDesign page_location_list {
+      meta {
+        title: "Locations";
+        description: "Browse facility locations";
+      }
+      route: "/assets/locations";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_locations;
+
+        heading hd_title {
+          text: "Locations";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Equipment List Page --------------------------- */
+
+    pageDesign page_equipment_list {
+      meta {
+        title: "Equipment";
+        description: "Browse and manage equipment";
+      }
+      route: "/assets/equipment";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_equipment;
+
+        heading hd_title {
+          text: "Equipment";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Maintenance Request List Page ----------------- */
+
+    pageDesign page_mr_list {
+      meta {
+        title: "Maintenance Requests";
+        description: "Manage maintenance requests";
+      }
+      route: "/maintenance/requests";
+      layoutPattern: eam_ds.lp_stack;
+      bind-feature: ux.eam_chi.maintenance;
+
+      section sec_header {
+        kind: custom;
+
+        heading hd_title {
+          text: "Maintenance Requests";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+
+        slot slot_filters {
+          role: custom;
+          component: ux.eam_chi.filter_toolbar;
+        }
+      }
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_maintenance_requests;
+      }
+    }
+
+    /* ------------- Maintenance Request Form Page ----------------- */
+
+    pageDesign page_mr_form {
+      meta {
+        title: "Maintenance Request Form";
+        description: "Submit a maintenance request";
+      }
+      route: "/maintenance/requests/new";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_form {
+        kind: formSection;
+        formRef: form_maintenance_request;
+
+        heading hd_title {
+          text: "New Maintenance Request";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Maintenance Plan List Page -------------------- */
+
+    pageDesign page_mp_list {
+      meta {
+        title: "Maintenance Plans";
+        description: "Preventive maintenance plans";
+      }
+      route: "/maintenance/plans";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_maintenance_plans;
+
+        heading hd_title {
+          text: "Maintenance Plans";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Sensor Dashboard Page ------------------------- */
+
+    pageDesign page_sensor_dashboard {
+      meta {
+        title: "Sensor Dashboard";
+        description: "Real-time sensor data and condition monitoring";
+      }
+      route: "/maintenance/sensors";
+      layoutPattern: eam_ds.lp_stack;
+      bind-feature: ux.eam_chi.maintenance;
+
+      section sec_header {
+        kind: custom;
+
+        heading hd_title {
+          text: "Sensor Dashboard";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+
+      section sec_kpis {
+        kind: stats;
+        layoutPattern: eam_ds.lp_card_grid;
+
+        data sensor_stats {
+          kind: statBlock;
+
+          item stat_active_sensors {
+            label: "Active Sensors";
+            value: "dynamic";
+            icon: "mdi-access-point";
+          }
+          item stat_alerts {
+            label: "Active Alerts";
+            value: "dynamic";
+            icon: "mdi-alert-circle";
+          }
+          item stat_readings_today {
+            label: "Readings Today";
+            value: "dynamic";
+            icon: "mdi-chart-line";
+          }
+        }
+      }
+
+      section sec_charts {
+        kind: dashboard;
+
+        slot slot_trend_chart {
+          role: card;
+          component: ux.eam_chi.chart_widget;
+        }
+
+        slot slot_alert_list {
+          role: card;
+        }
+      }
+    }
+
+    /* ------------- Work Order List Page -------------------------- */
+
+    pageDesign page_wo_list {
+      meta {
+        title: "Work Orders";
+        description: "Manage work orders";
+      }
+      route: "/work-orders";
+      layoutPattern: eam_ds.lp_stack;
+      bind-feature: ux.eam_chi.work_order;
+
+      section sec_header {
+        kind: custom;
+
+        heading hd_title {
+          text: "Work Orders";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+
+        slot slot_filters {
+          role: custom;
+          component: ux.eam_chi.filter_toolbar;
+        }
+      }
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_work_orders;
+      }
+    }
+
+    /* ------------- Work Order Detail Page ------------------------ */
+
+    pageDesign page_wo_detail {
+      meta {
+        title: "Work Order Detail";
+        description: "Detailed work order view with activities, labor, parts, costs";
+      }
+      route: "/work-orders/:id";
+      layoutPattern: eam_ds.lp_stack;
+      bind-feature: ux.eam_chi.work_order;
+
+      section sec_header {
+        kind: custom;
+
+        heading hd_title {
+          text: "Work Order Detail";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+
+        slot slot_status {
+          role: custom;
+          component: ux.eam_chi.workflow_status_badge;
+        }
+
+        slot slot_actions {
+          role: primaryCta;
+          interaction: int_open_workflow_modal;
+        }
+      }
+
+      section sec_overview {
+        kind: custom;
+        layoutPattern: eam_ds.lp_split;
+
+        slot slot_info {
+          role: card;
+          component: ux.eam_chi.detail_card;
+        }
+
+        slot slot_cost_summary {
+          role: card;
+          component: ux.eam_chi.kpi_widget;
+        }
+      }
+
+      section sec_tabs {
+        kind: custom;
+
+        slot slot_activities {
+          role: card;
+        }
+
+        slot slot_labor {
+          role: card;
+        }
+
+        slot slot_parts {
+          role: card;
+        }
+
+        slot slot_equipment {
+          role: card;
+        }
+
+        slot slot_checklists {
+          role: card;
+        }
+
+        slot slot_safety_permits {
+          role: card;
+        }
+      }
+    }
+
+    /* ------------- Work Order Form Page -------------------------- */
+
+    pageDesign page_wo_form {
+      meta {
+        title: "Work Order Form";
+        description: "Create or edit work order";
+      }
+      route: "/work-orders/new";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_form {
+        kind: formSection;
+        formRef: form_work_order;
+
+        heading hd_title {
+          text: "New Work Order";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Safety Permit List Page ----------------------- */
+
+    pageDesign page_permits {
+      meta {
+        title: "Safety Permits";
+        description: "Manage safety permits";
+      }
+      route: "/work-orders/permits";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_safety_permits;
+
+        heading hd_title {
+          text: "Safety Permits";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Purchase Request List Page -------------------- */
+
+    pageDesign page_pr_list {
+      meta {
+        title: "Purchase Requests";
+        description: "Manage purchase requisitions";
+      }
+      route: "/purchasing/requests";
+      layoutPattern: eam_ds.lp_stack;
+      bind-feature: ux.eam_chi.purchasing;
+
+      section sec_header {
+        kind: custom;
+
+        heading hd_title {
+          text: "Purchase Requests";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+
+        slot slot_filters {
+          role: custom;
+          component: ux.eam_chi.filter_toolbar;
+        }
+      }
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_purchase_requests;
+      }
+    }
+
+    /* ------------- Purchase Order List Page ---------------------- */
+
+    pageDesign page_po_list {
+      meta {
+        title: "Purchase Orders";
+        description: "Manage purchase orders";
+      }
+      route: "/purchasing/orders";
+      layoutPattern: eam_ds.lp_stack;
+      bind-feature: ux.eam_chi.purchasing;
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_purchase_orders;
+
+        heading hd_title {
+          text: "Purchase Orders";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Vendor List Page ------------------------------ */
+
+    pageDesign page_vendor_list {
+      meta {
+        title: "Vendors";
+        description: "Manage vendor records";
+      }
+      route: "/purchasing/vendors";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_vendors;
+
+        heading hd_title {
+          text: "Vendors";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Vendor Invoice List Page ---------------------- */
+
+    pageDesign page_invoice_list {
+      meta {
+        title: "Vendor Invoices";
+        description: "Vendor invoice management and three-way matching";
+      }
+      route: "/purchasing/invoices";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_vendor_invoices;
+
+        heading hd_title {
+          text: "Vendor Invoices";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- RFQ List Page --------------------------------- */
+
+    pageDesign page_rfq_list {
+      meta {
+        title: "Requests for Quotation";
+        description: "Manage RFQs";
+      }
+      route: "/purchasing/rfqs";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_table {
+        kind: custom;
+
+        heading hd_title {
+          text: "Requests for Quotation";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Inventory List Page --------------------------- */
+
+    pageDesign page_inventory_list {
+      meta {
+        title: "Inventory";
+        description: "Inventory levels across all stores";
+      }
+      route: "/inventory";
+      layoutPattern: eam_ds.lp_stack;
+      bind-feature: ux.eam_chi.inventory;
+
+      section sec_header {
+        kind: custom;
+
+        heading hd_title {
+          text: "Inventory";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+
+        slot slot_filters {
+          role: custom;
+          component: ux.eam_chi.filter_toolbar;
+        }
+      }
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_inventory;
+      }
+    }
+
+    /* ------------- Item Catalog Page ----------------------------- */
+
+    pageDesign page_item_list {
+      meta {
+        title: "Item Catalog";
+        description: "Browse and manage items";
+      }
+      route: "/inventory/items";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_items;
+
+        heading hd_title {
+          text: "Item Catalog";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Stock Count Page ------------------------------ */
+
+    pageDesign page_stock_count {
+      meta {
+        title: "Stock Count";
+        description: "Physical stock count management";
+      }
+      route: "/inventory/stock-count";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_header {
+        kind: custom;
+
+        heading hd_title {
+          text: "Stock Count";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+
+      section sec_form {
+        kind: formSection;
+        formRef: form_stock_count;
+      }
+    }
+
+    /* ------------- Transfer Page --------------------------------- */
+
+    pageDesign page_transfer {
+      meta {
+        title: "Stock Transfer";
+        description: "Inter-store stock transfers";
+      }
+      route: "/inventory/transfers";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_header {
+        kind: custom;
+
+        heading hd_title {
+          text: "Stock Transfers";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+
+      section sec_form {
+        kind: formSection;
+        formRef: form_transfer;
+      }
+    }
+
+    /* ------------- Employee List Page ---------------------------- */
+
+    pageDesign page_employee_list {
+      meta {
+        title: "Employees";
+        description: "Manage employee records";
+      }
+      route: "/admin/employees";
+      layoutPattern: eam_ds.lp_stack;
+      bind-feature: ux.eam_chi.admin;
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_employees;
+
+        heading hd_title {
+          text: "Employees";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Site List Page -------------------------------- */
+
+    pageDesign page_site_list {
+      meta {
+        title: "Sites";
+        description: "Manage organizational sites";
+      }
+      route: "/admin/sites";
+      layoutPattern: eam_ds.lp_stack;
+
+      section sec_table {
+        kind: dataTable;
+        dataTableRef: dt_sites;
+
+        heading hd_title {
+          text: "Sites";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+      }
+    }
+
+    /* ------------- Audit Log Page -------------------------------- */
+
+    pageDesign page_audit_log {
+      meta {
+        title: "Audit Log";
+        description: "System audit trail and change history";
+      }
+      route: "/admin/audit";
+      layoutPattern: eam_ds.lp_stack;
+      bind-feature: ux.eam_chi.admin;
+
+      section sec_header {
+        kind: custom;
+
+        heading hd_title {
+          text: "Audit Log";
+          style: eam_ds.txt_h1;
+          level: 1;
+        }
+
+        slot slot_filters {
+          role: custom;
+          component: ux.eam_chi.filter_toolbar;
+        }
+      }
+
+      section sec_table {
+        kind: dataTable;
+      }
+    }
+
+    /* ------------- Login Page ------------------------------------ */
+
+    pageDesign page_login {
+      meta {
+        title: "Login";
+        description: "Authentication page";
+        seoIndex: false;
+      }
+      route: "/auth/login";
+
+      section sec_login {
+        kind: formSection;
+        layoutPattern: eam_ds.lp_stack;
+        background: solid: clr_background;
+
+        heading hd_title {
+          text: "CHI EAM";
+          style: eam_ds.txt_display;
+          level: 1;
+        }
+
+        body bd_subtitle {
+          text: "Enterprise Asset Management System";
+          style: eam_ds.txt_body;
+        }
+
+        slot slot_login_form {
+          role: form;
+        }
+      }
+
+      implementation impl_login {
+        framework: nuxt;
+        css: tailwind;
+      }
+    }
+
+  } /* end site */
+
+} /* end wdml model */

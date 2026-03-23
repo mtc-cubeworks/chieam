@@ -91,7 +91,7 @@ def upgrade() -> None:
     # =========================================================================
     op.create_table(
         'vendor_invoice',
-        sa.Column('name', sa.String(50), primary_key=True),
+        sa.Column('id', sa.String(50), primary_key=True),
         sa.Column('workflow_state', sa.String(50), nullable=True),
         sa.Column('vendor', sa.String(50), sa.ForeignKey('vendor.id'), nullable=False),
         sa.Column('purchase_order', sa.String(50), sa.ForeignKey('purchase_order.id'), nullable=True),
@@ -112,7 +112,7 @@ def upgrade() -> None:
 
     op.create_table(
         'vendor_invoice_line',
-        sa.Column('name', sa.String(50), primary_key=True),
+        sa.Column('id', sa.String(50), primary_key=True),
         sa.Column('vendor_invoice', sa.String(50), sa.ForeignKey('vendor_invoice.id'), nullable=False),
         sa.Column('purchase_order_line', sa.String(50), sa.ForeignKey('purchase_order_line.id'), nullable=True),
         sa.Column('item', sa.String(50), sa.ForeignKey('item.id'), nullable=True),
@@ -131,7 +131,7 @@ def upgrade() -> None:
     # =========================================================================
     op.create_table(
         'tool_checkout',
-        sa.Column('name', sa.String(50), primary_key=True),
+        sa.Column('id', sa.String(50), primary_key=True),
         sa.Column('workflow_state', sa.String(50), nullable=True),
         sa.Column('tool', sa.String(50), sa.ForeignKey('asset.id'), nullable=False),
         sa.Column('checked_out_to', sa.String(50), sa.ForeignKey('employee.id'), nullable=True),

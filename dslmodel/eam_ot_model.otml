@@ -1,0 +1,1257 @@
+/* ================================================================= */
+/*  EAM-CHI Operational Technology Model (OTML v1.7)                  */
+/*  Enterprise Asset Management – CHI Implementation                  */
+/*  OT/SCADA/DCS Integration for Condition-Based Maintenance          */
+/* ================================================================= */
+
+namespace chi.eam.ot version "1.0.0";
+
+import "core_eam.dbml" as core;
+import "asset_management.dbml" as asset;
+import "maintenance_mgmt.dbml" as maint;
+
+/* ================================================================= */
+/*  META                                                               */
+/* ================================================================= */
+
+Meta "eam-ot-model" {
+  project: "CHI Enterprise Asset Management";
+  domain: "Industrial OT/SCADA Integration";
+  standard: "ISA-95 / IEC-62264";
+  version: "1.0.0";
+}
+
+/* ================================================================= */
+/*  SYSTEM BLOCKS                                                      */
+/* ================================================================= */
+
+SystemBlock "chi-plant" {
+  domain: "Manufacturing / Facilities";
+  area: "Main Plant";
+  node: chi.eam.ot.edge_gateway_01;
+  node: chi.eam.ot.edge_gateway_02;
+  node: chi.eam.ot.plc_cabinet_01;
+  node: chi.eam.ot.plc_cabinet_02;
+  node: chi.eam.ot.scada_server;
+}
+
+SystemBlock "chi-utilities" {
+  domain: "Utilities / HVAC";
+  area: "Utility Block";
+  node: chi.eam.ot.edge_gateway_03;
+  node: chi.eam.ot.plc_cabinet_03;
+}
+
+/* ================================================================= */
+/*  NODES                                                              */
+/* ================================================================= */
+
+Node "edge_gateway_01" {
+  role: "edge";
+  location: "Main Plant – Zone A";
+  endpoint: chi.eam.ot.ep_mqtt_gw01;
+  endpoint: chi.eam.ot.ep_modbus_gw01;
+}
+
+Node "edge_gateway_02" {
+  role: "edge";
+  location: "Main Plant – Zone B";
+  endpoint: chi.eam.ot.ep_mqtt_gw02;
+  endpoint: chi.eam.ot.ep_modbus_gw02;
+}
+
+Node "edge_gateway_03" {
+  role: "edge";
+  location: "Utility Block";
+  endpoint: chi.eam.ot.ep_mqtt_gw03;
+}
+
+Node "plc_cabinet_01" {
+  role: "plc_cabinet";
+  location: "Main Plant – Zone A MCC Room";
+  endpoint: chi.eam.ot.ep_plc01;
+}
+
+Node "plc_cabinet_02" {
+  role: "plc_cabinet";
+  location: "Main Plant – Zone B MCC Room";
+  endpoint: chi.eam.ot.ep_plc02;
+}
+
+Node "plc_cabinet_03" {
+  role: "plc_cabinet";
+  location: "Utility Block MCC Room";
+  endpoint: chi.eam.ot.ep_plc03;
+}
+
+Node "scada_server" {
+  role: "gateway";
+  location: "Control Room";
+  endpoint: chi.eam.ot.ep_opcua_scada;
+}
+
+/* ================================================================= */
+/*  DEVICE CLASSES                                                     */
+/* ================================================================= */
+
+DeviceClass "esp32_edge" {
+  vendor: "Espressif";
+  model: "ESP32-S3";
+  cpu: "ESP32-S3 Dual-core LX7";
+  capabilities: ["wifi", "ble", "mqtt", "modbus_rtu", "i2c", "spi", "adc"];
+}
+
+DeviceClass "siemens_s71500" {
+  vendor: "Siemens";
+  model: "S7-1500";
+  cpu: "CPU 1515-2 PN";
+  capabilities: ["profinet", "opcua", "modbus_tcp", "web_server"];
+}
+
+DeviceClass "ab_compactlogix" {
+  vendor: "Allen-Bradley";
+  model: "CompactLogix 5380";
+  cpu: "5069-L330ER";
+  capabilities: ["ethernet_ip", "opcua", "modbus_tcp"];
+}
+
+DeviceClass "vibration_sensor" {
+  vendor: "SKF";
+  model: "CMSS 2200";
+  capabilities: ["4-20mA", "modbus_rtu", "vibration_spectrum"];
+}
+
+DeviceClass "temp_sensor" {
+  vendor: "Honeywell";
+  model: "STT850";
+  capabilities: ["4-20mA", "hart", "modbus_rtu"];
+}
+
+DeviceClass "pressure_sensor" {
+  vendor: "Endress+Hauser";
+  model: "Cerabar PMC71";
+  capabilities: ["4-20mA", "hart", "modbus_rtu", "profinet"];
+}
+
+DeviceClass "flow_sensor" {
+  vendor: "Endress+Hauser";
+  model: "Promag 400";
+  capabilities: ["4-20mA", "hart", "modbus_rtu", "profinet"];
+}
+
+DeviceClass "level_sensor" {
+  vendor: "Endress+Hauser";
+  model: "Levelflex FMP50";
+  capabilities: ["4-20mA", "hart", "modbus_rtu"];
+}
+
+DeviceClass "motor_drive" {
+  vendor: "ABB";
+  model: "ACS580";
+  capabilities: ["modbus_rtu", "profinet", "ethernet_ip", "opcua"];
+}
+
+/* ================================================================= */
+/*  PROFILES                                                           */
+/* ================================================================= */
+
+Profile "edge_sensor_profile" {
+  uses chi.eam.ot.esp32_edge;
+  defaults: {
+    wifi_mode: "STA";
+    mqtt_broker: "mqtt://scada.chi.local:1883";
+    log_level: "INFO";
+    ota_enabled: true;
+    sample_interval: "1s";
+    publish_interval: "5s";
+    watchdog_timeout: "30s";
+  };
+}
+
+Profile "plc_standard_profile" {
+  uses chi.eam.ot.siemens_s71500;
+  defaults: {
+    scan_cycle: "10ms";
+    opcua_enabled: true;
+    opcua_port: 4840;
+    web_server_enabled: true;
+    safe_state: "STOP";
+  };
+}
+
+/* ================================================================= */
+/*  ENDPOINTS                                                          */
+/* ================================================================= */
+
+Endpoint "ep_mqtt_gw01" {
+  uses chi.eam.ot.edge_sensor_profile;
+  protocol: "MQTT";
+  address: "mqtt://scada.chi.local:1883";
+  timers: { fast10ms: 10ms; sensor_poll: 1s; publish: 5s };
+  policies: { watchdog: 30s; safe_state: "last_known_value"; reconnect: true };
+}
+
+Endpoint "ep_modbus_gw01" {
+  uses chi.eam.ot.edge_sensor_profile;
+  protocol: "Modbus_RTU";
+  address: "/dev/ttyUSB0:9600:8N1";
+  timers: { poll_cycle: 500ms };
+}
+
+Endpoint "ep_mqtt_gw02" {
+  uses chi.eam.ot.edge_sensor_profile;
+  protocol: "MQTT";
+  address: "mqtt://scada.chi.local:1883";
+  timers: { fast10ms: 10ms; sensor_poll: 1s; publish: 5s };
+  policies: { watchdog: 30s; safe_state: "last_known_value"; reconnect: true };
+}
+
+Endpoint "ep_modbus_gw02" {
+  uses chi.eam.ot.edge_sensor_profile;
+  protocol: "Modbus_RTU";
+  address: "/dev/ttyUSB1:9600:8N1";
+  timers: { poll_cycle: 500ms };
+}
+
+Endpoint "ep_mqtt_gw03" {
+  uses chi.eam.ot.edge_sensor_profile;
+  protocol: "MQTT";
+  address: "mqtt://scada.chi.local:1883";
+  timers: { sensor_poll: 2s; publish: 10s };
+  policies: { watchdog: 60s; safe_state: "last_known_value" };
+}
+
+Endpoint "ep_plc01" {
+  uses chi.eam.ot.plc_standard_profile;
+  protocol: "OPCUA";
+  address: "opc.tcp://plc01.chi.local:4840";
+  timers: { scan: 10ms; opcua_publish: 100ms };
+}
+
+Endpoint "ep_plc02" {
+  uses chi.eam.ot.plc_standard_profile;
+  protocol: "OPCUA";
+  address: "opc.tcp://plc02.chi.local:4840";
+  timers: { scan: 10ms; opcua_publish: 100ms };
+}
+
+Endpoint "ep_plc03" {
+  uses chi.eam.ot.plc_standard_profile;
+  protocol: "OPCUA";
+  address: "opc.tcp://plc03.chi.local:4840";
+  timers: { scan: 20ms; opcua_publish: 200ms };
+}
+
+Endpoint "ep_opcua_scada" {
+  protocol: "OPCUA";
+  address: "opc.tcp://scada.chi.local:4840";
+  policies: { auth: "certificate"; encryption: "Basic256Sha256" };
+}
+
+/* ================================================================= */
+/*  INSTRUMENTS                                                        */
+/* ================================================================= */
+
+/* ------------- Vibration Sensors --------------------------------- */
+
+Instrument "VIB_PUMP_01" {
+  type: "VibrationTransmitter";
+  role: "measure";
+  variable: "vibration_velocity";
+  eu: "mm/s";
+  range: [0, 50];
+  sample: 500ms;
+  connect: endpoint chi.eam.ot.ep_modbus_gw01."40001";
+  historians: ["chi_historian"];
+}
+
+Instrument "VIB_PUMP_02" {
+  type: "VibrationTransmitter";
+  role: "measure";
+  variable: "vibration_velocity";
+  eu: "mm/s";
+  range: [0, 50];
+  sample: 500ms;
+  connect: endpoint chi.eam.ot.ep_modbus_gw01."40003";
+  historians: ["chi_historian"];
+}
+
+Instrument "VIB_MOTOR_01" {
+  type: "VibrationTransmitter";
+  role: "measure";
+  variable: "vibration_acceleration";
+  eu: "g";
+  range: [0, 20];
+  sample: 500ms;
+  connect: endpoint chi.eam.ot.ep_modbus_gw02."40001";
+  historians: ["chi_historian"];
+}
+
+Instrument "VIB_FAN_01" {
+  type: "VibrationTransmitter";
+  role: "measure";
+  variable: "vibration_velocity";
+  eu: "mm/s";
+  range: [0, 30];
+  sample: 1s;
+  connect: endpoint chi.eam.ot.ep_modbus_gw02."40003";
+  historians: ["chi_historian"];
+}
+
+/* ------------- Temperature Sensors ------------------------------- */
+
+Instrument "TEMP_BEARING_01" {
+  type: "TemperatureTransmitter";
+  role: "measure";
+  variable: "temperature";
+  eu: "degC";
+  range: [0, 200];
+  sample: 2s;
+  connect: endpoint chi.eam.ot.ep_modbus_gw01."40010";
+  historians: ["chi_historian"];
+}
+
+Instrument "TEMP_BEARING_02" {
+  type: "TemperatureTransmitter";
+  role: "measure";
+  variable: "temperature";
+  eu: "degC";
+  range: [0, 200];
+  sample: 2s;
+  connect: endpoint chi.eam.ot.ep_modbus_gw01."40012";
+  historians: ["chi_historian"];
+}
+
+Instrument "TEMP_MOTOR_01" {
+  type: "TemperatureTransmitter";
+  role: "measure";
+  variable: "winding_temperature";
+  eu: "degC";
+  range: [0, 250];
+  sample: 5s;
+  connect: endpoint chi.eam.ot.ep_modbus_gw02."40010";
+  historians: ["chi_historian"];
+}
+
+Instrument "TEMP_HVAC_SUPPLY" {
+  type: "TemperatureTransmitter";
+  role: "measure";
+  variable: "supply_air_temp";
+  eu: "degC";
+  range: [-10, 60];
+  sample: 10s;
+  connect: endpoint chi.eam.ot.ep_mqtt_gw03;
+  historians: ["chi_historian"];
+}
+
+Instrument "TEMP_HVAC_RETURN" {
+  type: "TemperatureTransmitter";
+  role: "measure";
+  variable: "return_air_temp";
+  eu: "degC";
+  range: [-10, 60];
+  sample: 10s;
+  connect: endpoint chi.eam.ot.ep_mqtt_gw03;
+  historians: ["chi_historian"];
+}
+
+/* ------------- Pressure Sensors ---------------------------------- */
+
+Instrument "PRESS_PUMP_01" {
+  type: "PressureTransmitter";
+  role: "measure";
+  variable: "discharge_pressure";
+  eu: "bar";
+  range: [0, 16];
+  sample: 1s;
+  connect: endpoint chi.eam.ot.ep_modbus_gw01."40020";
+  historians: ["chi_historian"];
+}
+
+Instrument "PRESS_PUMP_02" {
+  type: "PressureTransmitter";
+  role: "measure";
+  variable: "suction_pressure";
+  eu: "bar";
+  range: [0, 10];
+  sample: 1s;
+  connect: endpoint chi.eam.ot.ep_modbus_gw01."40022";
+  historians: ["chi_historian"];
+}
+
+Instrument "PRESS_COMPRESSOR_01" {
+  type: "PressureTransmitter";
+  role: "measure";
+  variable: "discharge_pressure";
+  eu: "bar";
+  range: [0, 12];
+  sample: 2s;
+  connect: endpoint chi.eam.ot.ep_modbus_gw02."40020";
+  historians: ["chi_historian"];
+}
+
+/* ------------- Flow Sensors -------------------------------------- */
+
+Instrument "FLOW_COOLING_01" {
+  type: "FlowTransmitter";
+  role: "measure";
+  variable: "flow_rate";
+  eu: "m3/h";
+  range: [0, 100];
+  sample: 2s;
+  connect: endpoint chi.eam.ot.ep_modbus_gw01."40030";
+  historians: ["chi_historian"];
+}
+
+/* ------------- Level Sensors ------------------------------------- */
+
+Instrument "LEVEL_TANK_01" {
+  type: "LevelTransmitter";
+  role: "measure";
+  variable: "tank_level";
+  eu: "%";
+  range: [0, 100];
+  sample: 5s;
+  connect: endpoint chi.eam.ot.ep_modbus_gw02."40030";
+  historians: ["chi_historian"];
+}
+
+/* ------------- Current / Power Sensors --------------------------- */
+
+Instrument "CURRENT_MOTOR_01" {
+  type: "CurrentTransmitter";
+  role: "measure";
+  variable: "motor_current";
+  eu: "A";
+  range: [0, 500];
+  sample: 1s;
+  connect: endpoint chi.eam.ot.ep_plc01;
+  historians: ["chi_historian"];
+}
+
+Instrument "POWER_METER_01" {
+  type: "PowerMeter";
+  role: "measure";
+  variable: "active_power";
+  eu: "kW";
+  range: [0, 1000];
+  sample: 5s;
+  connect: endpoint chi.eam.ot.ep_plc01;
+  historians: ["chi_historian"];
+}
+
+/* ------------- Runtime / Speed Sensors --------------------------- */
+
+Instrument "SPEED_MOTOR_01" {
+  type: "SpeedTransmitter";
+  role: "measure";
+  variable: "shaft_speed";
+  eu: "RPM";
+  range: [0, 3600];
+  sample: 500ms;
+  connect: endpoint chi.eam.ot.ep_plc01;
+  historians: ["chi_historian"];
+}
+
+Instrument "RUNTIME_PUMP_01" {
+  type: "RuntimeCounter";
+  role: "measure";
+  variable: "running_hours";
+  eu: "hours";
+  range: [0, 999999];
+  sample: 60s;
+  connect: endpoint chi.eam.ot.ep_plc01;
+  historians: ["chi_historian"];
+}
+
+/* ================================================================= */
+/*  CONTROL MODULES (Reusable Logic)                                   */
+/* ================================================================= */
+
+ControlModule MotorControl {
+  parameters: {
+    in StartCmd: bool = false;
+    in StopCmd: bool = false;
+    in SpeedSetpoint: float = 0.0;
+    out Running: bool;
+    out Faulted: bool;
+    out ActualSpeed: float;
+  };
+
+  variables: {
+    var RunTimer: int = 0;
+    var FaultCode: int = 0;
+  };
+
+  body: ST "
+    IF StartCmd AND NOT Faulted THEN
+      Running := TRUE;
+      ActualSpeed := SpeedSetpoint;
+      RunTimer := RunTimer + 1;
+    ELSIF StopCmd THEN
+      Running := FALSE;
+      ActualSpeed := 0.0;
+    END_IF;
+    IF ActualSpeed > 0 AND SpeedSetpoint == 0 THEN
+      Faulted := TRUE;
+      FaultCode := 1;
+    END_IF;
+  ";
+}
+
+ControlModule PumpControl {
+  parameters: {
+    in EnableCmd: bool = false;
+    in DisableCmd: bool = false;
+    in DischargePressure: float;
+    in SuctionPressure: float;
+    in PressureSetpoint: float = 6.0;
+    out Running: bool;
+    out Faulted: bool;
+    out DifferentialPressure: float;
+  };
+
+  variables: {
+    var DryRunTimer: int = 0;
+    var CavitationFlag: bool = false;
+  };
+
+  body: ST "
+    DifferentialPressure := DischargePressure - SuctionPressure;
+    IF EnableCmd AND NOT Faulted THEN
+      Running := TRUE;
+    ELSIF DisableCmd THEN
+      Running := FALSE;
+    END_IF;
+    IF Running AND SuctionPressure < 0.5 THEN
+      DryRunTimer := DryRunTimer + 1;
+      IF DryRunTimer > 10 THEN
+        Faulted := TRUE;
+        Running := FALSE;
+      END_IF;
+    ELSE
+      DryRunTimer := 0;
+    END_IF;
+  ";
+}
+
+ControlModule ValveControl {
+  parameters: {
+    in OpenCmd: bool = false;
+    in CloseCmd: bool = false;
+    in PositionSetpoint: float = 0.0;
+    out Position: float;
+    out IsOpen: bool;
+    out IsClosed: bool;
+    out Faulted: bool;
+  };
+
+  variables: {
+    var TravelTimer: int = 0;
+  };
+
+  body: ST "
+    IF OpenCmd THEN
+      Position := PositionSetpoint;
+      IsOpen := Position >= 95.0;
+      IsClosed := FALSE;
+    ELSIF CloseCmd THEN
+      Position := 0.0;
+      IsOpen := FALSE;
+      IsClosed := TRUE;
+    END_IF;
+    IF OpenCmd AND Position < PositionSetpoint AND TravelTimer > 60 THEN
+      Faulted := TRUE;
+    END_IF;
+  ";
+}
+
+ControlModule PIDController {
+  parameters: {
+    in ProcessVariable: float;
+    in Setpoint: float;
+    in Kp: float = 1.0;
+    in Ki: float = 0.1;
+    in Kd: float = 0.05;
+    in OutputMin: float = 0.0;
+    in OutputMax: float = 100.0;
+    out ControlOutput: float;
+    out Error: float;
+  };
+
+  variables: {
+    var Integral: float = 0.0;
+    var PrevError: float = 0.0;
+  };
+
+  body: ST "
+    Error := Setpoint - ProcessVariable;
+    Integral := Integral + Error;
+    ControlOutput := Kp * Error + Ki * Integral + Kd * (Error - PrevError);
+    IF ControlOutput < OutputMin THEN ControlOutput := OutputMin; END_IF;
+    IF ControlOutput > OutputMax THEN ControlOutput := OutputMax; END_IF;
+    PrevError := Error;
+  ";
+}
+
+/* ================================================================= */
+/*  PLC FACETS                                                         */
+/* ================================================================= */
+
+PLCFacet "plc01_zone_a" {
+  standard: "IEC-61131";
+
+  iomap: {
+    VIB_PUMP_01: "IW100";
+    VIB_PUMP_02: "IW102";
+    TEMP_BEARING_01: "IW110";
+    TEMP_BEARING_02: "IW112";
+    PRESS_PUMP_01: "IW120";
+    PRESS_PUMP_02: "IW122";
+    FLOW_COOLING_01: "IW130";
+    CURRENT_MOTOR_01: "IW140";
+    POWER_METER_01: "IW142";
+    SPEED_MOTOR_01: "IW144";
+    RUNTIME_PUMP_01: "ID150";
+    MOTOR_01_START: "Q100.0";
+    MOTOR_01_STOP: "Q100.1";
+    PUMP_01_ENABLE: "Q102.0";
+    PUMP_01_DISABLE: "Q102.1";
+  };
+
+  instance motor01 uses MotorControl params {
+    StartCmd: "I100.0";
+    StopCmd: "I100.1";
+    SpeedSetpoint: "IW144";
+  };
+
+  instance pump01 uses PumpControl params {
+    EnableCmd: "I102.0";
+    DisableCmd: "I102.1";
+    DischargePressure: "IW120";
+    SuctionPressure: "IW122";
+  };
+
+  instance pid_pressure uses PIDController params {
+    ProcessVariable: "IW120";
+    Setpoint: 6.0;
+    Kp: 2.0;
+    Ki: 0.5;
+  };
+
+  connection (pid_pressure.ControlOutput -> pump01.EnableCmd);
+  connection (pump01.Faulted -> motor01.StopCmd);
+}
+
+PLCFacet "plc02_zone_b" {
+  standard: "IEC-61131";
+
+  iomap: {
+    VIB_MOTOR_01: "IW200";
+    VIB_FAN_01: "IW202";
+    TEMP_MOTOR_01: "IW210";
+    PRESS_COMPRESSOR_01: "IW220";
+    LEVEL_TANK_01: "IW230";
+    MOTOR_02_START: "Q200.0";
+    MOTOR_02_STOP: "Q200.1";
+    FAN_01_START: "Q202.0";
+    FAN_01_STOP: "Q202.1";
+    VALVE_01_OPEN: "Q204.0";
+    VALVE_01_CLOSE: "Q204.1";
+  };
+
+  instance motor02 uses MotorControl params {
+    StartCmd: "I200.0";
+    StopCmd: "I200.1";
+  };
+
+  instance fan01 uses MotorControl params {
+    StartCmd: "I202.0";
+    StopCmd: "I202.1";
+  };
+
+  instance valve01 uses ValveControl params {
+    OpenCmd: "I204.0";
+    CloseCmd: "I204.1";
+  };
+
+  instance pid_level uses PIDController params {
+    ProcessVariable: "IW230";
+    Setpoint: 70.0;
+    Kp: 1.5;
+    Ki: 0.3;
+  };
+
+  connection (pid_level.ControlOutput -> valve01.PositionSetpoint);
+}
+
+PLCFacet "plc03_utilities" {
+  standard: "IEC-61131";
+
+  iomap: {
+    TEMP_HVAC_SUPPLY: "IW300";
+    TEMP_HVAC_RETURN: "IW302";
+    AHU_FAN_START: "Q300.0";
+    AHU_FAN_STOP: "Q300.1";
+    CHILLER_ENABLE: "Q302.0";
+  };
+
+  instance ahu_fan uses MotorControl params {
+    StartCmd: "I300.0";
+    StopCmd: "I300.1";
+  };
+
+  instance pid_hvac uses PIDController params {
+    ProcessVariable: "IW300";
+    Setpoint: 22.0;
+    Kp: 1.0;
+    Ki: 0.2;
+    OutputMin: 20.0;
+    OutputMax: 100.0;
+  };
+}
+
+/* ================================================================= */
+/*  CONDITION BLOCKS (Alarms & Alerts)                                 */
+/* ================================================================= */
+
+ConditionBlock "alarm_vibration_high" {
+  parameter: VIB_PUMP_01.value;
+  operator: >;
+  threshold: 7.1;
+  severity: "alarm";
+  hysteresis: 0.5;
+}
+
+ConditionBlock "warn_vibration_elevated" {
+  parameter: VIB_PUMP_01.value;
+  operator: >;
+  threshold: 4.5;
+  severity: "warn";
+  hysteresis: 0.3;
+}
+
+ConditionBlock "alarm_vibration_motor" {
+  parameter: VIB_MOTOR_01.value;
+  operator: >;
+  threshold: 10.0;
+  severity: "alarm";
+  hysteresis: 1.0;
+}
+
+ConditionBlock "alarm_temp_bearing_high" {
+  parameter: TEMP_BEARING_01.value;
+  operator: >;
+  threshold: 85.0;
+  severity: "alarm";
+  hysteresis: 2.0;
+}
+
+ConditionBlock "warn_temp_bearing_elevated" {
+  parameter: TEMP_BEARING_01.value;
+  operator: >;
+  threshold: 70.0;
+  severity: "warn";
+  hysteresis: 1.0;
+}
+
+ConditionBlock "trip_temp_bearing_critical" {
+  parameter: TEMP_BEARING_01.value;
+  operator: >;
+  threshold: 100.0;
+  severity: "trip";
+  hysteresis: 5.0;
+}
+
+ConditionBlock "alarm_pressure_low" {
+  parameter: PRESS_PUMP_02.value;
+  operator: <;
+  threshold: 0.5;
+  severity: "alarm";
+  hysteresis: 0.1;
+}
+
+ConditionBlock "alarm_pressure_high" {
+  parameter: PRESS_PUMP_01.value;
+  operator: >;
+  threshold: 12.0;
+  severity: "alarm";
+  hysteresis: 0.5;
+}
+
+ConditionBlock "warn_level_low" {
+  parameter: LEVEL_TANK_01.value;
+  operator: <;
+  threshold: 20.0;
+  severity: "warn";
+  hysteresis: 2.0;
+}
+
+ConditionBlock "alarm_level_critical" {
+  parameter: LEVEL_TANK_01.value;
+  operator: <;
+  threshold: 10.0;
+  severity: "alarm";
+  hysteresis: 1.0;
+}
+
+ConditionBlock "alarm_motor_overcurrent" {
+  parameter: CURRENT_MOTOR_01.value;
+  operator: >;
+  threshold: 450.0;
+  severity: "alarm";
+  hysteresis: 10.0;
+}
+
+ConditionBlock "info_runtime_pm_due" {
+  parameter: RUNTIME_PUMP_01.value;
+  operator: >=;
+  threshold: 4000.0;
+  severity: "info";
+  hysteresis: 100.0;
+}
+
+/* ================================================================= */
+/*  POLICY BLOCKS                                                      */
+/* ================================================================= */
+
+PolicyBlock "safety_policies" {
+  rule: when TEMP_BEARING_01.value > 100 then Action.emergency_shutdown;
+  rule: when VIB_PUMP_01.value > 11 then Action.emergency_shutdown;
+  rule: when PRESS_PUMP_02.value < 0.3 then Action.stop_pump;
+  rule: when CURRENT_MOTOR_01.value > 480 then Action.trip_motor;
+}
+
+PolicyBlock "cbm_policies" {
+  rule: when VIB_PUMP_01.value > 4.5 and VIB_PUMP_01.value <= 7.1 then Action.create_maintenance_request;
+  rule: when TEMP_BEARING_01.value > 70 and TEMP_BEARING_01.value <= 85 then Action.create_maintenance_request;
+  rule: when RUNTIME_PUMP_01.value >= 4000 then Action.generate_pm_work_order;
+}
+
+PolicyBlock "notification_policies" {
+  rule: when VIB_PUMP_01.value > 7.1 then publish({ topic: "eam/alerts"; severity: "alarm"; asset: "PUMP-01"; message: "High vibration detected" });
+  rule: when TEMP_BEARING_01.value > 85 then publish({ topic: "eam/alerts"; severity: "alarm"; asset: "PUMP-01"; message: "Bearing temperature high" });
+  rule: when LEVEL_TANK_01.value < 10 then publish({ topic: "eam/alerts"; severity: "alarm"; asset: "TANK-01"; message: "Tank level critical" });
+}
+
+/* ================================================================= */
+/*  ACTIONS                                                            */
+/* ================================================================= */
+
+Action emergency_shutdown {
+  category: "safety";
+  publish: {
+    topic: "eam/commands/emergency_stop";
+    payload: "STOP_ALL";
+    qos: 2;
+  };
+}
+
+Action stop_pump {
+  category: "control";
+  publish: {
+    topic: "eam/commands/pump/stop";
+    payload: "PUMP_01_STOP";
+  };
+}
+
+Action trip_motor {
+  category: "safety";
+  publish: {
+    topic: "eam/commands/motor/trip";
+    payload: "MOTOR_01_TRIP";
+  };
+}
+
+Action create_maintenance_request {
+  category: "cbm";
+  invoke: maint.auto_create_maintenance_request;
+}
+
+Action generate_pm_work_order {
+  category: "pm";
+  invoke: maint.generate_maintenance_requests;
+}
+
+Action send_alert_notification {
+  category: "notification";
+  publish: {
+    topic: "eam/notifications";
+    channel: "email";
+  };
+}
+
+/* ================================================================= */
+/*  WORKFLOWS (Operational Procedures)                                 */
+/* ================================================================= */
+
+Workflow "pump_startup" {
+  label: "check_prerequisites";
+  check: PRESS_PUMP_02.value > 1.0;
+  check: LEVEL_TANK_01.value > 30;
+  check: VIB_PUMP_01.value < 2.0;
+  action: Action.motor01_start;
+  wait: 5s;
+  check: SPEED_MOTOR_01.value > 100;
+  action: Action.pump01_enable;
+  wait: 10s;
+  check: PRESS_PUMP_01.value > 3.0;
+}
+
+Workflow "pump_shutdown" {
+  action: Action.pump01_disable;
+  wait: 5s;
+  check: FLOW_COOLING_01.value < 1.0;
+  action: Action.motor01_stop;
+  wait: 3s;
+  check: SPEED_MOTOR_01.value == 0;
+}
+
+Workflow "emergency_stop_sequence" {
+  action: Action.emergency_shutdown;
+  wait: 1s;
+  action: Action.send_alert_notification;
+}
+
+/* ================================================================= */
+/*  PROCEDURAL RECIPES                                                 */
+/* ================================================================= */
+
+ProceduralRecipe MaintenanceInspection {
+  parameters: {
+    AssetTag: string;
+    InspectionType: string default "routine";
+    TargetVibration: float unit "mm/s" default 4.5;
+    TargetTemp: float unit "degC" default 70.0;
+  };
+
+  equipment: {
+    role InstrumentSet requires vibration_sensor;
+    role TempSensor requires temp_sensor;
+  };
+
+  steps: {
+    step collect_vibration {
+      invoke: chi.eam.ot.pump_startup;
+      with: { warmup_time: 300 };
+      transition: on (RUNTIME_PUMP_01.value > 5) goto "measure_vibration";
+    }
+
+    step measure_vibration {
+      invoke: chi.eam.ot.pump_startup;
+      transition: on (VIB_PUMP_01.value > 0) goto "measure_temperature";
+    }
+
+    step measure_temperature {
+      invoke: chi.eam.ot.pump_startup;
+      transition: on (TEMP_BEARING_01.value > 0) goto "evaluate_results";
+    }
+
+    step evaluate_results {
+      invoke: Action.create_maintenance_request;
+      transition: on (VIB_PUMP_01.value > TargetVibration or TEMP_BEARING_01.value > TargetTemp);
+    }
+  }
+}
+
+ProceduralRecipe ConditionBasedInspectionRoute {
+  parameters: {
+    RouteId: string;
+    MaxDuration: float unit "hours" default 4.0;
+  };
+
+  equipment: {
+    role PortableSensor requires vibration_sensor;
+  };
+
+  steps: {
+    step start_route {
+      invoke: Action.send_alert_notification;
+      with: { message: "Inspection route started" };
+      transition: on (true) goto "collect_data";
+    }
+
+    step collect_data {
+      invoke: chi.eam.ot.pump_startup;
+      transition: on (true) goto "analyze_data";
+    }
+
+    step analyze_data {
+      invoke: Action.create_maintenance_request;
+      transition: on (true) goto "complete_route";
+    }
+
+    step complete_route {
+      invoke: Action.send_alert_notification;
+      with: { message: "Inspection route completed" };
+    }
+  }
+}
+
+/* ================================================================= */
+/*  HISTORIAN                                                          */
+/* ================================================================= */
+
+HistorianBlock "chi_historian" {
+  attributes: [
+    "VIB_PUMP_01", "VIB_PUMP_02", "VIB_MOTOR_01", "VIB_FAN_01",
+    "TEMP_BEARING_01", "TEMP_BEARING_02", "TEMP_MOTOR_01",
+    "TEMP_HVAC_SUPPLY", "TEMP_HVAC_RETURN",
+    "PRESS_PUMP_01", "PRESS_PUMP_02", "PRESS_COMPRESSOR_01",
+    "FLOW_COOLING_01", "LEVEL_TANK_01",
+    "CURRENT_MOTOR_01", "POWER_METER_01", "SPEED_MOTOR_01",
+    "RUNTIME_PUMP_01"
+  ];
+  sampling: {
+    VIB_PUMP_01: "500ms";
+    VIB_PUMP_02: "500ms";
+    VIB_MOTOR_01: "500ms";
+    VIB_FAN_01: "1s";
+    TEMP_BEARING_01: "2s";
+    TEMP_BEARING_02: "2s";
+    TEMP_MOTOR_01: "5s";
+    TEMP_HVAC_SUPPLY: "10s";
+    TEMP_HVAC_RETURN: "10s";
+    PRESS_PUMP_01: "1s";
+    PRESS_PUMP_02: "1s";
+    PRESS_COMPRESSOR_01: "2s";
+    FLOW_COOLING_01: "2s";
+    LEVEL_TANK_01: "5s";
+    CURRENT_MOTOR_01: "1s";
+    POWER_METER_01: "5s";
+    SPEED_MOTOR_01: "500ms";
+    RUNTIME_PUMP_01: "60s";
+  };
+  retention_days: 730;
+  backend: "TimescaleDB";
+}
+
+/* ================================================================= */
+/*  CBM PIPELINES                                                      */
+/* ================================================================= */
+
+CBMPipeline "vibration_analysis" {
+  stages: ["FFT", "RMS", "Envelope", "Rules", "RUL"];
+  channels: ["VIB_PUMP_01", "VIB_PUMP_02", "VIB_MOTOR_01", "VIB_FAN_01"];
+  emit: ["health_score", "remaining_useful_life", "fault_frequency", "alarm_status"];
+}
+
+CBMPipeline "thermal_analysis" {
+  stages: ["RateOfChange", "MovingAverage", "ThresholdCheck", "TrendPrediction"];
+  channels: ["TEMP_BEARING_01", "TEMP_BEARING_02", "TEMP_MOTOR_01"];
+  emit: ["thermal_health", "trend_direction", "predicted_exceedance_hours"];
+}
+
+CBMPipeline "pump_health" {
+  stages: ["DifferentialPressure", "Efficiency", "SpectrumAnalysis", "MachineLearning", "RUL"];
+  channels: ["VIB_PUMP_01", "PRESS_PUMP_01", "PRESS_PUMP_02", "FLOW_COOLING_01", "CURRENT_MOTOR_01", "POWER_METER_01"];
+  emit: ["pump_health_index", "efficiency_percent", "remaining_useful_life", "fault_classification"];
+}
+
+CBMPipeline "motor_health" {
+  stages: ["CurrentSignature", "VibrationAnalysis", "ThermalAnalysis", "FusionScore"];
+  channels: ["CURRENT_MOTOR_01", "VIB_MOTOR_01", "TEMP_MOTOR_01", "SPEED_MOTOR_01"];
+  emit: ["motor_health_index", "bearing_condition", "winding_condition", "alignment_score"];
+}
+
+/* ================================================================= */
+/*  OPC UA                                                             */
+/* ================================================================= */
+
+OPCUABlock "eam_opcua_server" {
+  nodeset: "chi_eam_nodeset2.xml";
+  namespace_uri: "urn:chi:eam:ot";
+  expose: [
+    "VIB_PUMP_01", "VIB_PUMP_02", "VIB_MOTOR_01", "VIB_FAN_01",
+    "TEMP_BEARING_01", "TEMP_BEARING_02", "TEMP_MOTOR_01",
+    "PRESS_PUMP_01", "PRESS_PUMP_02", "PRESS_COMPRESSOR_01",
+    "FLOW_COOLING_01", "LEVEL_TANK_01",
+    "CURRENT_MOTOR_01", "POWER_METER_01", "SPEED_MOTOR_01",
+    "RUNTIME_PUMP_01",
+    "pump_health.pump_health_index",
+    "motor_health.motor_health_index",
+    "vibration_analysis.health_score",
+    "thermal_analysis.thermal_health"
+  ];
+}
+
+/* ================================================================= */
+/*  PROCESS BLOCKS                                                     */
+/* ================================================================= */
+
+ProcessBlock "pumping_system" {
+  group: "Main Plant – Zone A";
+  visual: chi.eam.ot.vis_pump_overview;
+  visual: chi.eam.ot.vis_pump_detail;
+}
+
+ProcessBlock "motor_system" {
+  group: "Main Plant – Zone B";
+  visual: chi.eam.ot.vis_motor_overview;
+}
+
+ProcessBlock "hvac_system" {
+  group: "Utilities";
+  visual: chi.eam.ot.vis_hvac_overview;
+}
+
+/* ================================================================= */
+/*  TEMPLATE BLOCKS                                                    */
+/* ================================================================= */
+
+TemplateBlock "sensor_widget" {
+  parameters: ["SensorTag", "Label", "Unit", "MinRange", "MaxRange"];
+  visuals: ["vis_gauge_template", "vis_trend_template"];
+}
+
+TemplateBlock "motor_widget" {
+  parameters: ["MotorTag", "SpeedTag", "CurrentTag", "TempTag", "VibTag"];
+  visuals: ["vis_motor_status", "vis_motor_gauges"];
+}
+
+TemplateBlock "pump_widget" {
+  parameters: ["PumpTag", "DischargePressure", "SuctionPressure", "FlowRate", "VibTag"];
+  visuals: ["vis_pump_status", "vis_pump_gauges"];
+}
+
+/* ================================================================= */
+/*  VISUAL BLOCKS (HMI Screens)                                        */
+/* ================================================================= */
+
+VisualBlock "vis_pump_overview" {
+  widget_type: group;
+  layout: { x: 0; y: 0 };
+  style: { width: 1200; height: 800 };
+}
+
+VisualBlock "vis_pump_detail" {
+  widget_type: group;
+  layout: { x: 0; y: 0 };
+  bind: [VIB_PUMP_01, TEMP_BEARING_01, PRESS_PUMP_01, PRESS_PUMP_02, FLOW_COOLING_01];
+  style: { width: 1200; height: 800 };
+}
+
+VisualBlock "vis_vib_gauge_pump01" {
+  widget_type: gauge;
+  icon: "vibration";
+  layout: { x: 50; y: 100 };
+  bind: [VIB_PUMP_01];
+  transform: {
+    scale: [[0, 50] -> [0, 100]];
+    format: "%.1f";
+    unit: "mm/s";
+  };
+  animation: [{
+    property: color;
+    from: "#2E7D32";
+    to: "#D32F2F";
+    bind: VIB_PUMP_01.value;
+    when: VIB_PUMP_01.value > 7.1;
+  }];
+  style: { width: 150; height: 150 };
+}
+
+VisualBlock "vis_temp_gauge_bearing01" {
+  widget_type: gauge;
+  icon: "temperature";
+  layout: { x: 250; y: 100 };
+  bind: [TEMP_BEARING_01];
+  transform: {
+    scale: [[0, 200] -> [0, 100]];
+    format: "%.1f";
+    unit: "degC";
+  };
+  animation: [{
+    property: color;
+    from: "#2E7D32";
+    to: "#D32F2F";
+    bind: TEMP_BEARING_01.value;
+    when: TEMP_BEARING_01.value > 85;
+  }];
+  style: { width: 150; height: 150 };
+}
+
+VisualBlock "vis_pressure_gauge" {
+  widget_type: gauge;
+  icon: "pressure";
+  layout: { x: 450; y: 100 };
+  bind: [PRESS_PUMP_01];
+  transform: {
+    format: "%.2f";
+    unit: "bar";
+  };
+  style: { width: 150; height: 150 };
+}
+
+VisualBlock "vis_flow_display" {
+  widget_type: numeric_display;
+  icon: "flow";
+  layout: { x: 650; y: 100 };
+  bind: [FLOW_COOLING_01];
+  transform: {
+    format: "%.1f";
+    unit: "m3/h";
+  };
+  style: { width: 120; height: 60 };
+}
+
+VisualBlock "vis_motor_overview" {
+  widget_type: group;
+  layout: { x: 0; y: 0 };
+  bind: [VIB_MOTOR_01, TEMP_MOTOR_01, CURRENT_MOTOR_01, SPEED_MOTOR_01];
+  style: { width: 1200; height: 800 };
+}
+
+VisualBlock "vis_hvac_overview" {
+  widget_type: group;
+  layout: { x: 0; y: 0 };
+  bind: [TEMP_HVAC_SUPPLY, TEMP_HVAC_RETURN];
+  style: { width: 1200; height: 600 };
+}
+
+VisualBlock "vis_trend_vibration" {
+  widget_type: trend;
+  layout: { x: 50; y: 400 };
+  bind: [VIB_PUMP_01, VIB_PUMP_02, VIB_MOTOR_01];
+  style: { width: 500; height: 300 };
+}
+
+VisualBlock "vis_trend_temperature" {
+  widget_type: trend;
+  layout: { x: 600; y: 400 };
+  bind: [TEMP_BEARING_01, TEMP_BEARING_02, TEMP_MOTOR_01];
+  style: { width: 500; height: 300 };
+}
+
+VisualBlock "vis_health_kpi" {
+  widget_type: numeric_display;
+  layout: { x: 50; y: 50 };
+  bind_expr: vibration_analysis.health_score;
+  transform: {
+    format: "%.0f";
+    unit: "%";
+  };
+  style: { font: "24px"; width: 200; height: 80 };
+}
+
+/* ================================================================= */
+/*  ANNOTATIONS                                                        */
+/* ================================================================= */
+
+Annotation "sensor_integration_note" {
+  target: chi.eam.ot.chi_historian;
+  text: "All sensor data flows through MQTT to TimescaleDB historian, with automatic forwarding to EAM SensorData model via API bridge.";
+  locale: "en-US";
+}
+
+Annotation "cbm_integration_note" {
+  target: chi.eam.ot.vibration_analysis;
+  text: "CBM pipeline results are published to MQTT topic eam/cbm/results and consumed by the EAM ConditionMonitoring module to trigger maintenance requests.";
+  locale: "en-US";
+}
+
+Annotation "safety_note" {
+  target: chi.eam.ot.safety_policies;
+  text: "Safety trip conditions bypass all workflow approvals and execute immediately. Emergency shutdown actions are logged to the EAM ErrorLog.";
+  locale: "en-US";
+}

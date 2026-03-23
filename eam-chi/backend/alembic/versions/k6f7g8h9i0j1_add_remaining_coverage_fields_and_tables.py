@@ -133,7 +133,7 @@ def upgrade() -> None:
     # =========================================================================
     op.create_table(
         'condition_monitoring',
-        sa.Column('name', sa.String(50), primary_key=True),
+        sa.Column('id', sa.String(50), primary_key=True),
         sa.Column('workflow_state', sa.String(50), nullable=True),
         sa.Column('asset', sa.String(50), sa.ForeignKey('asset.id'), nullable=False),
         sa.Column('sensor', sa.String(50), sa.ForeignKey('sensor.id'), nullable=True),
@@ -158,7 +158,7 @@ def upgrade() -> None:
     # =========================================================================
     op.create_table(
         'asset_transfer',
-        sa.Column('name', sa.String(50), primary_key=True),
+        sa.Column('id', sa.String(50), primary_key=True),
         sa.Column('workflow_state', sa.String(50), nullable=True),
         sa.Column('asset', sa.String(50), sa.ForeignKey('asset.id'), nullable=False),
         sa.Column('transfer_type', sa.String(100), nullable=True),
@@ -183,7 +183,7 @@ def upgrade() -> None:
     # =========================================================================
     op.create_table(
         'master_data_change',
-        sa.Column('name', sa.String(50), primary_key=True),
+        sa.Column('id', sa.String(50), primary_key=True),
         sa.Column('workflow_state', sa.String(50), nullable=True),
         sa.Column('entity_type', sa.String(100), nullable=True),
         sa.Column('entity_id', sa.String(50), nullable=True),

@@ -1,0 +1,2360 @@
+dbml model purchasing_stores {
+
+  import "core_eam.dbml" as core;
+  import "asset_management.dbml" as asset;
+  import "work_mgmt.dbml" as work;
+
+  (* ========================================== *)
+  (* ENUMS                                      *)
+  (* ========================================== *)
+
+  enum PurchaseOrderState {
+    draft;
+    submitted;
+    approved;
+    sent_to_vendor;
+    partially_received;
+    received;
+    closed;
+    cancelled;
+  }
+
+  enum PurchaseRequestState {
+    draft;
+    submitted;
+    approved;
+    rejected;
+    converted;
+    cancelled;
+  }
+
+  enum RfqState {
+    draft;
+    sent;
+    responses_received;
+    evaluated;
+    awarded;
+    cancelled;
+  }
+
+  enum InventoryAdjustmentState {
+    draft;
+    submitted;
+    approved;
+    posted;
+    rejected;
+  }
+
+  enum ItemIssueState {
+    draft;
+    submitted;
+    approved;
+    issued;
+    cancelled;
+  }
+
+  enum ItemReturnState {
+    draft;
+    submitted;
+    approved;
+    returned;
+    cancelled;
+  }
+
+  enum StockCountState {
+    draft;
+    in_progress;
+    completed;
+    approved;
+    posted;
+  }
+
+  enum TransferState {
+    draft;
+    submitted;
+    approved;
+    in_transit;
+    received;
+    cancelled;
+  }
+
+  enum VendorInvoiceState {
+    draft;
+    submitted;
+    matched;
+    approved;
+    paid;
+    disputed;
+  }
+
+  enum SalesOrderState {
+    draft;
+    confirmed;
+    in_progress;
+    shipped;
+    completed;
+    cancelled;
+  }
+
+  enum ServiceContractState {
+    draft;
+    active;
+    expired;
+    terminated;
+    renewed;
+  }
+
+  enum ItemType {
+    stock;
+    non_stock;
+    service;
+    tool;
+    consumable;
+  }
+
+  enum ReplenishmentMethod {
+    manual;
+    min_max;
+    reorder_point;
+    kanban;
+  }
+
+  enum InspectionResult {
+    pass;
+    fail;
+    conditional;
+  }
+
+  enum AdjustmentType {
+    physical_count;
+    damage;
+    obsolescence;
+    correction;
+    write_off;
+  }
+
+  (* ========================================== *)
+  (* LIFECYCLES                                 *)
+  (* ========================================== *)
+
+  lifecycle purchase-request-lifecycle {
+    entity = purchasing_stores.PurchaseRequest;
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state rejected {}
+    state converted { final = true; }
+    state cancelled { final = true; }
+  }
+
+  lifecycle purchase-order-lifecycle {
+    entity = purchasing_stores.PurchaseOrder;
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state sent-to-vendor {}
+    state partially-received {}
+    state received {}
+    state closed { final = true; }
+    state cancelled { final = true; }
+  }
+
+  lifecycle rfq-lifecycle {
+    entity = purchasing_stores.RequestForQuotation;
+    state draft { initial = true; }
+    state sent {}
+    state responses-received {}
+    state evaluated {}
+    state awarded { final = true; }
+    state cancelled { final = true; }
+  }
+
+  lifecycle inventory-adjustment-lifecycle {
+    entity = purchasing_stores.InventoryAdjustment;
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state posted { final = true; }
+    state rejected { final = true; }
+  }
+
+  lifecycle item-issue-lifecycle {
+    entity = purchasing_stores.ItemIssue;
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state issued { final = true; }
+    state cancelled { final = true; }
+  }
+
+  lifecycle item-return-lifecycle {
+    entity = purchasing_stores.ItemReturn;
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state returned { final = true; }
+    state cancelled { final = true; }
+  }
+
+  lifecycle stock-count-lifecycle {
+    entity = purchasing_stores.StockCount;
+    state draft { initial = true; }
+    state in-progress {}
+    state completed {}
+    state approved {}
+    state posted { final = true; }
+  }
+
+  lifecycle transfer-lifecycle {
+    entity = purchasing_stores.Transfer;
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state in-transit {}
+    state received { final = true; }
+    state cancelled { final = true; }
+  }
+
+  lifecycle vendor-invoice-lifecycle {
+    entity = purchasing_stores.VendorInvoice;
+    state draft { initial = true; }
+    state submitted {}
+    state matched {}
+    state approved {}
+    state paid { final = true; }
+    state disputed { final = true; }
+  }
+
+  lifecycle sales-order-lifecycle {
+    entity = purchasing_stores.SalesOrder;
+    state draft { initial = true; }
+    state confirmed {}
+    state in-progress {}
+    state shipped {}
+    state completed { final = true; }
+    state cancelled { final = true; }
+  }
+
+  lifecycle service-contract-lifecycle {
+    entity = purchasing_stores.ServiceContract;
+    state draft { initial = true; }
+    state active {}
+    state expired { final = true; }
+    state terminated { final = true; }
+    state renewed {}
+  }
+
+  (* ========================================== *)
+  (* WORKFLOWS                                  *)
+  (* ========================================== *)
+
+  workflow purchase-request-workflow {
+    entity = purchasing_stores.PurchaseRequest;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state rejected {}
+    state converted { final = true; }
+    state cancelled { final = true; }
+
+    transition submit {
+      from = draft;
+      to = submitted;
+      role = core.requester;
+    }
+
+    transition approve {
+      from = submitted;
+      to = approved;
+      role = core.manager;
+    }
+
+    transition reject {
+      from = submitted;
+      to = rejected;
+      role = core.manager;
+    }
+
+    transition convert-to-po {
+      from = approved;
+      to = converted;
+      role = core.storekeeper;
+    }
+
+    transition cancel {
+      from = draft;
+      to = cancelled;
+      role = core.requester;
+    }
+
+    transition reopen {
+      from = rejected;
+      to = draft;
+      role = core.requester;
+    }
+  }
+
+  workflow purchase-order-workflow {
+    entity = purchasing_stores.PurchaseOrder;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state sent-to-vendor {}
+    state partially-received {}
+    state received {}
+    state closed { final = true; }
+    state cancelled { final = true; }
+
+    transition submit {
+      from = draft;
+      to = submitted;
+      role = core.storekeeper;
+    }
+
+    transition approve {
+      from = submitted;
+      to = approved;
+      role = core.manager;
+    }
+
+    transition send {
+      from = approved;
+      to = sent-to-vendor;
+      role = core.storekeeper;
+    }
+
+    transition partial-receive {
+      from = sent-to-vendor;
+      to = partially-received;
+      role = core.storekeeper;
+    }
+
+    transition receive {
+      from = sent-to-vendor;
+      to = received;
+      role = core.storekeeper;
+    }
+
+    transition receive-remaining {
+      from = partially-received;
+      to = received;
+      role = core.storekeeper;
+    }
+
+    transition close {
+      from = received;
+      to = closed;
+      role = core.manager;
+    }
+
+    transition cancel {
+      from = draft;
+      to = cancelled;
+      role = core.manager;
+    }
+  }
+
+  workflow rfq-workflow {
+    entity = purchasing_stores.RequestForQuotation;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state sent {}
+    state responses-received {}
+    state evaluated {}
+    state awarded { final = true; }
+    state cancelled { final = true; }
+
+    transition send {
+      from = draft;
+      to = sent;
+      role = core.storekeeper;
+    }
+
+    transition receive-responses {
+      from = sent;
+      to = responses-received;
+      role = core.storekeeper;
+    }
+
+    transition evaluate {
+      from = responses-received;
+      to = evaluated;
+      role = core.manager;
+    }
+
+    transition award {
+      from = evaluated;
+      to = awarded;
+      role = core.manager;
+    }
+
+    transition cancel {
+      from = draft;
+      to = cancelled;
+      role = core.manager;
+    }
+  }
+
+  workflow inventory-adjustment-workflow {
+    entity = purchasing_stores.InventoryAdjustment;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state posted { final = true; }
+    state rejected { final = true; }
+
+    transition submit {
+      from = draft;
+      to = submitted;
+      role = core.storekeeper;
+    }
+
+    transition approve {
+      from = submitted;
+      to = approved;
+      role = core.manager;
+    }
+
+    transition post {
+      from = approved;
+      to = posted;
+      role = core.storekeeper;
+    }
+
+    transition reject {
+      from = submitted;
+      to = rejected;
+      role = core.manager;
+    }
+  }
+
+  workflow item-issue-workflow {
+    entity = purchasing_stores.ItemIssue;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state issued { final = true; }
+    state cancelled { final = true; }
+
+    transition submit {
+      from = draft;
+      to = submitted;
+      role = core.requester;
+    }
+
+    transition approve {
+      from = submitted;
+      to = approved;
+      role = core.storekeeper;
+    }
+
+    transition issue {
+      from = approved;
+      to = issued;
+      role = core.storekeeper;
+    }
+
+    transition cancel {
+      from = draft;
+      to = cancelled;
+      role = core.requester;
+    }
+  }
+
+  workflow item-return-workflow {
+    entity = purchasing_stores.ItemReturn;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state returned { final = true; }
+    state cancelled { final = true; }
+
+    transition submit {
+      from = draft;
+      to = submitted;
+      role = core.requester;
+    }
+
+    transition approve {
+      from = submitted;
+      to = approved;
+      role = core.storekeeper;
+    }
+
+    transition return-items {
+      from = approved;
+      to = returned;
+      role = core.storekeeper;
+    }
+
+    transition cancel {
+      from = draft;
+      to = cancelled;
+      role = core.requester;
+    }
+  }
+
+  workflow stock-count-workflow {
+    entity = purchasing_stores.StockCount;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state in-progress {}
+    state completed {}
+    state approved {}
+    state posted { final = true; }
+
+    transition start-count {
+      from = draft;
+      to = in-progress;
+      role = core.storekeeper;
+    }
+
+    transition complete-count {
+      from = in-progress;
+      to = completed;
+      role = core.storekeeper;
+    }
+
+    transition approve {
+      from = completed;
+      to = approved;
+      role = core.manager;
+    }
+
+    transition post {
+      from = approved;
+      to = posted;
+      role = core.storekeeper;
+    }
+  }
+
+  workflow transfer-workflow {
+    entity = purchasing_stores.Transfer;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state in-transit {}
+    state received { final = true; }
+    state cancelled { final = true; }
+
+    transition submit {
+      from = draft;
+      to = submitted;
+      role = core.storekeeper;
+    }
+
+    transition approve {
+      from = submitted;
+      to = approved;
+      role = core.manager;
+    }
+
+    transition dispatch {
+      from = approved;
+      to = in-transit;
+      role = core.storekeeper;
+    }
+
+    transition receive {
+      from = in-transit;
+      to = received;
+      role = core.storekeeper;
+    }
+
+    transition cancel {
+      from = draft;
+      to = cancelled;
+      role = core.storekeeper;
+    }
+  }
+
+  workflow vendor-invoice-workflow {
+    entity = purchasing_stores.VendorInvoice;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state submitted {}
+    state matched {}
+    state approved {}
+    state paid { final = true; }
+    state disputed { final = true; }
+
+    transition submit {
+      from = draft;
+      to = submitted;
+      role = core.storekeeper;
+    }
+
+    transition match {
+      from = submitted;
+      to = matched;
+      role = core.storekeeper;
+    }
+
+    transition approve {
+      from = matched;
+      to = approved;
+      role = core.manager;
+    }
+
+    transition pay {
+      from = approved;
+      to = paid;
+      role = core.admin;
+    }
+
+    transition dispute {
+      from = submitted;
+      to = disputed;
+      role = core.manager;
+    }
+  }
+
+  workflow sales-order-workflow {
+    entity = purchasing_stores.SalesOrder;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state confirmed {}
+    state in-progress {}
+    state shipped {}
+    state completed { final = true; }
+    state cancelled { final = true; }
+
+    transition confirm {
+      from = draft;
+      to = confirmed;
+      role = core.storekeeper;
+    }
+
+    transition start-processing {
+      from = confirmed;
+      to = in-progress;
+      role = core.storekeeper;
+    }
+
+    transition ship {
+      from = in-progress;
+      to = shipped;
+      role = core.storekeeper;
+    }
+
+    transition complete {
+      from = shipped;
+      to = completed;
+      role = core.storekeeper;
+    }
+
+    transition cancel {
+      from = draft;
+      to = cancelled;
+      role = core.manager;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES — MASTER / REFERENCE              *)
+  (* ========================================== *)
+
+  entity UnitOfMeasure {
+    label = "Unit of Measure";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field uom_name : string { label = "UOM Name"; }
+    field short_name : string { label = "Short Name"; }
+    field description : text { label = "Description"; }
+  }
+
+  entity Currency {
+    label = "Currency";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field currency_name : string { label = "Currency Name"; }
+    field currency_code : string { label = "Currency Code"; }
+    field symbol : string { label = "Symbol"; }
+    field exchange_rate : decimal { label = "Exchange Rate"; }
+  }
+
+  entity Vendor {
+    label = "Vendor";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field vendor_name : string { label = "Vendor Name"; }
+    field contact_person : string { label = "Contact Person"; }
+    field email : string { label = "Email"; }
+    field phone : string { label = "Phone"; }
+    field address : text { label = "Address"; }
+    field tax_id : string { label = "Tax ID"; }
+    field payment_terms : string { label = "Payment Terms"; }
+    field currency : string { label = "Currency"; }
+    field site : string { label = "Site"; }
+    field vendor_rating : float { label = "Vendor Rating"; }
+    field lead_time_days : integer { label = "Lead Time Days"; }
+
+    relation currency-ref {
+      from = purchasing_stores.Vendor.currency;
+      to = purchasing_stores.Currency.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = purchasing_stores.Vendor.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Store {
+    label = "Store";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field store_name : string { label = "Store Name"; }
+    field site : string { label = "Site"; }
+    field location : string { label = "Location"; }
+    field custodian : string { label = "Custodian"; }
+    field description : text { label = "Description"; }
+
+    relation site-ref {
+      from = purchasing_stores.Store.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation location-ref {
+      from = purchasing_stores.Store.location;
+      to = asset.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation custodian-ref {
+      from = purchasing_stores.Store.custodian;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Zone {
+    label = "Zone";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field zone_name : string { label = "Zone Name"; }
+    field store : string { label = "Store"; }
+    field description : text { label = "Description"; }
+
+    relation store-ref {
+      from = purchasing_stores.Zone.store;
+      to = purchasing_stores.Store.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Bin {
+    label = "Bin";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field bin_name : string { label = "Bin Name"; }
+    field zone : string { label = "Zone"; }
+    field store : string { label = "Store"; }
+    field capacity : float { label = "Capacity"; }
+
+    relation zone-ref {
+      from = purchasing_stores.Bin.zone;
+      to = purchasing_stores.Zone.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation store-ref {
+      from = purchasing_stores.Bin.store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity ItemClass {
+    label = "Item Class";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field class_name : string { label = "Class Name"; }
+    field description : text { label = "Description"; }
+    field account : string { label = "Account"; }
+
+    relation account-ref {
+      from = purchasing_stores.ItemClass.account;
+      to = core.Account.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Item {
+    label = "Item";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field item_name : string { label = "Item Name"; }
+    field description : text { label = "Description"; }
+    field item_type : string { label = "Item Type"; enum = ItemType; }
+    field item_class : string { label = "Item Class"; }
+    field unit_of_measure : string { label = "Unit of Measure"; }
+    field default_vendor : string { label = "Default Vendor"; }
+    field unit_cost : decimal { label = "Unit Cost"; }
+    field reorder_point : integer { label = "Reorder Point"; }
+    field reorder_qty : integer { label = "Reorder Quantity"; }
+    field min_stock : integer { label = "Minimum Stock"; }
+    field max_stock : integer { label = "Maximum Stock"; }
+    field lead_time_days : integer { label = "Lead Time Days"; }
+    field replenishment_method : string { label = "Replenishment Method"; enum = ReplenishmentMethod; }
+    field is_critical : boolean { label = "Is Critical"; default = false; }
+    field abc_class : string { label = "ABC Class"; }
+    field shelf_life_days : integer { label = "Shelf Life Days"; }
+
+    relation class-ref {
+      from = purchasing_stores.Item.item_class;
+      to = purchasing_stores.ItemClass.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation uom-ref {
+      from = purchasing_stores.Item.unit_of_measure;
+      to = purchasing_stores.UnitOfMeasure.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation vendor-ref {
+      from = purchasing_stores.Item.default_vendor;
+      to = purchasing_stores.Vendor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Inventory {
+    label = "Inventory";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field item : string { label = "Item"; }
+    field store : string { label = "Store"; }
+    field bin : string { label = "Bin"; }
+    field quantity_on_hand : integer { label = "Quantity on Hand"; }
+    field quantity_reserved : integer { label = "Quantity Reserved"; }
+    field quantity_available : integer { label = "Quantity Available"; }
+    field last_count_date : date { label = "Last Count Date"; }
+    field unit_cost : decimal { label = "Unit Cost"; }
+    field total_value : decimal { label = "Total Value"; }
+
+    relation item-ref {
+      from = purchasing_stores.Inventory.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation store-ref {
+      from = purchasing_stores.Inventory.store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation bin-ref {
+      from = purchasing_stores.Inventory.bin;
+      to = purchasing_stores.Bin.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Inspection {
+    label = "Inspection";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field purchase_receipt : string { label = "Purchase Receipt"; }
+    field item : string { label = "Item"; }
+    field inspected_qty : integer { label = "Inspected Quantity"; }
+    field accepted_qty : integer { label = "Accepted Quantity"; }
+    field rejected_qty : integer { label = "Rejected Quantity"; }
+    field inspection_date : date { label = "Inspection Date"; }
+    field result : string { label = "Result"; enum = InspectionResult; }
+    field inspected_by : string { label = "Inspected By"; }
+    field notes : text { label = "Notes"; }
+    field site : string { label = "Site"; }
+
+    relation receipt-ref {
+      from = purchasing_stores.Inspection.purchase_receipt;
+      to = purchasing_stores.PurchaseReceipt.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = purchasing_stores.Inspection.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation inspected-ref {
+      from = purchasing_stores.Inspection.inspected_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = purchasing_stores.Inspection.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES — INVENTORY ADJUSTMENTS           *)
+  (* ========================================== *)
+
+  entity InventoryAdjustment {
+    label = "Inventory Adjustment";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field adjustment_date : date { label = "Adjustment Date"; }
+    field adjustment_type : string { label = "Adjustment Type"; enum = AdjustmentType; }
+    field reason_code : string { label = "Reason Code"; }
+    field store : string { label = "Store"; }
+    field site : string { label = "Site"; }
+    field prepared_by : string { label = "Prepared By"; }
+    field approved_by : string { label = "Approved By"; }
+    field notes : text { label = "Notes"; }
+
+    relation reason-ref {
+      from = purchasing_stores.InventoryAdjustment.reason_code;
+      to = purchasing_stores.ReasonCode.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation store-ref {
+      from = purchasing_stores.InventoryAdjustment.store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = purchasing_stores.InventoryAdjustment.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation prepared-ref {
+      from = purchasing_stores.InventoryAdjustment.prepared_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation approved-ref {
+      from = purchasing_stores.InventoryAdjustment.approved_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use purchasing_stores.inventory-adjustment-lifecycle;
+
+    behavior {
+      workflow use purchasing_stores.inventory-adjustment-workflow;
+
+      on post {
+        do = purchasing_stores.post-adjustment-to-ledger;
+      }
+    }
+  }
+
+  entity InventoryAdjustmentLine {
+    label = "Inventory Adjustment Line";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field inventory_adjustment : string { label = "Inventory Adjustment"; }
+    field item : string { label = "Item"; }
+    field bin : string { label = "Bin"; }
+    field system_qty : integer { label = "System Quantity"; }
+    field actual_qty : integer { label = "Actual Quantity"; }
+    field variance_qty : integer { label = "Variance Quantity"; }
+    field unit_cost : decimal { label = "Unit Cost"; }
+
+    relation adj-ref {
+      from = purchasing_stores.InventoryAdjustmentLine.inventory_adjustment;
+      to = purchasing_stores.InventoryAdjustment.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = purchasing_stores.InventoryAdjustmentLine.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation bin-ref {
+      from = purchasing_stores.InventoryAdjustmentLine.bin;
+      to = purchasing_stores.Bin.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES — ITEM ISSUE / RETURN             *)
+  (* ========================================== *)
+
+  entity ItemIssue {
+    label = "Item Issue";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field issue_date : date { label = "Issue Date"; }
+    field work_order : string { label = "Work Order"; }
+    field store : string { label = "Store"; }
+    field site : string { label = "Site"; }
+    field requested_by : string { label = "Requested By"; }
+    field issued_by : string { label = "Issued By"; }
+    field department : string { label = "Department"; }
+    field cost_code : string { label = "Cost Code"; }
+
+    relation wo-ref {
+      from = purchasing_stores.ItemIssue.work_order;
+      to = work.WorkOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation store-ref {
+      from = purchasing_stores.ItemIssue.store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = purchasing_stores.ItemIssue.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation requested-ref {
+      from = purchasing_stores.ItemIssue.requested_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation issued-ref {
+      from = purchasing_stores.ItemIssue.issued_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation dept-ref {
+      from = purchasing_stores.ItemIssue.department;
+      to = core.Department.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation cost-ref {
+      from = purchasing_stores.ItemIssue.cost_code;
+      to = core.CostCode.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use purchasing_stores.item-issue-lifecycle;
+
+    behavior {
+      workflow use purchasing_stores.item-issue-workflow;
+
+      on issue {
+        do = purchasing_stores.deduct-inventory;
+      }
+    }
+  }
+
+  entity ItemIssueLine {
+    label = "Item Issue Line";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field item_issue : string { label = "Item Issue"; }
+    field item : string { label = "Item"; }
+    field bin : string { label = "Bin"; }
+    field quantity : integer { label = "Quantity"; }
+    field unit_cost : decimal { label = "Unit Cost"; }
+
+    relation issue-ref {
+      from = purchasing_stores.ItemIssueLine.item_issue;
+      to = purchasing_stores.ItemIssue.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = purchasing_stores.ItemIssueLine.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation bin-ref {
+      from = purchasing_stores.ItemIssueLine.bin;
+      to = purchasing_stores.Bin.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity ItemReturn {
+    label = "Item Return";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field return_date : date { label = "Return Date"; }
+    field item_issue : string { label = "Original Item Issue"; }
+    field work_order : string { label = "Work Order"; }
+    field store : string { label = "Store"; }
+    field site : string { label = "Site"; }
+    field returned_by : string { label = "Returned By"; }
+    field received_by : string { label = "Received By"; }
+
+    relation issue-ref {
+      from = purchasing_stores.ItemReturn.item_issue;
+      to = purchasing_stores.ItemIssue.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation wo-ref {
+      from = purchasing_stores.ItemReturn.work_order;
+      to = work.WorkOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation store-ref {
+      from = purchasing_stores.ItemReturn.store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = purchasing_stores.ItemReturn.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation returned-ref {
+      from = purchasing_stores.ItemReturn.returned_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation received-ref {
+      from = purchasing_stores.ItemReturn.received_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use purchasing_stores.item-return-lifecycle;
+
+    behavior {
+      workflow use purchasing_stores.item-return-workflow;
+
+      on return-items {
+        do = purchasing_stores.restore-inventory;
+      }
+    }
+  }
+
+  entity ItemReturnLine {
+    label = "Item Return Line";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field item_return : string { label = "Item Return"; }
+    field item : string { label = "Item"; }
+    field bin : string { label = "Bin"; }
+    field quantity : integer { label = "Quantity"; }
+    field condition : string { label = "Condition"; }
+
+    relation return-ref {
+      from = purchasing_stores.ItemReturnLine.item_return;
+      to = purchasing_stores.ItemReturn.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = purchasing_stores.ItemReturnLine.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation bin-ref {
+      from = purchasing_stores.ItemReturnLine.bin;
+      to = purchasing_stores.Bin.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES — PURCHASING                      *)
+  (* ========================================== *)
+
+  entity PurchaseRequest {
+    label = "Purchase Request";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field request_date : date { label = "Request Date"; }
+    field required_date : date { label = "Required Date"; }
+    field site : string { label = "Site"; }
+    field department : string { label = "Department"; }
+    field requested_by : string { label = "Requested By"; }
+    field approved_by : string { label = "Approved By"; }
+    field work_order : string { label = "Work Order"; }
+    field description : text { label = "Description"; }
+    field total_amount : decimal { label = "Total Amount"; }
+    field budget_validation_status : string { label = "Budget Validation Status"; }
+
+    relation site-ref {
+      from = purchasing_stores.PurchaseRequest.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation dept-ref {
+      from = purchasing_stores.PurchaseRequest.department;
+      to = core.Department.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation requested-ref {
+      from = purchasing_stores.PurchaseRequest.requested_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation approved-ref {
+      from = purchasing_stores.PurchaseRequest.approved_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation wo-ref {
+      from = purchasing_stores.PurchaseRequest.work_order;
+      to = work.WorkOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use purchasing_stores.purchase-request-lifecycle;
+
+    behavior {
+      workflow use purchasing_stores.purchase-request-workflow;
+
+      on submit {
+        do = purchasing_stores.validate-budget;
+      }
+
+      permissions {
+        role core.admin {
+          allow = read, write, create, delete;
+        }
+        role core.manager {
+          allow = read, write, create, submit, approve;
+        }
+        role core.requester {
+          allow = read, write, create, submit;
+        }
+        role core.storekeeper {
+          allow = read, write, create, submit;
+        }
+        role core.viewer {
+          allow = read;
+        }
+      }
+    }
+  }
+
+  entity PurchaseRequestLine {
+    label = "Purchase Request Line";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field purchase_request : string { label = "Purchase Request"; }
+    field item : string { label = "Item"; }
+    field description : text { label = "Description"; }
+    field quantity : integer { label = "Quantity"; }
+    field unit_of_measure : string { label = "Unit of Measure"; }
+    field estimated_cost : decimal { label = "Estimated Cost"; }
+    field vendor : string { label = "Preferred Vendor"; }
+    field cost_code : string { label = "Cost Code"; }
+
+    relation pr-ref {
+      from = purchasing_stores.PurchaseRequestLine.purchase_request;
+      to = purchasing_stores.PurchaseRequest.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = purchasing_stores.PurchaseRequestLine.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation uom-ref {
+      from = purchasing_stores.PurchaseRequestLine.unit_of_measure;
+      to = purchasing_stores.UnitOfMeasure.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation vendor-ref {
+      from = purchasing_stores.PurchaseRequestLine.vendor;
+      to = purchasing_stores.Vendor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation cost-ref {
+      from = purchasing_stores.PurchaseRequestLine.cost_code;
+      to = core.CostCode.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity PurchaseOrder {
+    label = "Purchase Order";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field order_date : date { label = "Order Date"; }
+    field delivery_date : date { label = "Delivery Date"; }
+    field vendor : string { label = "Vendor"; }
+    field site : string { label = "Site"; }
+    field store : string { label = "Store"; }
+    field currency : string { label = "Currency"; }
+    field exchange_rate : decimal { label = "Exchange Rate"; }
+    field subtotal : decimal { label = "Subtotal"; }
+    field tax_amount : decimal { label = "Tax Amount"; }
+    field total_amount : decimal { label = "Total Amount"; }
+    field purchase_request : string { label = "Purchase Request"; }
+    field rfq : string { label = "RFQ"; }
+    field payment_terms : string { label = "Payment Terms"; }
+    field shipping_method : string { label = "Shipping Method"; }
+    field notes : text { label = "Notes"; }
+
+    relation vendor-ref {
+      from = purchasing_stores.PurchaseOrder.vendor;
+      to = purchasing_stores.Vendor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = purchasing_stores.PurchaseOrder.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation store-ref {
+      from = purchasing_stores.PurchaseOrder.store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation currency-ref {
+      from = purchasing_stores.PurchaseOrder.currency;
+      to = purchasing_stores.Currency.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation pr-ref {
+      from = purchasing_stores.PurchaseOrder.purchase_request;
+      to = purchasing_stores.PurchaseRequest.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation rfq-ref {
+      from = purchasing_stores.PurchaseOrder.rfq;
+      to = purchasing_stores.RequestForQuotation.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use purchasing_stores.purchase-order-lifecycle;
+
+    behavior {
+      workflow use purchasing_stores.purchase-order-workflow;
+
+      on send {
+        do = purchasing_stores.send-po-to-vendor;
+      }
+
+      permissions {
+        role core.admin {
+          allow = read, write, create, delete;
+        }
+        role core.manager {
+          allow = read, write, create, submit, approve;
+        }
+        role core.storekeeper {
+          allow = read, write, create, submit;
+        }
+        role core.viewer {
+          allow = read;
+        }
+      }
+    }
+  }
+
+  entity PurchaseOrderLine {
+    label = "Purchase Order Line";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field purchase_order : string { label = "Purchase Order"; }
+    field item : string { label = "Item"; }
+    field description : text { label = "Description"; }
+    field quantity : integer { label = "Quantity"; }
+    field received_qty : integer { label = "Received Quantity"; }
+    field unit_of_measure : string { label = "Unit of Measure"; }
+    field unit_cost : decimal { label = "Unit Cost"; }
+    field total_cost : decimal { label = "Total Cost"; }
+    field tax_rate : decimal { label = "Tax Rate"; }
+    field delivery_date : date { label = "Delivery Date"; }
+
+    relation po-ref {
+      from = purchasing_stores.PurchaseOrderLine.purchase_order;
+      to = purchasing_stores.PurchaseOrder.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = purchasing_stores.PurchaseOrderLine.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation uom-ref {
+      from = purchasing_stores.PurchaseOrderLine.unit_of_measure;
+      to = purchasing_stores.UnitOfMeasure.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity PurchaseReceipt {
+    label = "Purchase Receipt";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field purchase_order : string { label = "Purchase Order"; }
+    field receipt_date : date { label = "Receipt Date"; }
+    field vendor : string { label = "Vendor"; }
+    field store : string { label = "Store"; }
+    field received_by : string { label = "Received By"; }
+    field site : string { label = "Site"; }
+    field delivery_note : string { label = "Delivery Note"; }
+    field notes : text { label = "Notes"; }
+
+    relation po-ref {
+      from = purchasing_stores.PurchaseReceipt.purchase_order;
+      to = purchasing_stores.PurchaseOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation vendor-ref {
+      from = purchasing_stores.PurchaseReceipt.vendor;
+      to = purchasing_stores.Vendor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation store-ref {
+      from = purchasing_stores.PurchaseReceipt.store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation received-ref {
+      from = purchasing_stores.PurchaseReceipt.received_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = purchasing_stores.PurchaseReceipt.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity PurchaseReturn {
+    label = "Purchase Return";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field purchase_receipt : string { label = "Purchase Receipt"; }
+    field return_date : date { label = "Return Date"; }
+    field vendor : string { label = "Vendor"; }
+    field reason : text { label = "Reason"; }
+    field site : string { label = "Site"; }
+
+    relation receipt-ref {
+      from = purchasing_stores.PurchaseReturn.purchase_receipt;
+      to = purchasing_stores.PurchaseReceipt.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation vendor-ref {
+      from = purchasing_stores.PurchaseReturn.vendor;
+      to = purchasing_stores.Vendor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = purchasing_stores.PurchaseReturn.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Putaway {
+    label = "Putaway";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field purchase_receipt : string { label = "Purchase Receipt"; }
+    field item : string { label = "Item"; }
+    field store : string { label = "Store"; }
+    field bin : string { label = "Bin"; }
+    field quantity : integer { label = "Quantity"; }
+    field putaway_date : date { label = "Putaway Date"; }
+    field performed_by : string { label = "Performed By"; }
+
+    relation receipt-ref {
+      from = purchasing_stores.Putaway.purchase_receipt;
+      to = purchasing_stores.PurchaseReceipt.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = purchasing_stores.Putaway.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation store-ref {
+      from = purchasing_stores.Putaway.store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation bin-ref {
+      from = purchasing_stores.Putaway.bin;
+      to = purchasing_stores.Bin.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation performer-ref {
+      from = purchasing_stores.Putaway.performed_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity ReasonCode {
+    label = "Reason Code";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field reason_name : string { label = "Reason Name"; }
+    field description : text { label = "Description"; }
+    field category : string { label = "Category"; }
+  }
+
+  entity RequestForQuotation {
+    label = "Request for Quotation";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field rfq_date : date { label = "RFQ Date"; }
+    field closing_date : date { label = "Closing Date"; }
+    field description : text { label = "Description"; }
+    field site : string { label = "Site"; }
+    field purchase_request : string { label = "Purchase Request"; }
+
+    relation site-ref {
+      from = purchasing_stores.RequestForQuotation.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation pr-ref {
+      from = purchasing_stores.RequestForQuotation.purchase_request;
+      to = purchasing_stores.PurchaseRequest.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use purchasing_stores.rfq-lifecycle;
+
+    behavior {
+      workflow use purchasing_stores.rfq-workflow;
+    }
+  }
+
+  entity RfqLine {
+    label = "RFQ Line";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field rfq : string { label = "RFQ"; }
+    field item : string { label = "Item"; }
+    field quantity : integer { label = "Quantity"; }
+    field unit_of_measure : string { label = "Unit of Measure"; }
+    field vendor : string { label = "Vendor"; }
+    field quoted_price : decimal { label = "Quoted Price"; }
+    field delivery_days : integer { label = "Delivery Days"; }
+
+    relation rfq-ref {
+      from = purchasing_stores.RfqLine.rfq;
+      to = purchasing_stores.RequestForQuotation.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = purchasing_stores.RfqLine.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation uom-ref {
+      from = purchasing_stores.RfqLine.unit_of_measure;
+      to = purchasing_stores.UnitOfMeasure.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation vendor-ref {
+      from = purchasing_stores.RfqLine.vendor;
+      to = purchasing_stores.Vendor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES — STOCK COUNT                     *)
+  (* ========================================== *)
+
+  entity StockCount {
+    label = "Stock Count";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field count_date : date { label = "Count Date"; }
+    field store : string { label = "Store"; }
+    field site : string { label = "Site"; }
+    field initiated_by : string { label = "Initiated By"; }
+    field description : text { label = "Description"; }
+
+    relation store-ref {
+      from = purchasing_stores.StockCount.store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = purchasing_stores.StockCount.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation initiated-ref {
+      from = purchasing_stores.StockCount.initiated_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use purchasing_stores.stock-count-lifecycle;
+
+    behavior {
+      workflow use purchasing_stores.stock-count-workflow;
+
+      on post {
+        do = purchasing_stores.generate-count-adjustments;
+      }
+    }
+  }
+
+  entity StockCountLine {
+    label = "Stock Count Line";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field stock_count : string { label = "Stock Count"; }
+    field item : string { label = "Item"; }
+    field bin : string { label = "Bin"; }
+    field system_qty : integer { label = "System Quantity"; }
+    field counted_qty : integer { label = "Counted Quantity"; }
+    field variance : integer { label = "Variance"; }
+
+    relation count-ref {
+      from = purchasing_stores.StockCountLine.stock_count;
+      to = purchasing_stores.StockCount.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = purchasing_stores.StockCountLine.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation bin-ref {
+      from = purchasing_stores.StockCountLine.bin;
+      to = purchasing_stores.Bin.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity StockCountTask {
+    label = "Stock Count Task";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field stock_count : string { label = "Stock Count"; }
+    field assigned_to : string { label = "Assigned To"; }
+    field zone : string { label = "Zone"; }
+    field status : string { label = "Status"; }
+
+    relation count-ref {
+      from = purchasing_stores.StockCountTask.stock_count;
+      to = purchasing_stores.StockCount.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation assigned-ref {
+      from = purchasing_stores.StockCountTask.assigned_to;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation zone-ref {
+      from = purchasing_stores.StockCountTask.zone;
+      to = purchasing_stores.Zone.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity StockLedgerEntry {
+    label = "Stock Ledger Entry";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field item : string { label = "Item"; }
+    field store : string { label = "Store"; }
+    field bin : string { label = "Bin"; }
+    field transaction_type : string { label = "Transaction Type"; }
+    field transaction_date : datetime { label = "Transaction Date"; }
+    field quantity : integer { label = "Quantity"; }
+    field unit_cost : decimal { label = "Unit Cost"; }
+    field total_value : decimal { label = "Total Value"; }
+    field reference_type : string { label = "Reference Type"; }
+    field reference_id : string { label = "Reference ID"; }
+    field running_balance : integer { label = "Running Balance"; }
+
+    relation item-ref {
+      from = purchasing_stores.StockLedgerEntry.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation store-ref {
+      from = purchasing_stores.StockLedgerEntry.store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation bin-ref {
+      from = purchasing_stores.StockLedgerEntry.bin;
+      to = purchasing_stores.Bin.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES — TRANSFER                        *)
+  (* ========================================== *)
+
+  entity Transfer {
+    label = "Store Transfer";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field transfer_date : date { label = "Transfer Date"; }
+    field from_store : string { label = "From Store"; }
+    field to_store : string { label = "To Store"; }
+    field site : string { label = "Site"; }
+    field requested_by : string { label = "Requested By"; }
+    field notes : text { label = "Notes"; }
+
+    relation from-store-ref {
+      from = purchasing_stores.Transfer.from_store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation to-store-ref {
+      from = purchasing_stores.Transfer.to_store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = purchasing_stores.Transfer.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation requested-ref {
+      from = purchasing_stores.Transfer.requested_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use purchasing_stores.transfer-lifecycle;
+
+    behavior {
+      workflow use purchasing_stores.transfer-workflow;
+    }
+  }
+
+  entity TransferReceipt {
+    label = "Transfer Receipt";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field transfer : string { label = "Transfer"; }
+    field item : string { label = "Item"; }
+    field quantity : integer { label = "Quantity"; }
+    field from_bin : string { label = "From Bin"; }
+    field to_bin : string { label = "To Bin"; }
+    field received_date : date { label = "Received Date"; }
+
+    relation transfer-ref {
+      from = purchasing_stores.TransferReceipt.transfer;
+      to = purchasing_stores.Transfer.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = purchasing_stores.TransferReceipt.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation from-bin-ref {
+      from = purchasing_stores.TransferReceipt.from_bin;
+      to = purchasing_stores.Bin.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation to-bin-ref {
+      from = purchasing_stores.TransferReceipt.to_bin;
+      to = purchasing_stores.Bin.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES — VENDOR INVOICE & CONTRACTS      *)
+  (* ========================================== *)
+
+  entity ServiceContract {
+    label = "Service Contract";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field contract_name : string { label = "Contract Name"; }
+    field vendor : string { label = "Vendor"; }
+    field start_date : date { label = "Start Date"; }
+    field end_date : date { label = "End Date"; }
+    field contract_value : decimal { label = "Contract Value"; }
+    field payment_terms : string { label = "Payment Terms"; }
+    field site : string { label = "Site"; }
+    field description : text { label = "Description"; }
+    field auto_renew : boolean { label = "Auto Renew"; default = false; }
+    field renewal_notice_days : integer { label = "Renewal Notice Days"; }
+
+    relation vendor-ref {
+      from = purchasing_stores.ServiceContract.vendor;
+      to = purchasing_stores.Vendor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = purchasing_stores.ServiceContract.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use purchasing_stores.service-contract-lifecycle;
+  }
+
+  entity VendorInvoice {
+    label = "Vendor Invoice";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field invoice_number : string { label = "Invoice Number"; }
+    field invoice_date : date { label = "Invoice Date"; }
+    field due_date : date { label = "Due Date"; }
+    field vendor : string { label = "Vendor"; }
+    field purchase_order : string { label = "Purchase Order"; }
+    field currency : string { label = "Currency"; }
+    field subtotal : decimal { label = "Subtotal"; }
+    field tax_amount : decimal { label = "Tax Amount"; }
+    field total_amount : decimal { label = "Total Amount"; }
+    field site : string { label = "Site"; }
+    field match_status : string { label = "Match Status"; }
+    field payment_reference : string { label = "Payment Reference"; }
+
+    relation vendor-ref {
+      from = purchasing_stores.VendorInvoice.vendor;
+      to = purchasing_stores.Vendor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation po-ref {
+      from = purchasing_stores.VendorInvoice.purchase_order;
+      to = purchasing_stores.PurchaseOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation currency-ref {
+      from = purchasing_stores.VendorInvoice.currency;
+      to = purchasing_stores.Currency.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = purchasing_stores.VendorInvoice.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use purchasing_stores.vendor-invoice-lifecycle;
+
+    behavior {
+      workflow use purchasing_stores.vendor-invoice-workflow;
+
+      on match {
+        do = purchasing_stores.three-way-match;
+      }
+
+      permissions {
+        role core.admin {
+          allow = read, write, create, delete;
+        }
+        role core.manager {
+          allow = read, write, create, submit, approve;
+        }
+        role core.storekeeper {
+          allow = read, write, create, submit;
+        }
+        role core.viewer {
+          allow = read;
+        }
+      }
+    }
+  }
+
+  entity VendorInvoiceLine {
+    label = "Vendor Invoice Line";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field vendor_invoice : string { label = "Vendor Invoice"; }
+    field item : string { label = "Item"; }
+    field description : text { label = "Description"; }
+    field quantity : integer { label = "Quantity"; }
+    field unit_cost : decimal { label = "Unit Cost"; }
+    field total_cost : decimal { label = "Total Cost"; }
+    field po_line : string { label = "PO Line"; }
+
+    relation invoice-ref {
+      from = purchasing_stores.VendorInvoiceLine.vendor_invoice;
+      to = purchasing_stores.VendorInvoice.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = purchasing_stores.VendorInvoiceLine.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation po-line-ref {
+      from = purchasing_stores.VendorInvoiceLine.po_line;
+      to = purchasing_stores.PurchaseOrderLine.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES — SALES ORDER                     *)
+  (* ========================================== *)
+
+  entity SalesOrder {
+    label = "Sales Order";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field order_date : date { label = "Order Date"; }
+    field customer_name : string { label = "Customer Name"; }
+    field site : string { label = "Site"; }
+    field store : string { label = "Store"; }
+    field total_amount : decimal { label = "Total Amount"; }
+    field notes : text { label = "Notes"; }
+
+    relation site-ref {
+      from = purchasing_stores.SalesOrder.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation store-ref {
+      from = purchasing_stores.SalesOrder.store;
+      to = purchasing_stores.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use purchasing_stores.sales-order-lifecycle;
+
+    behavior {
+      workflow use purchasing_stores.sales-order-workflow;
+    }
+  }
+
+  entity SalesOrderItem {
+    label = "Sales Order Item";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field sales_order : string { label = "Sales Order"; }
+    field item : string { label = "Item"; }
+    field quantity : integer { label = "Quantity"; }
+    field unit_price : decimal { label = "Unit Price"; }
+    field total_price : decimal { label = "Total Price"; }
+
+    relation so-ref {
+      from = purchasing_stores.SalesOrderItem.sales_order;
+      to = purchasing_stores.SalesOrder.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = purchasing_stores.SalesOrderItem.item;
+      to = purchasing_stores.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  (* ========================================== *)
+  (* ACTIONS                                    *)
+  (* ========================================== *)
+
+  action validate-budget {
+    kind = server;
+    entity = purchasing_stores.PurchaseRequest;
+    handler = "purchasing_stores.hooks.purchase_request_hooks.validate_budget";
+  }
+
+  action send-po-to-vendor {
+    kind = server;
+    entity = purchasing_stores.PurchaseOrder;
+    handler = "purchasing_stores.hooks.purchase_order_hooks.send_to_vendor";
+  }
+
+  action three-way-match {
+    kind = server;
+    entity = purchasing_stores.VendorInvoice;
+    handler = "purchasing_stores.hooks.vendor_invoice_hooks.three_way_match";
+  }
+
+  action deduct-inventory {
+    kind = server;
+    entity = purchasing_stores.ItemIssue;
+    handler = "purchasing_stores.hooks.item_issue_hooks.deduct_inventory";
+  }
+
+  action restore-inventory {
+    kind = server;
+    entity = purchasing_stores.ItemReturn;
+    handler = "purchasing_stores.hooks.item_return_hooks.restore_inventory";
+  }
+
+  action post-adjustment-to-ledger {
+    kind = server;
+    entity = purchasing_stores.InventoryAdjustment;
+    handler = "purchasing_stores.hooks.adjustment_hooks.post_to_ledger";
+  }
+
+  action generate-count-adjustments {
+    kind = server;
+    entity = purchasing_stores.StockCount;
+    handler = "purchasing_stores.hooks.stock_count_hooks.generate_adjustments";
+  }
+
+  action check-reorder-levels {
+    kind = scheduled;
+    entity = purchasing_stores.Inventory;
+    handler = "purchasing_stores.scheduled_jobs.check_reorder_levels";
+  }
+
+  action check-contract-expiry {
+    kind = scheduled;
+    entity = purchasing_stores.ServiceContract;
+    handler = "purchasing_stores.scheduled_jobs.check_contract_expiry";
+  }
+
+  (* ========================================== *)
+  (* AUTOMATIONS                                *)
+  (* ========================================== *)
+
+  automation reorder-monitoring {
+    entity = purchasing_stores.Inventory;
+    trigger daily-reorder-check {
+      schedule = "0 2 * * *";
+      invoke = purchasing_stores.check-reorder-levels;
+    }
+  }
+
+  automation contract-expiry-monitor {
+    entity = purchasing_stores.ServiceContract;
+    trigger daily-expiry-check {
+      schedule = "0 7 * * *";
+      invoke = purchasing_stores.check-contract-expiry;
+    }
+  }
+
+  (* ========================================== *)
+  (* METRICS                                    *)
+  (* ========================================== *)
+
+  metrics procurement-metrics {
+    metric open-purchase-orders {
+      entity = purchasing_stores.PurchaseOrder;
+      aggregation = count;
+    }
+
+    metric total-po-value {
+      entity = purchasing_stores.PurchaseOrder;
+      field = total_amount;
+      aggregation = sum;
+    }
+
+    metric pending-invoices {
+      entity = purchasing_stores.VendorInvoice;
+      aggregation = count;
+    }
+
+    metric inventory-value {
+      entity = purchasing_stores.Inventory;
+      field = total_value;
+      aggregation = sum;
+    }
+
+    metric stock-turnover {
+      entity = purchasing_stores.StockLedgerEntry;
+      aggregation = count;
+    }
+
+    metric overdue-invoices {
+      entity = purchasing_stores.VendorInvoice;
+      aggregation = count;
+    }
+
+    metric active-contracts {
+      entity = purchasing_stores.ServiceContract;
+      aggregation = count;
+    }
+
+    report inventory-valuation-report {
+      entity = purchasing_stores.Inventory;
+      kind = tabular;
+    }
+
+    report procurement-spend-report {
+      entity = purchasing_stores.PurchaseOrder;
+      kind = tabular;
+    }
+  }
+
+}

@@ -1,0 +1,1490 @@
+/* ================================================================= */
+/*  EAM-CHI Reporting & Analytics Model (LRML v1.0)                  */
+/*  Enterprise Asset Management – CHI Implementation                  */
+/*  Generated from completed system: 120 models across 5 modules      */
+/* ================================================================= */
+
+lrml model eam_chi_reports {
+
+  import "core_eam.dbml" as core;
+  import "asset_management.dbml" as asset;
+  import "maintenance_mgmt.dbml" as maint;
+  import "work_mgmt.dbml" as work;
+  import "purchasing_stores.dbml" as purch;
+  import "eam_business_logic.blml" as logic;
+
+  /* =============================================================== */
+  /*  STYLES                                                          */
+  /* =============================================================== */
+
+  style stl_report_title {
+    font: wdml.eam_ds.ff_sans;
+    font-size: 18px;
+    bold: true;
+    color: wdml.eam_ds.clr_text_primary;
+  }
+
+  style stl_section_title {
+    font: wdml.eam_ds.ff_sans;
+    font-size: 14px;
+    bold: true;
+    color: wdml.eam_ds.clr_secondary;
+  }
+
+  style stl_table_header {
+    font: wdml.eam_ds.ff_sans;
+    font-size: 10px;
+    bold: true;
+    color: wdml.eam_ds.clr_surface;
+    background: wdml.eam_ds.clr_primary;
+    padding: 4px;
+  }
+
+  style stl_table_body {
+    font: wdml.eam_ds.ff_sans;
+    font-size: 9px;
+    color: wdml.eam_ds.clr_text_primary;
+    padding: 3px;
+  }
+
+  style stl_kpi_value {
+    font: wdml.eam_ds.ff_sans;
+    font-size: 24px;
+    bold: true;
+    color: wdml.eam_ds.clr_primary;
+  }
+
+  style stl_footer {
+    font: wdml.eam_ds.ff_sans;
+    font-size: 8px;
+    italic: true;
+    color: wdml.eam_ds.clr_text_secondary;
+  }
+
+  style stl_alert_red {
+    font: wdml.eam_ds.ff_sans;
+    font-size: 9px;
+    bold: true;
+    color: wdml.eam_ds.clr_danger;
+  }
+
+  style stl_alert_green {
+    font: wdml.eam_ds.ff_sans;
+    font-size: 9px;
+    bold: true;
+    color: wdml.eam_ds.clr_success;
+  }
+
+  /* =============================================================== */
+  /*  DATASETS                                                        */
+  /* =============================================================== */
+
+  /* ------------- Work Order Datasets ----------------------------- */
+
+  dataset ds_work_orders {
+    source = dbml: work.WorkOrder;
+
+    compute {
+      total_wo = count(id);
+      avg_duration_hours = avg(actual_hours);
+      total_cost = sum(actual_cost);
+    }
+  }
+
+  dataset ds_work_orders_open {
+    source = dbml: work.WorkOrder;
+
+    filter {
+      workflow_state != "closed";
+      workflow_state != "cancelled";
+    }
+
+    compute {
+      open_count = count(id);
+    }
+  }
+
+  dataset ds_work_orders_overdue {
+    source = dbml: work.WorkOrder;
+
+    filter {
+      workflow_state != "closed";
+      workflow_state != "cancelled";
+      planned_end < "now()";
+    }
+
+    compute {
+      overdue_count = count(id);
+    }
+  }
+
+  dataset ds_work_orders_by_type {
+    source = dbml: work.WorkOrder;
+
+    groupBy { wo_type; }
+
+    compute {
+      count_by_type = count(id);
+      cost_by_type = sum(actual_cost);
+    }
+  }
+
+  dataset ds_work_orders_by_priority {
+    source = dbml: work.WorkOrder;
+
+    groupBy { priority; }
+
+    compute {
+      count_by_priority = count(id);
+    }
+  }
+
+  dataset ds_work_orders_by_asset {
+    source = dbml: work.WorkOrder;
+
+    groupBy { asset_id; }
+
+    compute {
+      wo_per_asset = count(id);
+      cost_per_asset = sum(actual_cost);
+    }
+  }
+
+  dataset ds_wo_labor {
+    source = dbml: work.WorkOrderLabor;
+
+    compute {
+      total_labor_hours = sum(actual_hours);
+      total_labor_cost = sum(labor_cost);
+    }
+  }
+
+  dataset ds_wo_parts {
+    source = dbml: work.WorkOrderParts;
+
+    compute {
+      total_parts_cost = sum(total_cost);
+      parts_count = count(id);
+    }
+  }
+
+  /* ------------- Asset Datasets ---------------------------------- */
+
+  dataset ds_assets {
+    source = dbml: asset.Asset;
+
+    compute {
+      total_assets = count(id);
+    }
+  }
+
+  dataset ds_assets_by_class {
+    source = dbml: asset.Asset;
+
+    groupBy { asset_class_id; }
+
+    compute {
+      count_by_class = count(id);
+    }
+  }
+
+  dataset ds_assets_by_status {
+    source = dbml: asset.Asset;
+
+    groupBy { status; }
+
+    compute {
+      count_by_status = count(id);
+    }
+  }
+
+  dataset ds_assets_by_criticality {
+    source = dbml: asset.Asset;
+
+    groupBy { criticality; }
+
+    compute {
+      count_by_criticality = count(id);
+    }
+  }
+
+  dataset ds_meter_readings {
+    source = dbml: asset.MeterReading;
+
+    compute {
+      total_readings = count(id);
+      latest_reading = max(reading_value);
+    }
+  }
+
+  dataset ds_breakdowns {
+    source = dbml: asset.Breakdown;
+
+    compute {
+      total_breakdowns = count(id);
+      total_downtime_hours = sum(downtime_hours);
+    }
+  }
+
+  dataset ds_asset_transfers {
+    source = dbml: asset.AssetTransfer;
+
+    compute {
+      total_transfers = count(id);
+    }
+  }
+
+  /* ------------- Maintenance Datasets ---------------------------- */
+
+  dataset ds_maintenance_requests {
+    source = dbml: maint.MaintenanceRequest;
+
+    compute {
+      total_requests = count(id);
+    }
+  }
+
+  dataset ds_maintenance_requests_pending {
+    source = dbml: maint.MaintenanceRequest;
+
+    filter {
+      workflow_state == "submitted";
+    }
+
+    compute {
+      pending_count = count(id);
+    }
+  }
+
+  dataset ds_maintenance_plans {
+    source = dbml: maint.MaintenancePlan;
+
+    filter {
+      is_active == "true";
+    }
+
+    compute {
+      active_plans = count(id);
+    }
+  }
+
+  dataset ds_maintenance_orders {
+    source = dbml: maint.MaintenanceOrder;
+
+    compute {
+      total_mo = count(id);
+    }
+  }
+
+  dataset ds_failure_analyses {
+    source = dbml: maint.FailureAnalysis;
+
+    groupBy { failure_mode; }
+
+    compute {
+      failures_by_mode = count(id);
+    }
+  }
+
+  dataset ds_corrective_actions {
+    source = dbml: maint.CorrectiveAction;
+
+    compute {
+      total_actions = count(id);
+    }
+  }
+
+  dataset ds_sensor_data {
+    source = dbml: maint.SensorData;
+
+    compute {
+      total_readings = count(id);
+      avg_value = avg(value);
+    }
+  }
+
+  dataset ds_condition_monitoring {
+    source = dbml: maint.ConditionMonitoring;
+
+    filter {
+      workflow_state == "active";
+    }
+
+    compute {
+      active_monitors = count(id);
+    }
+  }
+
+  /* ------------- Purchasing Datasets ----------------------------- */
+
+  dataset ds_purchase_requests {
+    source = dbml: purch.PurchaseRequest;
+
+    compute {
+      total_pr = count(id);
+    }
+  }
+
+  dataset ds_purchase_orders {
+    source = dbml: purch.PurchaseOrder;
+
+    compute {
+      total_po = count(id);
+      total_po_value = sum(total_amount);
+    }
+  }
+
+  dataset ds_purchase_orders_by_vendor {
+    source = dbml: purch.PurchaseOrder;
+
+    groupBy { vendor_id; }
+
+    compute {
+      po_per_vendor = count(id);
+      spend_per_vendor = sum(total_amount);
+    }
+  }
+
+  dataset ds_vendor_invoices {
+    source = dbml: purch.VendorInvoice;
+
+    compute {
+      total_invoices = count(id);
+      total_invoice_amount = sum(total_amount);
+    }
+  }
+
+  dataset ds_vendors {
+    source = dbml: purch.Vendor;
+
+    compute {
+      total_vendors = count(id);
+    }
+  }
+
+  dataset ds_rfqs {
+    source = dbml: purch.RequestForQuotation;
+
+    compute {
+      total_rfqs = count(id);
+    }
+  }
+
+  /* ------------- Inventory Datasets ------------------------------ */
+
+  dataset ds_inventory {
+    source = dbml: purch.Inventory;
+
+    compute {
+      total_sku = count(id);
+      total_on_hand = sum(quantity_on_hand);
+      total_value = sum(inventory_value);
+    }
+  }
+
+  dataset ds_inventory_low_stock {
+    source = dbml: purch.Inventory;
+
+    filter {
+      quantity_on_hand <= "reorder_level";
+    }
+
+    compute {
+      low_stock_count = count(id);
+    }
+  }
+
+  dataset ds_item_issues {
+    source = dbml: purch.ItemIssue;
+
+    compute {
+      total_issues = count(id);
+    }
+  }
+
+  dataset ds_item_returns {
+    source = dbml: purch.ItemReturn;
+
+    compute {
+      total_returns = count(id);
+    }
+  }
+
+  dataset ds_stock_ledger {
+    source = dbml: purch.StockLedgerEntry;
+
+    groupBy { item_id; }
+
+    compute {
+      movements_per_item = count(id);
+      net_movement = sum(quantity);
+    }
+  }
+
+  dataset ds_inventory_adjustments {
+    source = dbml: purch.InventoryAdjustment;
+
+    compute {
+      total_adjustments = count(id);
+    }
+  }
+
+  /* ------------- Core Datasets ----------------------------------- */
+
+  dataset ds_employees {
+    source = dbml: core.Employee;
+
+    compute {
+      total_employees = count(id);
+    }
+  }
+
+  dataset ds_error_logs {
+    source = dbml: core.ErrorLog;
+
+    compute {
+      total_errors = count(id);
+    }
+  }
+
+  dataset ds_email_logs {
+    source = dbml: core.EmailLog;
+
+    compute {
+      total_emails = count(id);
+    }
+  }
+
+  dataset ds_master_data_changes {
+    source = dbml: core.MasterDataChange;
+
+    groupBy { entity_type; }
+
+    compute {
+      changes_by_entity = count(id);
+    }
+  }
+
+  /* =============================================================== */
+  /*  METRICS                                                         */
+  /* =============================================================== */
+
+  /* ------------- Asset Metrics ----------------------------------- */
+
+  metric met_total_assets {
+    dataset = ds_assets;
+    value = total_assets;
+    label = "Total Assets";
+    format = "#,##0";
+  }
+
+  metric met_asset_availability {
+    dataset = ds_assets_by_status;
+    value = count_by_status;
+    label = "Asset Availability Rate";
+    format = "#0.0%";
+  }
+
+  metric met_total_breakdowns {
+    dataset = ds_breakdowns;
+    value = total_breakdowns;
+    label = "Total Breakdowns";
+    format = "#,##0";
+  }
+
+  metric met_total_downtime {
+    dataset = ds_breakdowns;
+    value = total_downtime_hours;
+    label = "Total Downtime (hrs)";
+    format = "#,##0.0";
+  }
+
+  /* ------------- Work Order Metrics ------------------------------ */
+
+  metric met_total_wo {
+    dataset = ds_work_orders;
+    value = total_wo;
+    label = "Total Work Orders";
+    format = "#,##0";
+  }
+
+  metric met_open_wo {
+    dataset = ds_work_orders_open;
+    value = open_count;
+    label = "Open Work Orders";
+    format = "#,##0";
+  }
+
+  metric met_overdue_wo {
+    dataset = ds_work_orders_overdue;
+    value = overdue_count;
+    label = "Overdue Work Orders";
+    format = "#,##0";
+  }
+
+  metric met_avg_wo_duration {
+    dataset = ds_work_orders;
+    value = avg_duration_hours;
+    label = "Avg WO Duration (hrs)";
+    format = "#,##0.0";
+  }
+
+  metric met_total_wo_cost {
+    dataset = ds_work_orders;
+    value = total_cost;
+    label = "Total WO Cost";
+    format = "$#,##0.00";
+  }
+
+  metric met_total_labor_hours {
+    dataset = ds_wo_labor;
+    value = total_labor_hours;
+    label = "Total Labor Hours";
+    format = "#,##0.0";
+  }
+
+  metric met_total_labor_cost {
+    dataset = ds_wo_labor;
+    value = total_labor_cost;
+    label = "Total Labor Cost";
+    format = "$#,##0.00";
+  }
+
+  metric met_total_parts_cost {
+    dataset = ds_wo_parts;
+    value = total_parts_cost;
+    label = "Total Parts Cost";
+    format = "$#,##0.00";
+  }
+
+  /* ------------- Maintenance Metrics ----------------------------- */
+
+  metric met_total_mr {
+    dataset = ds_maintenance_requests;
+    value = total_requests;
+    label = "Total Maintenance Requests";
+    format = "#,##0";
+  }
+
+  metric met_pending_mr {
+    dataset = ds_maintenance_requests_pending;
+    value = pending_count;
+    label = "Pending MRs";
+    format = "#,##0";
+  }
+
+  metric met_active_pm_plans {
+    dataset = ds_maintenance_plans;
+    value = active_plans;
+    label = "Active PM Plans";
+    format = "#,##0";
+  }
+
+  metric met_active_monitors {
+    dataset = ds_condition_monitoring;
+    value = active_monitors;
+    label = "Active Condition Monitors";
+    format = "#,##0";
+  }
+
+  metric met_sensor_readings {
+    dataset = ds_sensor_data;
+    value = total_readings;
+    label = "Sensor Readings";
+    format = "#,##0";
+  }
+
+  /* ------------- Purchasing Metrics ------------------------------ */
+
+  metric met_total_po {
+    dataset = ds_purchase_orders;
+    value = total_po;
+    label = "Total Purchase Orders";
+    format = "#,##0";
+  }
+
+  metric met_total_po_value {
+    dataset = ds_purchase_orders;
+    value = total_po_value;
+    label = "Total PO Value";
+    format = "$#,##0.00";
+  }
+
+  metric met_total_invoices {
+    dataset = ds_vendor_invoices;
+    value = total_invoices;
+    label = "Vendor Invoices";
+    format = "#,##0";
+  }
+
+  metric met_total_invoice_amount {
+    dataset = ds_vendor_invoices;
+    value = total_invoice_amount;
+    label = "Total Invoice Amount";
+    format = "$#,##0.00";
+  }
+
+  metric met_total_vendors {
+    dataset = ds_vendors;
+    value = total_vendors;
+    label = "Registered Vendors";
+    format = "#,##0";
+  }
+
+  /* ------------- Inventory Metrics ------------------------------- */
+
+  metric met_total_sku {
+    dataset = ds_inventory;
+    value = total_sku;
+    label = "Total SKUs";
+    format = "#,##0";
+  }
+
+  metric met_inventory_value {
+    dataset = ds_inventory;
+    value = total_value;
+    label = "Total Inventory Value";
+    format = "$#,##0.00";
+  }
+
+  metric met_low_stock {
+    dataset = ds_inventory_low_stock;
+    value = low_stock_count;
+    label = "Low Stock Items";
+    format = "#,##0";
+  }
+
+  metric met_total_issues {
+    dataset = ds_item_issues;
+    value = total_issues;
+    label = "Item Issues";
+    format = "#,##0";
+  }
+
+  metric met_total_returns {
+    dataset = ds_item_returns;
+    value = total_returns;
+    label = "Item Returns";
+    format = "#,##0";
+  }
+
+  /* =============================================================== */
+  /*  REPORTS                                                         */
+  /* =============================================================== */
+
+  /* ------------- Work Order Summary Report ----------------------- */
+
+  report rpt_work_order_summary {
+    kind = summary;
+    dataset = ds_work_orders;
+    dataset = ds_work_orders_by_type;
+    dataset = ds_work_orders_by_priority;
+    dataset = ds_wo_labor;
+    dataset = ds_wo_parts;
+    metric = met_total_wo;
+    metric = met_open_wo;
+    metric = met_overdue_wo;
+    metric = met_avg_wo_duration;
+    metric = met_total_wo_cost;
+    metric = met_total_labor_hours;
+    metric = met_total_parts_cost;
+
+    print {
+      page-size = A4;
+      orientation = landscape;
+      margin = "15mm 20mm 15mm 20mm";
+    }
+
+    section sec_header {
+      title = "Work Order Summary Report";
+
+      narrative {
+        text = "Summary of work order activity, costs, and resource utilization for the reporting period.";
+      }
+    }
+
+    section sec_kpis {
+      title = "Key Performance Indicators";
+
+      table {
+        header-repeat = true;
+        column metric_name { label = "Metric"; width = 50%; align = left; }
+        column metric_value { label = "Value"; width = 25%; align = right; }
+        column metric_trend { label = "Trend"; width = 25%; align = center; }
+      }
+    }
+
+    section sec_by_type {
+      title = "Work Orders by Type";
+
+      chart {
+        kind = bar;
+        dimension = wo_type;
+        measure = count_by_type;
+      }
+
+      table {
+        column wo_type { label = "Type"; width = 40%; }
+        column count_by_type { label = "Count"; width = 30%; align = right; }
+        column cost_by_type { label = "Cost"; width = 30%; align = right; }
+      }
+    }
+
+    section sec_by_priority {
+      title = "Work Orders by Priority";
+
+      chart {
+        kind = pie;
+        dimension = priority;
+        measure = count_by_priority;
+      }
+    }
+
+    section sec_labor {
+      title = "Labor Utilization";
+      page-break-before = true;
+
+      table {
+        column employee { label = "Employee"; width = 30%; }
+        column hours { label = "Hours"; width = 20%; align = right; }
+        column cost { label = "Cost"; width = 25%; align = right; }
+        column wo_count { label = "WOs"; width = 25%; align = right; }
+      }
+    }
+
+    section sec_parts {
+      title = "Parts Consumption";
+
+      table {
+        column item_code { label = "Item"; width = 20%; }
+        column description { label = "Description"; width = 35%; }
+        column quantity { label = "Qty"; width = 15%; align = right; }
+        column cost { label = "Cost"; width = 30%; align = right; }
+      }
+    }
+
+    output = pdf;
+  }
+
+  /* ------------- Asset Register Report --------------------------- */
+
+  report rpt_asset_register {
+    kind = tabular;
+    dataset = ds_assets;
+    dataset = ds_assets_by_class;
+    dataset = ds_assets_by_criticality;
+    metric = met_total_assets;
+
+    print {
+      page-size = A4;
+      orientation = landscape;
+      margin = "15mm";
+    }
+
+    section sec_summary {
+      title = "Asset Register Summary";
+
+      chart {
+        kind = pie;
+        dimension = asset_class_id;
+        measure = count_by_class;
+      }
+
+      chart {
+        kind = bar;
+        dimension = criticality;
+        measure = count_by_criticality;
+      }
+    }
+
+    section sec_listing {
+      title = "Asset Listing";
+      page-break-before = true;
+
+      table {
+        header-repeat = true;
+        column asset_code { label = "Code"; width = 12%; }
+        column description { label = "Description"; width = 25%; }
+        column asset_class { label = "Class"; width = 13%; }
+        column location { label = "Location"; width = 15%; }
+        column status { label = "Status"; width = 10%; }
+        column criticality { label = "Criticality"; width = 10%; }
+        column purchase_date { label = "Purchase Date"; width = 15%; align = center; }
+      }
+    }
+
+    output = pdf;
+  }
+
+  /* ------------- Maintenance Performance Report ------------------ */
+
+  report rpt_maintenance_performance {
+    kind = summary;
+    dataset = ds_maintenance_requests;
+    dataset = ds_maintenance_orders;
+    dataset = ds_maintenance_plans;
+    dataset = ds_failure_analyses;
+    dataset = ds_sensor_data;
+    metric = met_total_mr;
+    metric = met_pending_mr;
+    metric = met_active_pm_plans;
+    metric = met_active_monitors;
+
+    print {
+      page-size = A4;
+      orientation = portrait;
+      margin = "20mm";
+    }
+
+    section sec_overview {
+      title = "Maintenance Performance Overview";
+
+      narrative {
+        text = "Analysis of maintenance activities including preventive maintenance compliance, corrective actions, and condition-based monitoring.";
+      }
+
+      table {
+        column metric_name { label = "KPI"; width = 60%; }
+        column metric_value { label = "Value"; width = 40%; align = right; }
+      }
+    }
+
+    section sec_pm_compliance {
+      title = "PM Compliance";
+
+      chart {
+        kind = line;
+        dimension = period;
+        measure = compliance_rate;
+      }
+
+      narrative {
+        text = "Preventive maintenance compliance tracked against target of 90%.";
+      }
+    }
+
+    section sec_failure_analysis {
+      title = "Failure Analysis";
+      page-break-before = true;
+
+      chart {
+        kind = bar;
+        dimension = failure_mode;
+        measure = failures_by_mode;
+      }
+
+      table {
+        column failure_mode { label = "Failure Mode"; width = 30%; }
+        column count { label = "Occurrences"; width = 20%; align = right; }
+        column avg_downtime { label = "Avg Downtime (hrs)"; width = 25%; align = right; }
+        column corrective_action { label = "Action Taken"; width = 25%; }
+      }
+    }
+
+    section sec_condition_monitoring {
+      title = "Condition Monitoring";
+
+      table {
+        column sensor { label = "Sensor"; width = 20%; }
+        column asset { label = "Asset"; width = 25%; }
+        column reading { label = "Latest Reading"; width = 20%; align = right; }
+        column threshold { label = "Threshold"; width = 15%; align = right; }
+        column status { label = "Status"; width = 20%; align = center; }
+      }
+    }
+
+    output = pdf;
+  }
+
+  /* ------------- Procurement Report ------------------------------ */
+
+  report rpt_procurement {
+    kind = summary;
+    dataset = ds_purchase_requests;
+    dataset = ds_purchase_orders;
+    dataset = ds_purchase_orders_by_vendor;
+    dataset = ds_vendor_invoices;
+    dataset = ds_rfqs;
+    metric = met_total_po;
+    metric = met_total_po_value;
+    metric = met_total_invoices;
+    metric = met_total_invoice_amount;
+    metric = met_total_vendors;
+
+    print {
+      page-size = A4;
+      orientation = landscape;
+      margin = "15mm 20mm 15mm 20mm";
+    }
+
+    section sec_overview {
+      title = "Procurement Summary";
+
+      narrative {
+        text = "Procurement activity summary for the reporting period including purchase orders, vendor spend, and invoice processing.";
+      }
+    }
+
+    section sec_spend_by_vendor {
+      title = "Spend by Vendor";
+
+      chart {
+        kind = bar;
+        dimension = vendor_id;
+        measure = spend_per_vendor;
+      }
+
+      table {
+        header-repeat = true;
+        column vendor { label = "Vendor"; width = 30%; }
+        column po_count { label = "PO Count"; width = 20%; align = right; }
+        column total_spend { label = "Total Spend"; width = 25%; align = right; }
+        column avg_delivery_days { label = "Avg Delivery (days)"; width = 25%; align = right; }
+      }
+    }
+
+    section sec_po_listing {
+      title = "Purchase Orders";
+      page-break-before = true;
+
+      table {
+        header-repeat = true;
+        column po_number { label = "PO #"; width = 12%; }
+        column vendor { label = "Vendor"; width = 20%; }
+        column order_date { label = "Date"; width = 12%; align = center; }
+        column total_amount { label = "Amount"; width = 15%; align = right; }
+        column state { label = "Status"; width = 12%; align = center; }
+        column delivery_date { label = "Delivery"; width = 12%; align = center; }
+      }
+    }
+
+    section sec_invoices {
+      title = "Invoice Processing";
+      page-break-before = true;
+
+      table {
+        header-repeat = true;
+        column invoice_number { label = "Invoice #"; width = 15%; }
+        column vendor { label = "Vendor"; width = 20%; }
+        column amount { label = "Amount"; width = 15%; align = right; }
+        column state { label = "Status"; width = 15%; align = center; }
+        column match_status { label = "3-Way Match"; width = 15%; align = center; }
+      }
+    }
+
+    output = pdf;
+  }
+
+  /* ------------- Inventory Status Report ------------------------- */
+
+  report rpt_inventory_status {
+    kind = tabular;
+    dataset = ds_inventory;
+    dataset = ds_inventory_low_stock;
+    dataset = ds_stock_ledger;
+    dataset = ds_item_issues;
+    dataset = ds_item_returns;
+    metric = met_total_sku;
+    metric = met_inventory_value;
+    metric = met_low_stock;
+    metric = met_total_issues;
+    metric = met_total_returns;
+
+    print {
+      page-size = A4;
+      orientation = landscape;
+      margin = "15mm";
+    }
+
+    section sec_summary {
+      title = "Inventory Status Summary";
+
+      table {
+        column metric_name { label = "KPI"; width = 50%; }
+        column metric_value { label = "Value"; width = 50%; align = right; }
+      }
+    }
+
+    section sec_low_stock {
+      title = "Low Stock Alerts";
+
+      table {
+        header-repeat = true;
+        column item_code { label = "Item"; width = 15%; }
+        column description { label = "Description"; width = 25%; }
+        column store { label = "Store"; width = 15%; }
+        column on_hand { label = "On Hand"; width = 12%; align = right; }
+        column reorder_level { label = "Reorder Level"; width = 12%; align = right; }
+        column shortfall { label = "Shortfall"; width = 12%; align = right; }
+      }
+    }
+
+    section sec_valuation {
+      title = "Inventory Valuation by Store";
+      page-break-before = true;
+
+      chart {
+        kind = bar;
+        dimension = store;
+        measure = total_value;
+      }
+
+      table {
+        column store { label = "Store"; width = 30%; }
+        column sku_count { label = "SKUs"; width = 20%; align = right; }
+        column total_qty { label = "Total Qty"; width = 25%; align = right; }
+        column total_value { label = "Value"; width = 25%; align = right; }
+      }
+    }
+
+    section sec_movements {
+      title = "Stock Movements";
+      page-break-before = true;
+
+      chart {
+        kind = line;
+        dimension = period;
+        measure = net_movement;
+      }
+
+      table {
+        header-repeat = true;
+        column item_code { label = "Item"; width = 15%; }
+        column description { label = "Description"; width = 25%; }
+        column issued_qty { label = "Issued"; width = 15%; align = right; }
+        column returned_qty { label = "Returned"; width = 15%; align = right; }
+        column adjusted_qty { label = "Adjusted"; width = 15%; align = right; }
+        column net_movement { label = "Net"; width = 15%; align = right; }
+      }
+    }
+
+    output = pdf;
+  }
+
+  /* ------------- Audit Trail Report ------------------------------ */
+
+  report rpt_audit_trail {
+    kind = audit;
+    dataset = ds_master_data_changes;
+    dataset = ds_error_logs;
+    dataset = ds_email_logs;
+
+    print {
+      page-size = A4;
+      orientation = portrait;
+      margin = "20mm";
+    }
+
+    section sec_changes {
+      title = "Master Data Changes";
+
+      chart {
+        kind = bar;
+        dimension = entity_type;
+        measure = changes_by_entity;
+      }
+
+      table {
+        header-repeat = true;
+        column timestamp { label = "Date/Time"; width = 18%; }
+        column entity_type { label = "Entity"; width = 15%; }
+        column entity_id { label = "Record ID"; width = 12%; }
+        column action { label = "Action"; width = 10%; }
+        column changed_by { label = "User"; width = 15%; }
+        column field { label = "Field"; width = 15%; }
+        column old_value { label = "Old Value"; width = 15%; }
+      }
+    }
+
+    section sec_errors {
+      title = "System Error Log";
+      page-break-before = true;
+
+      table {
+        header-repeat = true;
+        column timestamp { label = "Date/Time"; width = 20%; }
+        column severity { label = "Severity"; width = 10%; }
+        column module { label = "Module"; width = 15%; }
+        column message { label = "Error Message"; width = 55%; }
+      }
+    }
+
+    section sec_notifications {
+      title = "Email Notification Log";
+      page-break-before = true;
+
+      table {
+        header-repeat = true;
+        column sent_at { label = "Sent At"; width = 18%; }
+        column recipient { label = "To"; width = 20%; }
+        column subject { label = "Subject"; width = 35%; }
+        column status { label = "Status"; width = 12%; align = center; }
+      }
+    }
+
+    output = pdf;
+  }
+
+  /* ------------- Equipment Availability Report ------------------- */
+
+  report rpt_equipment_availability {
+    kind = summary;
+    dataset = ds_assets;
+    dataset = ds_breakdowns;
+    dataset = ds_work_orders_by_asset;
+    metric = met_total_assets;
+    metric = met_total_breakdowns;
+    metric = met_total_downtime;
+
+    print {
+      page-size = A4;
+      orientation = landscape;
+      margin = "15mm";
+    }
+
+    section sec_overview {
+      title = "Equipment Availability Report";
+
+      narrative {
+        text = "Equipment availability, reliability, and utilization metrics for the reporting period.";
+      }
+    }
+
+    section sec_mtbf_mttr {
+      title = "MTBF and MTTR Analysis";
+
+      chart {
+        kind = bar;
+        dimension = asset_id;
+        measure = wo_per_asset;
+      }
+
+      table {
+        header-repeat = true;
+        column asset { label = "Asset"; width = 20%; }
+        column mtbf { label = "MTBF (hrs)"; width = 15%; align = right; }
+        column mttr { label = "MTTR (hrs)"; width = 15%; align = right; }
+        column availability { label = "Availability %"; width = 15%; align = right; }
+        column breakdowns { label = "Breakdowns"; width = 15%; align = right; }
+        column total_cost { label = "Maint Cost"; width = 20%; align = right; }
+      }
+    }
+
+    section sec_downtime_trend {
+      title = "Downtime Trend";
+      page-break-before = true;
+
+      chart {
+        kind = area;
+        dimension = period;
+        measure = total_downtime_hours;
+      }
+    }
+
+    output = pdf;
+  }
+
+  /* ------------- Safety Permit Report ---------------------------- */
+
+  report rpt_safety_permits {
+    kind = compliance;
+    dataset = ds_work_orders;
+
+    print {
+      page-size = A4;
+      orientation = portrait;
+      margin = "20mm";
+    }
+
+    section sec_permits {
+      title = "Safety Permit Register";
+
+      table {
+        header-repeat = true;
+        column permit_number { label = "Permit #"; width = 12%; }
+        column permit_type { label = "Type"; width = 15%; }
+        column work_order { label = "Work Order"; width = 12%; }
+        column issued_by { label = "Issued By"; width = 15%; }
+        column valid_from { label = "Valid From"; width = 14%; align = center; }
+        column valid_to { label = "Valid To"; width = 14%; align = center; }
+        column state { label = "Status"; width = 10%; align = center; }
+      }
+    }
+
+    section sec_statistics {
+      title = "Permit Statistics";
+
+      chart {
+        kind = pie;
+        dimension = permit_type;
+        measure = count;
+      }
+
+      narrative {
+        text = "Summary of permits issued by type and compliance status.";
+      }
+    }
+
+    output = pdf;
+  }
+
+  /* ------------- Cost Analysis Report ---------------------------- */
+
+  report rpt_cost_analysis {
+    kind = summary;
+    dataset = ds_work_orders;
+    dataset = ds_work_orders_by_type;
+    dataset = ds_work_orders_by_asset;
+    dataset = ds_wo_labor;
+    dataset = ds_wo_parts;
+    dataset = ds_purchase_orders;
+    metric = met_total_wo_cost;
+    metric = met_total_labor_cost;
+    metric = met_total_parts_cost;
+    metric = met_total_po_value;
+
+    print {
+      page-size = A4;
+      orientation = landscape;
+      margin = "15mm 20mm 15mm 20mm";
+    }
+
+    section sec_overview {
+      title = "Maintenance Cost Analysis";
+
+      narrative {
+        text = "Comprehensive analysis of maintenance expenditure including labor, parts, and external services.";
+      }
+
+      table {
+        column category { label = "Cost Category"; width = 40%; }
+        column amount { label = "Amount"; width = 30%; align = right; }
+        column percentage { label = "% of Total"; width = 30%; align = right; }
+      }
+    }
+
+    section sec_cost_by_type {
+      title = "Cost by Work Order Type";
+
+      chart {
+        kind = bar;
+        dimension = wo_type;
+        measure = cost_by_type;
+      }
+    }
+
+    section sec_cost_by_asset {
+      title = "Cost by Asset (Top 20)";
+      page-break-before = true;
+
+      chart {
+        kind = bar;
+        dimension = asset_id;
+        measure = cost_per_asset;
+      }
+
+      table {
+        header-repeat = true;
+        column asset { label = "Asset"; width = 25%; }
+        column labor_cost { label = "Labor"; width = 18%; align = right; }
+        column parts_cost { label = "Parts"; width = 18%; align = right; }
+        column external_cost { label = "External"; width = 18%; align = right; }
+        column total_cost { label = "Total"; width = 21%; align = right; }
+      }
+    }
+
+    section sec_trend {
+      title = "Monthly Cost Trend";
+      page-break-before = true;
+
+      chart {
+        kind = area;
+        dimension = period;
+        measure = total_cost;
+      }
+    }
+
+    output = pdf;
+  }
+
+  /* =============================================================== */
+  /*  DASHBOARDS                                                      */
+  /* =============================================================== */
+
+  /* ------------- Executive Dashboard ----------------------------- */
+
+  dashboard dash_executive {
+
+    tile tile_total_assets {
+      metric = met_total_assets;
+      size = "1x1";
+      label = "Total Assets";
+    }
+
+    tile tile_open_wo {
+      metric = met_open_wo;
+      size = "1x1";
+      label = "Open Work Orders";
+    }
+
+    tile tile_overdue_wo {
+      metric = met_overdue_wo;
+      size = "1x1";
+      label = "Overdue WOs";
+    }
+
+    tile tile_pm_plans {
+      metric = met_active_pm_plans;
+      size = "1x1";
+      label = "Active PM Plans";
+    }
+
+    tile tile_total_wo_cost {
+      metric = met_total_wo_cost;
+      size = "1x1";
+      label = "Total Maint Cost";
+    }
+
+    tile tile_inventory_value {
+      metric = met_inventory_value;
+      size = "1x1";
+      label = "Inventory Value";
+    }
+
+    tile tile_po_value {
+      metric = met_total_po_value;
+      size = "1x1";
+      label = "PO Spend";
+    }
+
+    tile tile_low_stock {
+      metric = met_low_stock;
+      size = "1x1";
+      label = "Low Stock Alerts";
+    }
+  }
+
+  /* ------------- Maintenance Dashboard --------------------------- */
+
+  dashboard dash_maintenance {
+
+    tile tile_total_mr {
+      metric = met_total_mr;
+      size = "1x1";
+      label = "Maintenance Requests";
+    }
+
+    tile tile_pending_mr {
+      metric = met_pending_mr;
+      size = "1x1";
+      label = "Pending MRs";
+    }
+
+    tile tile_pm_plans {
+      metric = met_active_pm_plans;
+      size = "1x1";
+      label = "Active PM Plans";
+    }
+
+    tile tile_monitors {
+      metric = met_active_monitors;
+      size = "1x1";
+      label = "Condition Monitors";
+    }
+
+    tile tile_breakdowns {
+      metric = met_total_breakdowns;
+      size = "1x1";
+      label = "Breakdowns";
+    }
+
+    tile tile_downtime {
+      metric = met_total_downtime;
+      size = "1x1";
+      label = "Downtime Hours";
+    }
+
+    tile tile_sensor_readings {
+      metric = met_sensor_readings;
+      size = "2x1";
+      label = "Sensor Readings";
+    }
+  }
+
+  /* ------------- Inventory Dashboard ----------------------------- */
+
+  dashboard dash_inventory {
+
+    tile tile_sku {
+      metric = met_total_sku;
+      size = "1x1";
+      label = "Total SKUs";
+    }
+
+    tile tile_value {
+      metric = met_inventory_value;
+      size = "1x1";
+      label = "Inventory Value";
+    }
+
+    tile tile_low_stock {
+      metric = met_low_stock;
+      size = "1x1";
+      label = "Low Stock";
+    }
+
+    tile tile_issues {
+      metric = met_total_issues;
+      size = "1x1";
+      label = "Items Issued";
+    }
+
+    tile tile_returns {
+      metric = met_total_returns;
+      size = "1x1";
+      label = "Items Returned";
+    }
+
+    tile tile_adjustments {
+      metric = met_total_sku;
+      size = "1x1";
+      label = "Adjustments";
+    }
+  }
+
+  /* ------------- Procurement Dashboard --------------------------- */
+
+  dashboard dash_procurement {
+
+    tile tile_po_count {
+      metric = met_total_po;
+      size = "1x1";
+      label = "Purchase Orders";
+    }
+
+    tile tile_po_value {
+      metric = met_total_po_value;
+      size = "1x1";
+      label = "Total PO Value";
+    }
+
+    tile tile_invoices {
+      metric = met_total_invoices;
+      size = "1x1";
+      label = "Invoices";
+    }
+
+    tile tile_invoice_value {
+      metric = met_total_invoice_amount;
+      size = "1x1";
+      label = "Invoice Amount";
+    }
+
+    tile tile_vendors {
+      metric = met_total_vendors;
+      size = "1x1";
+      label = "Active Vendors";
+    }
+  }
+
+}

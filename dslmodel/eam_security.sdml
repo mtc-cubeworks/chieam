@@ -1,0 +1,542 @@
+model eam_security {
+
+  (* ========================================== *)
+  (* SYSTEMS                                    *)
+  (* ========================================== *)
+
+  system eam_platform {
+    description : "CHI Enterprise Asset Management platform — FastAPI backend, Nuxt.js frontend, PostgreSQL database"
+    owner : "IT Operations"
+    boundary : "Cloud VPS (194.233.77.65)"
+    components : [backend_api, frontend_app, database, scheduler, file_storage, email_service]
+  }
+
+  system backend_api {
+    description : "FastAPI async REST API with SQLAlchemy 2.0 ORM"
+    owner : "Backend Team"
+    boundary : "Application Server"
+    components : [auth_module, core_eam, asset_management, maintenance_mgmt, work_mgmt, purchasing_stores]
+  }
+
+  system frontend_app {
+    description : "Nuxt.js 3 SSR frontend application"
+    owner : "Frontend Team"
+    boundary : "Nginx Reverse Proxy"
+    components : [auth_pages, dashboard, asset_views, work_views, inventory_views, reports]
+  }
+
+  system database {
+    description : "PostgreSQL relational database with Alembic migrations"
+    owner : "DBA Team"
+    boundary : "Database Server"
+    components : [core_schema, asset_schema, maintenance_schema, work_schema, purchasing_schema]
+  }
+
+  (* ========================================== *)
+  (* ASSETS                                     *)
+  (* ========================================== *)
+
+  asset user_credentials {
+    type : identity
+    criticality : high
+    confidentiality : high
+    integrity : high
+    availability : high
+    description : "User authentication credentials (passwords, tokens, sessions)"
+  }
+
+  asset asset_data {
+    type : data
+    criticality : high
+    confidentiality : moderate
+    integrity : high
+    availability : high
+    description : "Asset registry, maintenance history, condition monitoring data"
+  }
+
+  asset financial_data {
+    type : data
+    criticality : high
+    confidentiality : high
+    integrity : high
+    availability : moderate
+    description : "Purchase orders, invoices, budgets, cost codes, inventory valuations"
+  }
+
+  asset work_order_data {
+    type : data
+    criticality : high
+    confidentiality : moderate
+    integrity : high
+    availability : high
+    description : "Work orders, job plans, safety permits, labor assignments"
+  }
+
+  asset inventory_data {
+    type : data
+    criticality : medium
+    confidentiality : moderate
+    integrity : high
+    availability : high
+    description : "Stock levels, bin locations, item catalog, stock ledger entries"
+  }
+
+  asset sensor_telemetry {
+    type : data
+    criticality : medium
+    confidentiality : low
+    integrity : high
+    availability : high
+    description : "IoT sensor readings, condition monitoring data, MQTT topic data"
+  }
+
+  asset api_endpoints {
+    type : application
+    criticality : high
+    confidentiality : moderate
+    integrity : high
+    availability : high
+    description : "FastAPI REST endpoints for all EAM modules"
+  }
+
+  asset database_server {
+    type : infrastructure
+    criticality : high
+    confidentiality : high
+    integrity : high
+    availability : high
+    description : "PostgreSQL database server hosting all EAM schemas"
+  }
+
+  (* ========================================== *)
+  (* THREATS                                    *)
+  (* ========================================== *)
+
+  threat credential_theft {
+    vector : credential
+    description : "Stolen or brute-forced user credentials allowing unauthorized access"
+    targets : [user_credentials, api_endpoints]
+    likelihood : high
+  }
+
+  threat sql_injection {
+    vector : software
+    description : "SQL injection attacks via unsanitized input to API endpoints"
+    targets : [database_server, asset_data, financial_data]
+    likelihood : medium
+  }
+
+  threat xss_attack {
+    vector : software
+    description : "Cross-site scripting via malicious input rendered in frontend"
+    targets : [api_endpoints, user_credentials]
+    likelihood : medium
+  }
+
+  threat privilege_escalation {
+    vector : credential
+    description : "User gains higher privilege level than authorized"
+    targets : [api_endpoints, financial_data, work_order_data]
+    likelihood : medium
+  }
+
+  threat data_exfiltration {
+    vector : network
+    description : "Unauthorized bulk extraction of sensitive EAM data"
+    targets : [asset_data, financial_data, inventory_data]
+    likelihood : low
+  }
+
+  threat insider_threat {
+    vector : insider
+    description : "Authorized user misuses access to modify or steal data"
+    targets : [financial_data, inventory_data, work_order_data]
+    likelihood : medium
+  }
+
+  threat misconfigured_access {
+    vector : misconfiguration
+    description : "Overly permissive role assignments or missing access controls"
+    targets : [api_endpoints, financial_data]
+    likelihood : high
+  }
+
+  threat supply_chain_compromise {
+    vector : supply_chain
+    description : "Compromised third-party dependency in backend or frontend"
+    targets : [api_endpoints, database_server]
+    likelihood : low
+  }
+
+  threat sensor_data_tampering {
+    vector : network
+    description : "Man-in-the-middle tampering of MQTT sensor telemetry"
+    targets : [sensor_telemetry]
+    likelihood : medium
+  }
+
+  (* ========================================== *)
+  (* RISKS                                      *)
+  (* ========================================== *)
+
+  risk unauthorized_access {
+    description : "Unauthorized users gain access to EAM system"
+    threat : credential_theft
+    asset : user_credentials
+    impact : high
+    likelihood : high
+    level : critical
+    mitigations : [ctrl_access_control, ctrl_mfa, ctrl_session_management]
+  }
+
+  risk data_corruption {
+    description : "Critical asset or financial data is corrupted via injection or privilege escalation"
+    threat : sql_injection
+    asset : database_server
+    impact : high
+    likelihood : medium
+    level : high
+    mitigations : [ctrl_input_validation, ctrl_parameterized_queries, ctrl_audit_logging]
+  }
+
+  risk financial_fraud {
+    description : "Insider manipulates procurement data, invoices, or inventory records"
+    threat : insider_threat
+    asset : financial_data
+    impact : high
+    likelihood : medium
+    level : high
+    mitigations : [ctrl_segregation_of_duties, ctrl_audit_logging, ctrl_approval_workflows]
+  }
+
+  risk inventory_manipulation {
+    description : "Unauthorized adjustment of inventory quantities or stock counts"
+    threat : insider_threat
+    asset : inventory_data
+    impact : medium
+    likelihood : medium
+    level : medium
+    mitigations : [ctrl_audit_logging, ctrl_approval_workflows, ctrl_segregation_of_duties]
+  }
+
+  risk false_sensor_readings {
+    description : "Tampered sensor data triggers incorrect maintenance actions or hides failures"
+    threat : sensor_data_tampering
+    asset : sensor_telemetry
+    impact : high
+    likelihood : medium
+    level : high
+    mitigations : [ctrl_sensor_validation, ctrl_anomaly_detection]
+  }
+
+  risk over_privileged_access {
+    description : "Users have more permissions than needed for their role"
+    threat : misconfigured_access
+    asset : api_endpoints
+    impact : medium
+    likelihood : high
+    level : high
+    mitigations : [ctrl_rbac, ctrl_access_review]
+  }
+
+  (* ========================================== *)
+  (* CONTROLS (NIST CSF)                        *)
+  (* ========================================== *)
+
+  control ctrl_access_control {
+    function : PROTECT
+    category : PR_AC
+    subcategory : PR_AC_1
+    applies_to_entities : [core_eam.Employee, core_eam.EmployeeSite]
+    implementation : "Role-based access control (RBAC) with site-scoped permissions enforced at API middleware layer"
+    owner : "Security Team"
+    backend_implications {
+      middleware = "RBACMiddleware enforces role checks on every endpoint";
+      site_scoping = "All queries filtered by user site assignment";
+    }
+  }
+
+  control ctrl_mfa {
+    function : PROTECT
+    category : PR_AC
+    subcategory : PR_AC_7
+    applies_to_entities : [core_eam.Employee]
+    implementation : "Multi-factor authentication required for admin and manager roles"
+    owner : "Security Team"
+  }
+
+  control ctrl_session_management {
+    function : PROTECT
+    category : PR_AC
+    subcategory : PR_AC_3
+    applies_to_entities : [core_eam.Employee]
+    implementation : "JWT tokens with expiration, refresh token rotation, session invalidation on password change"
+    owner : "Backend Team"
+  }
+
+  control ctrl_input_validation {
+    function : PROTECT
+    category : PR_DS
+    subcategory : PR_DS_5
+    applies_to_entities : [core_eam.Series]
+    implementation : "Pydantic schema validation on all API inputs; sanitization of string fields"
+    owner : "Backend Team"
+    backend_implications {
+      validation = "Pydantic BaseModel with strict type checking";
+      sanitization = "HTML escape on text fields before persistence";
+    }
+  }
+
+  control ctrl_parameterized_queries {
+    function : PROTECT
+    category : PR_DS
+    subcategory : PR_DS_6
+    applies_to_entities : [core_eam.Series]
+    implementation : "SQLAlchemy ORM with parameterized queries; no raw SQL execution"
+    owner : "Backend Team"
+  }
+
+  control ctrl_audit_logging {
+    function : DETECT
+    category : DE_AE
+    subcategory : DE_AE_3
+    applies_to_entities : [core_eam.ScheduledJobLog, core_eam.ErrorLog, core_eam.MasterDataChange]
+    implementation : "Comprehensive audit trail for all create/update/delete operations with user, timestamp, and change details"
+    owner : "Backend Team"
+    backend_implications {
+      hook = "After-save hooks log all state changes to audit tables";
+      retention = "Audit logs retained for 7 years";
+    }
+  }
+
+  control ctrl_rbac {
+    function : PROTECT
+    category : PR_AC
+    subcategory : PR_AC_4
+    applies_to_entities : [core_eam.Employee, core_eam.EmployeeSite]
+    implementation : "Seven predefined roles (admin, manager, planner, technician, storekeeper, requester, viewer) with entity-level permissions"
+    owner : "Security Team"
+    ui_implications {
+      menu_visibility = true;
+      field_level_access = true;
+      action_button_visibility = true;
+    }
+  }
+
+  control ctrl_segregation_of_duties {
+    function : PROTECT
+    category : PR_AC
+    subcategory : PR_AC_5
+    applies_to_entities : [purchasing_stores.PurchaseRequest, purchasing_stores.PurchaseOrder, purchasing_stores.VendorInvoice]
+    implementation : "Requester cannot approve own PR; PO approver cannot be same as requestor; invoice matcher cannot be PO creator"
+    owner : "Security Team"
+    backend_implications {
+      hook = "Pre-transition hooks validate segregation constraints on workflow state changes";
+    }
+  }
+
+  control ctrl_approval_workflows {
+    function : PROTECT
+    category : PR_IP
+    subcategory : PR_IP_1
+    applies_to_entities : [purchasing_stores.PurchaseRequest, purchasing_stores.PurchaseOrder, work_mgmt.WorkOrder, maintenance_mgmt.MaintenanceRequest, purchasing_stores.InventoryAdjustment]
+    implementation : "Multi-level approval workflows with state machine enforcement; approval thresholds based on amount"
+    owner : "Process Team"
+  }
+
+  control ctrl_sensor_validation {
+    function : DETECT
+    category : DE_CM
+    subcategory : DE_CM_1
+    applies_to_entities : [maintenance_mgmt.Sensor, maintenance_mgmt.SensorData, maintenance_mgmt.ConditionMonitoring]
+    implementation : "Range checks and anomaly detection on incoming sensor readings; reject values outside physical bounds"
+    owner : "OT Security Team"
+  }
+
+  control ctrl_anomaly_detection {
+    function : DETECT
+    category : DE_AE
+    subcategory : DE_AE_1
+    applies_to_entities : [maintenance_mgmt.SensorData, maintenance_mgmt.ConditionMonitoring]
+    implementation : "Statistical anomaly detection on sensor telemetry using rolling baselines and standard deviation thresholds"
+    owner : "Data Science Team"
+  }
+
+  control ctrl_access_review {
+    function : IDENTIFY
+    category : ID_AM
+    subcategory : ID_AM_6
+    applies_to_entities : [core_eam.Employee, core_eam.EmployeeSite]
+    implementation : "Quarterly access review of all user role assignments; automated report of dormant accounts"
+    owner : "Security Team"
+  }
+
+  control ctrl_data_encryption {
+    function : PROTECT
+    category : PR_DS
+    subcategory : PR_DS_1
+    applies_to_entities : [core_eam.Employee]
+    implementation : "TLS 1.3 for data in transit; AES-256 encryption for sensitive fields at rest; bcrypt password hashing"
+    owner : "Infrastructure Team"
+  }
+
+  control ctrl_backup_recovery {
+    function : RECOVER
+    category : RC_RP
+    subcategory : RC_RP_1
+    applies_to_entities : [core_eam.Series]
+    implementation : "Daily automated PostgreSQL backups with point-in-time recovery; 30-day retention; quarterly restore tests"
+    owner : "DBA Team"
+  }
+
+  control ctrl_incident_response {
+    function : RESPOND
+    category : RS_AN
+    subcategory : RS_AN_1
+    applies_to_entities : [core_eam.ErrorLog]
+    implementation : "Security incident response plan with defined escalation paths; automated alerting on critical error patterns"
+    owner : "Security Team"
+  }
+
+  (* ========================================== *)
+  (* POLICIES                                   *)
+  (* ========================================== *)
+
+  policy access_management_policy {
+    description : "All users must be assigned roles following least-privilege principle with mandatory site scoping"
+    applies_to_entities : [core_eam.Employee, core_eam.EmployeeSite]
+    requirements : [
+      "All users must have explicit role assignment before system access"
+      "Admin role requires manager approval and security team review"
+      "Dormant accounts (90+ days inactive) are automatically disabled"
+      "Password policy: minimum 12 chars, complexity requirements, 90-day rotation"
+    ]
+  }
+
+  policy procurement_controls_policy {
+    description : "Procurement transactions must follow segregation of duties and approval hierarchies"
+    applies_to_entities : [purchasing_stores.PurchaseRequest, purchasing_stores.PurchaseOrder, purchasing_stores.VendorInvoice]
+    requirements : [
+      "PR creator cannot approve their own request"
+      "PO value above 50000 requires director-level approval"
+      "Three-way match (PO, receipt, invoice) required before payment"
+      "All vendor changes require dual approval"
+    ]
+  }
+
+  policy data_protection_policy {
+    description : "All EAM data must be protected according to classification level"
+    applies_to_entities : [core_eam.Series]
+    requirements : [
+      "All API communication via TLS 1.3"
+      "Sensitive fields encrypted at rest"
+      "Database backups encrypted"
+      "PII data masked in non-production environments"
+      "Audit trail retained for 7 years"
+    ]
+  }
+
+  policy ot_security_policy {
+    description : "OT/IoT sensor integration must follow secure communication and validation protocols"
+    applies_to_entities : [maintenance_mgmt.Sensor, maintenance_mgmt.SensorData]
+    requirements : [
+      "MQTT connections must use TLS with client certificates"
+      "All sensor readings validated against physical range bounds"
+      "Anomalous readings flagged and quarantined before processing"
+      "Sensor firmware updates require change management approval"
+    ]
+  }
+
+  (* ========================================== *)
+  (* MAPPINGS                                   *)
+  (* ========================================== *)
+
+  mapping unauthorized_access_mitigation {
+    risk : unauthorized_access
+    controls : [ctrl_access_control, ctrl_mfa, ctrl_session_management, ctrl_rbac]
+    coverage : full
+    residual_risk : low
+  }
+
+  mapping data_corruption_mitigation {
+    risk : data_corruption
+    controls : [ctrl_input_validation, ctrl_parameterized_queries, ctrl_audit_logging, ctrl_backup_recovery]
+    coverage : full
+    residual_risk : low
+  }
+
+  mapping financial_fraud_mitigation {
+    risk : financial_fraud
+    controls : [ctrl_segregation_of_duties, ctrl_audit_logging, ctrl_approval_workflows]
+    coverage : full
+    residual_risk : low
+  }
+
+  mapping inventory_manipulation_mitigation {
+    risk : inventory_manipulation
+    controls : [ctrl_audit_logging, ctrl_approval_workflows, ctrl_segregation_of_duties]
+    coverage : full
+    residual_risk : low
+  }
+
+  mapping sensor_tampering_mitigation {
+    risk : false_sensor_readings
+    controls : [ctrl_sensor_validation, ctrl_anomaly_detection]
+    coverage : partial
+    residual_risk : medium
+  }
+
+  mapping access_review_mitigation {
+    risk : over_privileged_access
+    controls : [ctrl_rbac, ctrl_access_review]
+    coverage : full
+    residual_risk : low
+  }
+
+  (* ========================================== *)
+  (* SECURITY WORKFLOWS                         *)
+  (* ========================================== *)
+
+  workflow incident_response_workflow {
+    description : "Security incident detection, analysis, containment, and recovery workflow"
+    trigger : "Critical error pattern detected or manual security alert"
+    steps : [
+      step 1 : "Detect — automated monitoring identifies anomalous activity"
+      step 2 : "Triage — security team assesses severity and scope"
+      step 3 : "Contain — isolate affected systems or disable accounts"
+      step 4 : "Investigate — analyze logs, audit trails, and sensor data"
+      step 5 : "Remediate — apply fixes, patches, or configuration changes"
+      step 6 : "Recover — restore normal operations from backups if needed"
+      step 7 : "Review — post-incident review and lessons learned"
+    ]
+    roles : [admin, manager]
+  }
+
+  workflow access_review_workflow {
+    description : "Quarterly review of all user access rights and role assignments"
+    trigger : "Quarterly schedule or on-demand by security team"
+    steps : [
+      step 1 : "Generate — export all user-role-site assignments"
+      step 2 : "Review — managers verify each team member access"
+      step 3 : "Remediate — remove or adjust excessive permissions"
+      step 4 : "Approve — security team signs off on changes"
+      step 5 : "Report — document review results and exceptions"
+    ]
+    roles : [admin, manager]
+  }
+
+  workflow data_breach_response {
+    description : "Response workflow for confirmed or suspected data breach"
+    trigger : "Data exfiltration detected or suspected unauthorized data access"
+    steps : [
+      step 1 : "Identify — determine scope of affected data and systems"
+      step 2 : "Contain — revoke compromised credentials, block access"
+      step 3 : "Notify — inform management and affected parties per regulation"
+      step 4 : "Investigate — forensic analysis of breach vector"
+      step 5 : "Remediate — close vulnerability, strengthen controls"
+      step 6 : "Document — complete incident report with timeline"
+    ]
+    roles : [admin]
+  }
+
+}

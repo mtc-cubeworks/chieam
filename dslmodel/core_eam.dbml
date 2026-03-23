@@ -1,0 +1,950 @@
+dbml model core_eam {
+
+  import "asset_management.dbml" as asset_mgmt;
+  import "maintenance_mgmt.dbml" as maint_mgmt;
+  import "work_mgmt.dbml" as work_mgmt;
+  import "purchasing_stores.dbml" as purch_stores;
+
+  (* ========================================== *)
+  (* ENUMS                                      *)
+  (* ========================================== *)
+
+  enum AccountType {
+    asset;
+    liability;
+    equity;
+    revenue;
+    expense;
+  }
+
+  enum LaborType {
+    internal;
+    contractor;
+  }
+
+  enum OverheadMethod {
+    percent;
+    rate_per_hour;
+    none;
+  }
+
+  enum LeaveStatus {
+    pending;
+    approved;
+    rejected;
+  }
+
+  enum DayOfWeek {
+    monday;
+    tuesday;
+    wednesday;
+    thursday;
+    friday;
+    saturday;
+    sunday;
+  }
+
+  enum ChangeType {
+    create;
+    update;
+    delete;
+  }
+
+  enum MasterDataChangeState {
+    draft;
+    pending_approval;
+    approved;
+    rejected;
+  }
+
+  (* ========================================== *)
+  (* ROLES                                      *)
+  (* ========================================== *)
+
+  role admin {
+    label = "System Administrator";
+  }
+
+  role manager {
+    label = "Site Manager";
+  }
+
+  role planner {
+    label = "Maintenance Planner";
+  }
+
+  role technician {
+    label = "Maintenance Technician";
+  }
+
+  role storekeeper {
+    label = "Storekeeper";
+  }
+
+  role requester {
+    label = "General Requester";
+  }
+
+  role viewer {
+    label = "Read-Only Viewer";
+  }
+
+  (* ========================================== *)
+  (* LIFECYCLE: Master Data Change              *)
+  (* ========================================== *)
+
+  lifecycle master-data-change-lifecycle {
+    entity = core_eam.MasterDataChange;
+    state draft { initial = true; }
+    state pending-approval {}
+    state approved { final = true; }
+    state rejected { final = true; }
+  }
+
+  (* ========================================== *)
+  (* WORKFLOW: Master Data Change               *)
+  (* ========================================== *)
+
+  workflow master-data-change-workflow {
+    entity = core_eam.MasterDataChange;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state pending-approval {}
+    state approved { final = true; }
+    state rejected { final = true; }
+
+    transition submit {
+      from = draft;
+      to = pending-approval;
+      role = core_eam.requester;
+    }
+
+    transition approve {
+      from = pending-approval;
+      to = approved;
+      role = core_eam.manager;
+    }
+
+    transition reject {
+      from = pending-approval;
+      to = rejected;
+      role = core_eam.manager;
+    }
+
+    transition reopen {
+      from = rejected;
+      to = draft;
+      role = core_eam.requester;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES                                   *)
+  (* ========================================== *)
+
+  entity Series {
+    label = "Auto-Numbering Series";
+    category = config;
+    kind = root;
+
+    field name : string {
+      label = "Series Name";
+      required = true;
+    }
+
+    field current : integer {
+      label = "Current Counter";
+      default = 0;
+    }
+  }
+
+  entity Organization {
+    label = "Organization";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field organization_name : string { label = "Organization Name"; }
+    field legal_name : string { label = "Legal Name"; }
+    field organizational_code : string { label = "Organizational Code"; }
+    field is_active : boolean { label = "Is Active"; default = true; }
+  }
+
+  entity Site {
+    label = "Site";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field site_name : string { label = "Site Name"; }
+    field site_code : string { label = "Site Code"; }
+    field organization : string { label = "Organization"; }
+    field organization_name : string { label = "Organization Name"; }
+    field default_cost_code : string { label = "Default Cost Code"; }
+    field site_manager : string { label = "Site Manager"; }
+    field location : string { label = "Location"; }
+    field location_name : string { label = "Location Name"; }
+
+    relation org-ref {
+      from = core_eam.Site.organization;
+      to = core_eam.Organization.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation cost-code-ref {
+      from = core_eam.Site.default_cost_code;
+      to = core_eam.CostCode.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation manager-ref {
+      from = core_eam.Site.site_manager;
+      to = core_eam.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation location-ref {
+      from = core_eam.Site.location;
+      to = asset_mgmt.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Department {
+    label = "Department";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field department_name : string { label = "Department Name"; }
+    field department_code : string { label = "Department Code"; }
+    field site : string { label = "Site"; }
+    field site_name : string { label = "Site Name"; }
+    field department_manager : string { label = "Department Manager"; }
+    field default_cost_code : string { label = "Default Cost Code"; }
+    field overhead_method : string { label = "Overhead Method"; }
+    field overhead_percent : float { label = "Overhead Percent"; }
+    field overhead_rp_hour : float { label = "Overhead Rate per Hour"; }
+    field overhead_expense_account : string { label = "Overhead Expense Account"; }
+    field labor_expense_account_overwrite : string { label = "Labor Expense Account Override"; }
+
+    relation site-ref {
+      from = core_eam.Department.site;
+      to = core_eam.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation manager-ref {
+      from = core_eam.Department.department_manager;
+      to = core_eam.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation cost-code-ref {
+      from = core_eam.Department.default_cost_code;
+      to = core_eam.CostCode.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation overhead-acct-ref {
+      from = core_eam.Department.overhead_expense_account;
+      to = core_eam.Account.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation labor-acct-ref {
+      from = core_eam.Department.labor_expense_account_overwrite;
+      to = core_eam.Account.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Account {
+    label = "Account";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field account_code : string { label = "Account Code"; }
+    field account_name : string { label = "Account Name"; }
+    field account_type : string { label = "Account Type"; enum = AccountType; }
+  }
+
+  entity CostCode {
+    label = "Cost Code";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field code : string { label = "Code"; }
+    field description : text { label = "Description"; }
+    field scope : string { label = "Scope"; }
+    field site : string { label = "Site"; }
+    field site_name : string { label = "Site Name"; }
+
+    relation site-ref {
+      from = core_eam.CostCode.site;
+      to = core_eam.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity AnnualBudget {
+    label = "Annual Budget";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field cost_code : string { label = "Cost Code"; }
+    field cost_code_name : string { label = "Cost Code Name"; }
+    field year : integer { label = "Budget Year"; }
+    field budgetary_amount : float { label = "Budgetary Amount"; }
+
+    relation cost-code-ref {
+      from = core_eam.AnnualBudget.cost_code;
+      to = core_eam.CostCode.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    behavior {
+      rule budget-validation {
+        when = "budgetary_amount > 0";
+        do = core_eam.validate-budget;
+      }
+    }
+  }
+
+  entity Employee {
+    label = "Employee";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field user : string { label = "User Account"; }
+    field employee_name : string { label = "Employee Name"; }
+    field position : string { label = "Position"; }
+
+    relation user-ref {
+      from = core_eam.Employee.user;
+      to = users.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity EmployeeSite {
+    label = "Employee Site Assignment";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field employee : string { label = "Employee"; }
+    field site : string { label = "Site"; }
+    field department : string { label = "Department"; }
+    field default : boolean { label = "Is Default Site"; }
+
+    relation employee-ref {
+      from = core_eam.EmployeeSite.employee;
+      to = core_eam.Employee.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = core_eam.EmployeeSite.site;
+      to = core_eam.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation dept-ref {
+      from = core_eam.EmployeeSite.department;
+      to = core_eam.Department.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Contractor {
+    label = "Contractor";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field contractor_name : string { label = "Contractor Name"; }
+  }
+
+  entity LaborGroup {
+    label = "Labor Group";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field labor_group_name : string { label = "Labor Group Name"; }
+  }
+
+  entity Labor {
+    label = "Labor";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field labor_type : string { label = "Labor Type"; enum = LaborType; }
+    field labor_group : string { label = "Labor Group"; }
+    field labor_group_name : string { label = "Labor Group Name"; }
+    field employee : string { label = "Employee"; }
+    field contractor : string { label = "Contractor"; }
+    field laborer : string { label = "Laborer Name"; }
+    field location : string { label = "Location"; }
+    field location_name : string { label = "Location Name"; }
+    field pr_line_no : string { label = "PR Line No"; }
+    field labor_cost : float { label = "Labor Cost"; }
+
+    relation group-ref {
+      from = core_eam.Labor.labor_group;
+      to = core_eam.LaborGroup.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation employee-ref {
+      from = core_eam.Labor.employee;
+      to = core_eam.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation contractor-ref {
+      from = core_eam.Labor.contractor;
+      to = core_eam.Contractor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation location-ref {
+      from = core_eam.Labor.location;
+      to = asset_mgmt.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity LaborAvailability {
+    label = "Labor Availability";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field labor : string { label = "Labor"; }
+    field laborer : string { label = "Laborer Name"; }
+    field date : date { label = "Date"; }
+
+    relation labor-ref {
+      from = core_eam.LaborAvailability.labor;
+      to = core_eam.Labor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity LaborAvailabilityDetails {
+    label = "Labor Availability Details";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field labor_availability : string { label = "Labor Availability"; }
+    field hour : string { label = "Hour"; }
+    field status : string { label = "Status"; }
+    field reason : text { label = "Reason"; }
+
+    relation parent-ref {
+      from = core_eam.LaborAvailabilityDetails.labor_availability;
+      to = core_eam.LaborAvailability.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Trade {
+    label = "Trade";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field trade_name : string { label = "Trade Name"; }
+    field description : text { label = "Description"; }
+    field on_staff : boolean { label = "On Staff"; }
+    field licensed : boolean { label = "Licensed"; }
+    field available_capacity : integer { label = "Available Capacity"; }
+  }
+
+  entity TradeLabor {
+    label = "Trade Labor Assignment";
+    category = master;
+    kind = junction;
+
+    field id : string { required = true; }
+    field trade : string { label = "Trade"; }
+    field labor : string { label = "Labor"; }
+    field laborer : string { label = "Laborer Name"; }
+    field primary : boolean { label = "Is Primary"; }
+
+    relation trade-ref {
+      from = core_eam.TradeLabor.trade;
+      to = core_eam.Trade.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation labor-ref {
+      from = core_eam.TradeLabor.labor;
+      to = core_eam.Labor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity TradeAvailability {
+    label = "Trade Availability";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field trade : string { label = "Trade"; }
+    field specific_datetime : datetime { label = "Specific Date/Time"; }
+    field remaining_capacity : integer { label = "Remaining Capacity"; }
+    field reserved_capacity : integer { label = "Reserved Capacity"; }
+    field available_capacity : integer { label = "Available Capacity"; }
+
+    relation trade-ref {
+      from = core_eam.TradeAvailability.trade;
+      to = core_eam.Trade.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkSchedule {
+    label = "Work Schedule";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field schedule_name : string { label = "Schedule Name"; }
+    field applicable_to_labor_grp : string { label = "Applicable Labor Group"; }
+    field specific_labor : string { label = "Specific Labor"; }
+    field start_date : date { label = "Start Date"; }
+    field end_date : date { label = "End Date"; }
+
+    relation group-ref {
+      from = core_eam.WorkSchedule.applicable_to_labor_grp;
+      to = core_eam.LaborGroup.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation labor-ref {
+      from = core_eam.WorkSchedule.specific_labor;
+      to = core_eam.Labor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkScheduleDetails {
+    label = "Work Schedule Details";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_schedule : string { label = "Work Schedule"; }
+    field day : string { label = "Day"; enum = DayOfWeek; }
+    field start_time : string { label = "Start Time"; }
+    field end_time : string { label = "End Time"; }
+    field is_working : boolean { label = "Is Working Day"; }
+
+    relation parent-ref {
+      from = core_eam.WorkScheduleDetails.work_schedule;
+      to = core_eam.WorkSchedule.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Holiday {
+    label = "Holiday";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field holiday_name : string { label = "Holiday Name"; }
+    field holiday_date : date { label = "Holiday Date"; }
+    field applicable_to_labor_grp : string { label = "Applicable Labor Group"; }
+    field specific_labor : string { label = "Specific Labor"; }
+
+    relation group-ref {
+      from = core_eam.Holiday.applicable_to_labor_grp;
+      to = core_eam.LaborGroup.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation labor-ref {
+      from = core_eam.Holiday.specific_labor;
+      to = core_eam.Labor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity LeaveType {
+    label = "Leave Type";
+    category = config;
+    kind = root;
+
+    field id : string { required = true; }
+    field leave_type_name : string { label = "Leave Type Name"; }
+  }
+
+  entity LeaveApplication {
+    label = "Leave Application";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field labor : string { label = "Labor"; }
+    field leave_type : string { label = "Leave Type"; }
+    field from_date : datetime { label = "From Date"; }
+    field to_date : datetime { label = "To Date"; }
+    field reason : text { label = "Reason"; }
+
+    relation labor-ref {
+      from = core_eam.LeaveApplication.labor;
+      to = core_eam.Labor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation leave-type-ref {
+      from = core_eam.LeaveApplication.leave_type;
+      to = core_eam.LeaveType.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Manufacturer {
+    label = "Manufacturer";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field company_name : string { label = "Company Name"; }
+    field email : string { label = "Email"; }
+  }
+
+  entity Model {
+    label = "Model";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field model_name : string { label = "Model Name"; }
+    field manufacturer : string { label = "Manufacturer"; }
+    field manufacturer_name : string { label = "Manufacturer Name"; }
+
+    relation manufacturer-ref {
+      from = core_eam.Model.manufacturer;
+      to = core_eam.Manufacturer.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Note {
+    label = "Note";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field title : string { label = "Title"; }
+    field public : boolean { label = "Public"; }
+    field notify_on_login : boolean { label = "Notify on Login"; }
+    field notify_on_every_login : boolean { label = "Notify on Every Login"; }
+    field expire_notification_on : date { label = "Expire Notification On"; }
+    field content : text { label = "Content"; }
+  }
+
+  entity NoteSeenBy {
+    label = "Note Seen By";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field note : string { label = "Note"; }
+    field user : string { label = "User"; }
+
+    relation note-ref {
+      from = core_eam.NoteSeenBy.note;
+      to = core_eam.Note.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation user-ref {
+      from = core_eam.NoteSeenBy.user;
+      to = users.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity RequestActivityType {
+    label = "Request Activity Type";
+    category = config;
+    kind = root;
+
+    field id : string { required = true; }
+    field menu : string { label = "Menu"; }
+    field type : string { label = "Type"; }
+    field state : string { label = "State"; }
+    field role : string { label = "Role"; }
+  }
+
+  entity EmailLog {
+    label = "Email Log";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field subject : string { label = "Subject"; }
+    field recipients : text { label = "Recipients"; }
+    field cc : text { label = "CC"; }
+    field bcc : text { label = "BCC"; }
+    field from_address : string { label = "From Address"; }
+    field entity_name : string { label = "Entity Name"; }
+    field record_id : string { label = "Record ID"; }
+    field event_type : string { label = "Event Type"; }
+    field status : string { label = "Status"; }
+    field error_message : text { label = "Error Message"; }
+    field error_traceback : text { label = "Error Traceback"; }
+    field html_body : text { label = "HTML Body"; }
+    field recipient_count : integer { label = "Recipient Count"; }
+    field sent_at : datetime { label = "Sent At"; }
+    field sent_by : string { label = "Sent By"; }
+  }
+
+  entity ScheduledJobLog {
+    label = "Scheduled Job Log";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field job_id : string { label = "Job ID"; }
+    field job_name : string { label = "Job Name"; }
+    field status : string { label = "Status"; }
+    field started_at : datetime { label = "Started At"; }
+    field completed_at : datetime { label = "Completed At"; }
+    field duration_seconds : float { label = "Duration Seconds"; }
+    field records_created : integer { label = "Records Created"; }
+    field records_updated : integer { label = "Records Updated"; }
+    field error_message : text { label = "Error Message"; }
+    field error_traceback : text { label = "Error Traceback"; }
+    field details : text { label = "Details"; }
+    field trigger_type : string { label = "Trigger Type"; }
+    field cron_expression : string { label = "Cron Expression"; }
+  }
+
+  entity ErrorLog {
+    label = "Error Log";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field status : integer { label = "Status Code"; }
+    field title : string { label = "Title"; }
+    field message : text { label = "Message"; }
+  }
+
+  entity MasterDataChange {
+    label = "Master Data Change Request";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field entity_type : string { label = "Entity Type"; }
+    field entity_id : string { label = "Entity ID"; }
+    field change_type : string { label = "Change Type"; enum = ChangeType; }
+    field field_name : string { label = "Field Name"; }
+    field old_value : text { label = "Old Value"; }
+    field new_value : text { label = "New Value"; }
+    field requested_by : string { label = "Requested By"; }
+    field approved_by : string { label = "Approved By"; }
+    field requested_date : datetime { label = "Requested Date"; }
+    field approved_date : datetime { label = "Approved Date"; }
+    field justification : text { label = "Justification"; }
+    field rejection_reason : text { label = "Rejection Reason"; }
+    field site : string { label = "Site"; }
+
+    relation requestor-ref {
+      from = core_eam.MasterDataChange.requested_by;
+      to = core_eam.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation approver-ref {
+      from = core_eam.MasterDataChange.approved_by;
+      to = core_eam.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = core_eam.MasterDataChange.site;
+      to = core_eam.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use core_eam.master-data-change-lifecycle;
+
+    behavior {
+      workflow use core_eam.master-data-change-workflow;
+
+      permissions {
+        role core_eam.admin {
+          allow = read, write, create, delete;
+        }
+        role core_eam.manager {
+          allow = read, write, submit, cancel;
+        }
+        role core_eam.requester {
+          allow = read, create, submit;
+        }
+        role core_eam.viewer {
+          allow = read;
+        }
+      }
+
+      on create {
+        do = core_eam.notify-change-request;
+      }
+
+      on submit {
+        do = core_eam.route-for-approval;
+      }
+    }
+  }
+
+  (* ========================================== *)
+  (* ACTIONS                                    *)
+  (* ========================================== *)
+
+  action validate-budget {
+    kind = server;
+    entity = core_eam.AnnualBudget;
+    handler = "core_eam.hooks.budget_validation.validate_budget_availability";
+  }
+
+  action notify-change-request {
+    kind = server;
+    entity = core_eam.MasterDataChange;
+    handler = "core_eam.hooks.notification_service.send_notification";
+  }
+
+  action route-for-approval {
+    kind = server;
+    entity = core_eam.MasterDataChange;
+    handler = "core_eam.hooks.master_data_change.route_change_for_approval";
+  }
+
+  (* ========================================== *)
+  (* AUTOMATIONS                                *)
+  (* ========================================== *)
+
+  automation labor-availability-refresh {
+    entity = core_eam.LaborAvailability;
+    trigger daily-refresh {
+      schedule = "0 0 * * *";
+      invoke = core_eam.refresh-labor-availability;
+    }
+  }
+
+  automation trade-availability-refresh {
+    entity = core_eam.TradeAvailability;
+    trigger daily-refresh {
+      schedule = "0 0 * * *";
+      invoke = core_eam.refresh-trade-availability;
+    }
+  }
+
+  action refresh-labor-availability {
+    kind = scheduled;
+    entity = core_eam.LaborAvailability;
+    handler = "core_eam.scheduled_jobs.refresh_labor_availability";
+  }
+
+  action refresh-trade-availability {
+    kind = scheduled;
+    entity = core_eam.TradeAvailability;
+    handler = "core_eam.scheduled_jobs.refresh_trade_availability";
+  }
+
+  (* ========================================== *)
+  (* PERMISSIONS                                *)
+  (* ========================================== *)
+
+  permissions core-eam-permissions {
+    entity = core_eam.Organization;
+
+    role core_eam.admin {
+      allow = read, write, create, delete;
+    }
+
+    role core_eam.manager {
+      allow = read, write, create;
+    }
+
+    role core_eam.viewer {
+      allow = read;
+    }
+  }
+
+  (* ========================================== *)
+  (* METRICS                                    *)
+  (* ========================================== *)
+
+  metrics core-eam-metrics {
+    metric employee-count {
+      entity = core_eam.Employee;
+      aggregation = count;
+    }
+
+    metric active-sites {
+      entity = core_eam.Site;
+      aggregation = count;
+    }
+
+    metric budget-utilization {
+      entity = core_eam.AnnualBudget;
+      field = budgetary_amount;
+      aggregation = sum;
+    }
+  }
+
+}

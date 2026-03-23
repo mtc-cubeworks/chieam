@@ -52,18 +52,26 @@ def hash_password(password: str) -> str:
 
 
 async def seed_roles(db: AsyncSession):
-    """Create default roles with RBAC permissions."""
+    """Create default roles with RBAC permissions and data scopes."""
     roles_data = [
-        {"name": "SystemManager", "description": "Full system access - can do everything"},
-        {"name": "Technician", "description": "CRUD access to modules, but not admin"},
-        {"name": "Viewer", "description": "Read-only access to modules"},
+        {"name": "SystemManager", "description": "Full system access - can do everything", "data_scope": "all"},
+        {"name": "Executive", "description": "Read access to all data across all sites", "data_scope": "all"},
+        {"name": "SiteManager", "description": "Full access within assigned site(s)", "data_scope": "site"},
+        {"name": "Supervisor", "description": "Access to own department/team data", "data_scope": "team"},
+        {"name": "Technician", "description": "CRUD access to own records within modules", "data_scope": "own"},
+        {"name": "Viewer", "description": "Read-only access to own site data", "data_scope": "site"},
     ]
     
     for role_data in roles_data:
         result = await db.execute(select(Role).where(Role.name == role_data["name"]))
-        if not result.scalar_one_or_none():
+        existing = result.scalar_one_or_none()
+        if not existing:
             role = Role(**role_data)
             db.add(role)
+        else:
+            # Update data_scope on existing roles if not already set
+            if not existing.data_scope or existing.data_scope == "all":
+                existing.data_scope = role_data["data_scope"]
     
     await db.commit()
 

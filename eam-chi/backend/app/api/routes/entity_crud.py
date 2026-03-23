@@ -134,6 +134,12 @@ async def post_entity_action(
 
             data = _coerce_incoming_types(model, data)
 
+            # Auto-set ownership fields
+            if hasattr(model, "created_by") and user.id != "anonymous":
+                data.setdefault("created_by", user.id)
+            if hasattr(model, "modified_by") and user.id != "anonymous":
+                data["modified_by"] = user.id
+
             record = model(**data)
             db.add(record)
 
@@ -193,7 +199,12 @@ async def post_entity_action(
                 return ActionResponse(status="error", message="ID required for update")
 
             from sqlalchemy import select
-            result = await db.execute(select(model).where(model.id == request.id))
+            update_query = select(model).where(model.id == request.id)
+            # Row-level scoping: restrict to records within user's scope
+            scope_filter = RBACService.build_scope_filter(user, model)
+            if scope_filter is not None:
+                update_query = update_query.where(scope_filter)
+            result = await db.execute(update_query)
             record = result.scalar_one_or_none()
 
             if not record:
@@ -222,7 +233,11 @@ async def post_entity_action(
 
             data = _coerce_incoming_types(model, data)
 
-            system_fields = {"id", "created_at", "updated_at"}
+            # Auto-set modified_by
+            if hasattr(model, "modified_by") and user.id != "anonymous":
+                data["modified_by"] = user.id
+
+            system_fields = {"id", "created_at", "updated_at", "created_by"}
             for key, value in data.items():
                 if key in system_fields:
                     continue
@@ -283,7 +298,11 @@ async def post_entity_action(
                 return ActionResponse(status="error", message="ID required for delete")
 
             from sqlalchemy import select
-            result = await db.execute(select(model).where(model.id == request.id))
+            delete_query = select(model).where(model.id == request.id)
+            scope_filter = RBACService.build_scope_filter(user, model)
+            if scope_filter is not None:
+                delete_query = delete_query.where(scope_filter)
+            result = await db.execute(delete_query)
             record = result.scalar_one_or_none()
 
             if not record:
@@ -352,7 +371,11 @@ async def delete_entity(
     ctx = Context(db=db, user=user, meta=meta)
 
     from sqlalchemy import select
-    result = await db.execute(select(model).where(model.id == id))
+    delete_rest_query = select(model).where(model.id == id)
+    scope_filter = RBACService.build_scope_filter(user, model)
+    if scope_filter is not None:
+        delete_rest_query = delete_rest_query.where(scope_filter)
+    result = await db.execute(delete_rest_query)
     record = result.scalar_one_or_none()
 
     if not record:

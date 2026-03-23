@@ -8,11 +8,18 @@ Provides:
 - Permission caching for performance
 - User/Role management helpers
 - Workflow permission checks
+- Row-level data scoping by role hierarchy
+
+Data Scope Levels (lowest → highest):
+- own   : User sees only records they created (created_by = user.id)
+- team  : User sees records from their department(s)
+- site  : User sees records from their site(s)
+- all   : User sees all records (no filter)
 
 Last Updated: 2026-01-29
 """
-from typing import Optional
-from sqlalchemy import select
+from typing import Optional, Any
+from sqlalchemy import select, or_, and_, literal
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from app.core.security import CurrentUser
@@ -279,6 +286,68 @@ class RBACService:
         await db.commit()
         await db.refresh(perm)
         return perm
+
+    # =========================================================================
+    # ROW-LEVEL DATA SCOPING
+    # =========================================================================
+
+    @staticmethod
+    def build_scope_filter(
+        user: CurrentUser,
+        model: Any,
+    ):
+        """
+        Return a SQLAlchemy WHERE clause that restricts rows based on
+        the user's data_scope.
+
+        Scope cascade:
+            all  → no filter (superuser / SystemManager / scope='all')
+            site → model.site IN user.site_ids  (falls back to created_by)
+            team → model.department IN user.department_ids (falls back to site then created_by)
+            own  → model.created_by == user.id
+
+        If the model lacks the relevant column the filter degrades
+        gracefully to the next narrower scope and ultimately to created_by.
+
+        Returns None when no filter is needed (scope='all' or superuser).
+        """
+        # Superusers and SystemManagers see everything
+        if user.is_superuser or "SystemManager" in user.roles:
+            return None
+
+        scope = user.data_scope or "own"
+        if scope == "all":
+            return None
+
+        has_site = hasattr(model, "site")
+        has_dept = hasattr(model, "department")
+        has_owner = hasattr(model, "created_by")
+
+        conditions = []
+
+        if scope == "site":
+            if has_site and user.site_ids:
+                conditions.append(model.site.in_(user.site_ids))
+            # Also include records created by this user (covers entities without site)
+            if has_owner:
+                conditions.append(model.created_by == user.id)
+            return or_(*conditions) if conditions else None
+
+        if scope == "team":
+            if has_dept and user.department_ids:
+                conditions.append(model.department.in_(user.department_ids))
+            elif has_site and user.site_ids:
+                # no department column → fall back to site
+                conditions.append(model.site.in_(user.site_ids))
+            if has_owner:
+                conditions.append(model.created_by == user.id)
+            return or_(*conditions) if conditions else None
+
+        # scope == "own" (default / most restrictive)
+        if has_owner:
+            return model.created_by == user.id
+        # Entity has no created_by column — deny all rows as a safe default
+        return literal(False)
 
 
 # Singleton instance for convenience

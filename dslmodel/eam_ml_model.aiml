@@ -1,0 +1,1761 @@
+aiml model eam_chi_ml {
+
+  import "core_eam.dbml" as core;
+  import "asset_management.dbml" as asset;
+  import "maintenance_mgmt.dbml" as maint;
+  import "work_mgmt.dbml" as work;
+  import "purchasing_stores.dbml" as store;
+  import "eam_ot_model.otml" as ot;
+  import "eam_security.sdml" as sec;
+
+  /* ================================================================ */
+  /* CONTEXT                                                          */
+  /* ================================================================ */
+
+  context eam_ml_context {
+    label = "EAM-CHI AI/ML Context";
+    description = "End-to-end ML capabilities for enterprise asset management: predictive maintenance, failure prediction, anomaly detection, demand forecasting, and intelligent decision support.";
+    domain = core.eam;
+    environment = "production";
+    platform = "python-fastapi";
+    ml_framework = "scikit-learn";
+  }
+
+  /* ================================================================ */
+  /* DATASOURCES                                                      */
+  /* ================================================================ */
+
+  datasource ds_asset_telemetry {
+    type = timeseries;
+    frequency = 60;
+    retention_days = 730;
+    fields {
+      field asset_id : string;
+      field sensor_id : string;
+      field reading_value : float;
+      field reading_unit : string;
+      field reading_timestamp : datetime;
+      field monitoring_type : string;
+      field alert_status : string;
+    }
+  }
+
+  datasource ds_work_order_history {
+    type = relational;
+    frequency = 1440;
+    retention_days = 1825;
+    fields {
+      field work_order_id : string;
+      field asset_id : string;
+      field work_order_type : string;
+      field priority : string;
+      field failure_code : string;
+      field failure_class : string;
+      field created_at : datetime;
+      field actual_start_date : datetime;
+      field actual_end_date : datetime;
+      field total_cost : float;
+      field total_labor_cost : float;
+      field total_parts_cost : float;
+      field total_equipment_cost : float;
+      field downtime_hours : float;
+      field is_overdue : boolean;
+      field workflow_state : string;
+    }
+  }
+
+  datasource ds_maintenance_request_history {
+    type = relational;
+    frequency = 1440;
+    retention_days = 1825;
+    fields {
+      field mr_id : string;
+      field asset_id : string;
+      field priority : string;
+      field severity : string;
+      field request_type : string;
+      field due_date : date;
+      field created_at : datetime;
+      field workflow_state : string;
+      field is_duplicate : boolean;
+      field is_overdue : boolean;
+    }
+  }
+
+  datasource ds_breakdown_history {
+    type = relational;
+    frequency = 1440;
+    retention_days = 1825;
+    fields {
+      field breakdown_id : string;
+      field asset_id : string;
+      field breakdown_date : datetime;
+      field repair_date : datetime;
+      field downtime_hours : float;
+      field description : string;
+      field failure_code : string;
+    }
+  }
+
+  datasource ds_asset_master {
+    type = relational;
+    frequency = 1440;
+    retention_days = 3650;
+    fields {
+      field asset_id : string;
+      field asset_class : string;
+      field criticality : string;
+      field location : string;
+      field site : string;
+      field department : string;
+      field manufacturer : string;
+      field model : string;
+      field install_date : date;
+      field is_active : boolean;
+      field age_years : float;
+    }
+  }
+
+  datasource ds_sensor_data {
+    type = timeseries;
+    frequency = 5;
+    retention_days = 365;
+    fields {
+      field sensor_id : string;
+      field asset_id : string;
+      field value : float;
+      field timestamp : datetime;
+      field sensor_type : string;
+    }
+  }
+
+  datasource ds_condition_monitoring {
+    type = timeseries;
+    frequency = 60;
+    retention_days = 730;
+    fields {
+      field cm_id : string;
+      field asset_id : string;
+      field monitoring_type : string;
+      field reading_value : float;
+      field baseline_value : float;
+      field warning_threshold : float;
+      field critical_threshold : float;
+      field alert_status : string;
+      field trend_direction : string;
+    }
+  }
+
+  datasource ds_meter_readings {
+    type = timeseries;
+    frequency = 1440;
+    retention_days = 1825;
+    fields {
+      field meter_id : string;
+      field asset_id : string;
+      field reading_value : float;
+      field delta : float;
+      field reading_date : datetime;
+    }
+  }
+
+  datasource ds_failure_analysis {
+    type = relational;
+    frequency = 1440;
+    retention_days = 1825;
+    fields {
+      field fa_id : string;
+      field asset_id : string;
+      field work_order : string;
+      field failure_code : string;
+      field failure_mode : string;
+      field severity_score : integer;
+      field occurrence_score : integer;
+      field detection_score : integer;
+      field rpn : integer;
+      field risk_level : string;
+    }
+  }
+
+  datasource ds_inventory_transactions {
+    type = relational;
+    frequency = 1440;
+    retention_days = 1095;
+    fields {
+      field item_id : string;
+      field transaction_type : string;
+      field quantity : float;
+      field transaction_date : datetime;
+      field actual_inv : float;
+      field reorder_point : integer;
+      field site : string;
+      field store : string;
+    }
+  }
+
+  datasource ds_purchase_order_history {
+    type = relational;
+    frequency = 1440;
+    retention_days = 1825;
+    fields {
+      field po_id : string;
+      field vendor_id : string;
+      field total_amount : float;
+      field delivery_date : date;
+      field receipt_date : date;
+      field workflow_state : string;
+      field po_type : string;
+    }
+  }
+
+  datasource ds_kpi_history {
+    type = relational;
+    frequency = 1440;
+    retention_days = 1095;
+    fields {
+      field calculation_date : date;
+      field asset_id : string;
+      field mtbf_hours : float;
+      field mttr_hours : float;
+      field pm_compliance_pct : float;
+      field availability_pct : float;
+    }
+  }
+
+  /* ================================================================ */
+  /* SENSOR TYPES                                                     */
+  /* ================================================================ */
+
+  sensorType vibration_sensor {
+    features {
+      ds_sensor_data.value;
+      ds_sensor_data.timestamp;
+    }
+    window_seconds = 3600;
+    preprocessing {
+      preprocess_vibration.fft_transform;
+      preprocess_vibration.rms_extraction;
+    }
+  }
+
+  sensorType temperature_sensor {
+    features {
+      ds_sensor_data.value;
+      ds_sensor_data.timestamp;
+    }
+    window_seconds = 1800;
+    preprocessing {
+      preprocess_temperature.moving_average;
+      preprocess_temperature.rate_of_change;
+    }
+  }
+
+  sensorType pressure_sensor {
+    features {
+      ds_sensor_data.value;
+      ds_sensor_data.timestamp;
+    }
+    window_seconds = 900;
+    preprocessing {
+      preprocess_pressure.spike_detection;
+      preprocess_pressure.baseline_deviation;
+    }
+  }
+
+  sensorType oil_analysis_sensor {
+    features {
+      ds_sensor_data.value;
+      ds_sensor_data.timestamp;
+    }
+    window_seconds = 86400;
+    preprocessing {
+      preprocess_oil.particle_count;
+      preprocess_oil.viscosity_trend;
+    }
+  }
+
+  /* ================================================================ */
+  /* FEATURE SCHEMAS                                                  */
+  /* ================================================================ */
+
+  featureSchema fs_predictive_maintenance {
+    keys {
+      asset_id;
+    }
+    features {
+      age_years : float;
+      criticality_encoded : integer;
+      mtbf_hours : float;
+      mttr_hours : float;
+      avg_vibration_rms : float;
+      avg_temperature : float;
+      avg_pressure : float;
+      max_vibration_rms : float;
+      max_temperature : float;
+      temperature_rate_of_change : float;
+      breakdown_count_90d : integer;
+      wo_corrective_count_90d : integer;
+      wo_preventive_count_90d : integer;
+      days_since_last_pm : integer;
+      days_since_last_breakdown : integer;
+      meter_reading_delta_30d : float;
+      rpn_max : integer;
+      avg_downtime_hours : float;
+      total_maintenance_cost_12m : float;
+      pm_compliance_pct : float;
+    }
+    target = days_to_failure;
+  }
+
+  featureSchema fs_failure_classification {
+    keys {
+      asset_id;
+    }
+    features {
+      asset_class_encoded : integer;
+      criticality_encoded : integer;
+      vibration_rms : float;
+      temperature_current : float;
+      pressure_current : float;
+      oil_particle_count : float;
+      meter_reading_value : float;
+      meter_delta : float;
+      age_years : float;
+      operating_hours : float;
+      wo_count_30d : integer;
+      breakdown_count_180d : integer;
+      description_embedding_0 : float;
+      description_embedding_1 : float;
+      description_embedding_2 : float;
+      description_embedding_3 : float;
+    }
+    target = failure_mode;
+  }
+
+  featureSchema fs_anomaly_detection {
+    keys {
+      asset_id;
+      sensor_id;
+    }
+    features {
+      reading_value : float;
+      reading_delta : float;
+      moving_avg_1h : float;
+      moving_avg_24h : float;
+      std_dev_1h : float;
+      std_dev_24h : float;
+      baseline_deviation : float;
+      rate_of_change : float;
+      hour_of_day : integer;
+      day_of_week : integer;
+      is_weekend : boolean;
+    }
+    target = is_anomaly;
+  }
+
+  featureSchema fs_demand_forecast {
+    keys {
+      item_id;
+    }
+    features {
+      avg_daily_consumption_30d : float;
+      avg_daily_consumption_90d : float;
+      consumption_trend : float;
+      seasonality_index : float;
+      active_wo_count : integer;
+      planned_pm_next_30d : integer;
+      reorder_point : integer;
+      lead_time_days : integer;
+      price : float;
+      month_of_year : integer;
+      day_of_week : integer;
+    }
+    target = demand_next_30d;
+  }
+
+  featureSchema fs_wo_duration_prediction {
+    keys {
+      work_order_id;
+    }
+    features {
+      work_order_type_encoded : integer;
+      priority_encoded : integer;
+      asset_class_encoded : integer;
+      asset_criticality_encoded : integer;
+      activity_count : integer;
+      labor_count : integer;
+      parts_count : integer;
+      estimated_hours : float;
+      historical_avg_hours : float;
+      job_plan_complexity : integer;
+      is_loto_required : boolean;
+    }
+    target = actual_duration_hours;
+  }
+
+  featureSchema fs_vendor_risk {
+    keys {
+      vendor_id;
+    }
+    features {
+      delivery_rating : float;
+      quality_rating : float;
+      overall_rating : float;
+      total_orders : integer;
+      on_time_deliveries : integer;
+      rejected_deliveries : integer;
+      avg_delivery_delay_days : float;
+      total_spend_12m : float;
+      order_frequency : float;
+      po_amendment_count : integer;
+    }
+    target = risk_score;
+  }
+
+  featureSchema fs_asset_health_index {
+    keys {
+      asset_id;
+    }
+    features {
+      age_years : float;
+      criticality_encoded : integer;
+      mtbf_hours : float;
+      mttr_hours : float;
+      pm_compliance_pct : float;
+      breakdown_count_12m : integer;
+      corrective_wo_count_12m : integer;
+      total_maintenance_cost_12m : float;
+      condition_score_vibration : float;
+      condition_score_temperature : float;
+      condition_score_pressure : float;
+      availability_pct : float;
+    }
+    target = health_index;
+  }
+
+  featureSchema fs_bayesian_failure_risk {
+    keys {
+      asset_id;
+    }
+    features {
+      criticality : string;
+      asset_age_category : string;
+      condition_status : string;
+      maintenance_compliance : string;
+    }
+    target = failure_probability;
+  }
+
+  /* ================================================================ */
+  /* TRANSFORMS                                                       */
+  /* ================================================================ */
+
+  transform xform_vibration_features {
+    input = ds_sensor_data;
+    outputs {
+      fs_anomaly_detection.reading_value;
+      fs_anomaly_detection.moving_avg_1h;
+      fs_anomaly_detection.std_dev_1h;
+    }
+    window = 3600;
+    algorithm = "FFT + RMS extraction";
+  }
+
+  transform xform_temperature_features {
+    input = ds_sensor_data;
+    outputs {
+      fs_anomaly_detection.reading_value;
+      fs_anomaly_detection.rate_of_change;
+      fs_anomaly_detection.moving_avg_24h;
+    }
+    window = 86400;
+    algorithm = "Exponential moving average";
+  }
+
+  transform xform_breakdown_aggregation {
+    input = ds_breakdown_history;
+    outputs {
+      fs_predictive_maintenance.breakdown_count_90d;
+      fs_predictive_maintenance.days_since_last_breakdown;
+      fs_predictive_maintenance.avg_downtime_hours;
+    }
+    window = 7776000;
+    algorithm = "Rolling window aggregation";
+  }
+
+  transform xform_wo_aggregation {
+    input = ds_work_order_history;
+    outputs {
+      fs_predictive_maintenance.wo_corrective_count_90d;
+      fs_predictive_maintenance.wo_preventive_count_90d;
+      fs_predictive_maintenance.total_maintenance_cost_12m;
+    }
+    window = 31536000;
+    algorithm = "Time-window count and sum";
+  }
+
+  transform xform_kpi_features {
+    input = ds_kpi_history;
+    outputs {
+      fs_predictive_maintenance.mtbf_hours;
+      fs_predictive_maintenance.mttr_hours;
+      fs_predictive_maintenance.pm_compliance_pct;
+    }
+    window = 2592000;
+    algorithm = "Trailing 30-day average";
+  }
+
+  transform xform_consumption_trend {
+    input = ds_inventory_transactions;
+    outputs {
+      fs_demand_forecast.avg_daily_consumption_30d;
+      fs_demand_forecast.avg_daily_consumption_90d;
+      fs_demand_forecast.consumption_trend;
+      fs_demand_forecast.seasonality_index;
+    }
+    window = 7776000;
+    algorithm = "STL decomposition";
+  }
+
+  transform xform_vendor_aggregation {
+    input = ds_purchase_order_history;
+    outputs {
+      fs_vendor_risk.avg_delivery_delay_days;
+      fs_vendor_risk.total_spend_12m;
+      fs_vendor_risk.order_frequency;
+      fs_vendor_risk.po_amendment_count;
+    }
+    window = 31536000;
+    algorithm = "Annual rolling aggregation";
+  }
+
+  transform xform_health_index_composite {
+    input = ds_condition_monitoring;
+    outputs {
+      fs_asset_health_index.condition_score_vibration;
+      fs_asset_health_index.condition_score_temperature;
+      fs_asset_health_index.condition_score_pressure;
+    }
+    window = 86400;
+    algorithm = "Weighted composite scoring";
+  }
+
+  /* ================================================================ */
+  /* DATASETS                                                         */
+  /* ================================================================ */
+
+  dataset dataset_predictive_maintenance {
+    schema = fs_predictive_maintenance;
+    sources {
+      ds_asset_master;
+      ds_work_order_history;
+      ds_breakdown_history;
+      ds_kpi_history;
+      ds_sensor_data;
+      ds_condition_monitoring;
+      ds_meter_readings;
+      ds_failure_analysis;
+    }
+    join_keys {
+      asset_id;
+    }
+  }
+
+  dataset dataset_failure_classification {
+    schema = fs_failure_classification;
+    sources {
+      ds_asset_master;
+      ds_sensor_data;
+      ds_condition_monitoring;
+      ds_meter_readings;
+      ds_work_order_history;
+      ds_breakdown_history;
+    }
+    filters {
+      "failure_code IS NOT NULL";
+    }
+    join_keys {
+      asset_id;
+    }
+  }
+
+  dataset dataset_anomaly_detection {
+    schema = fs_anomaly_detection;
+    sources {
+      ds_sensor_data;
+      ds_condition_monitoring;
+    }
+    join_keys {
+      asset_id;
+      sensor_id;
+    }
+  }
+
+  dataset dataset_demand_forecast {
+    schema = fs_demand_forecast;
+    sources {
+      ds_inventory_transactions;
+      ds_work_order_history;
+      ds_maintenance_request_history;
+    }
+    join_keys {
+      item_id;
+    }
+  }
+
+  dataset dataset_wo_duration {
+    schema = fs_wo_duration_prediction;
+    sources {
+      ds_work_order_history;
+      ds_asset_master;
+    }
+    filters {
+      "workflow_state = 'completed'";
+      "actual_start_date IS NOT NULL";
+      "actual_end_date IS NOT NULL";
+    }
+    join_keys {
+      work_order_id;
+    }
+  }
+
+  dataset dataset_vendor_risk {
+    schema = fs_vendor_risk;
+    sources {
+      ds_purchase_order_history;
+    }
+    join_keys {
+      vendor_id;
+    }
+  }
+
+  dataset dataset_asset_health {
+    schema = fs_asset_health_index;
+    sources {
+      ds_asset_master;
+      ds_kpi_history;
+      ds_work_order_history;
+      ds_condition_monitoring;
+    }
+    join_keys {
+      asset_id;
+    }
+  }
+
+  /* ================================================================ */
+  /* MODELS                                                           */
+  /* ================================================================ */
+
+  model mdl_predictive_maintenance {
+    type = regression;
+    algorithm = GradientBoosting;
+    input_schema = fs_predictive_maintenance;
+    output = "days_to_failure";
+    hyperparameters {
+      n_estimators = 500;
+      max_depth = 8;
+      learning_rate = 0.05;
+      min_samples_split = 20;
+      subsample = 0.8;
+    }
+    metrics {
+      "mae";
+      "rmse";
+      "r2_score";
+      "mape";
+    }
+  }
+
+  model mdl_failure_classifier {
+    type = classification;
+    algorithm = RandomForest;
+    input_schema = fs_failure_classification;
+    output = "failure_mode";
+    labels {
+      "Mechanical";
+      "Electrical";
+      "Lubrication";
+      "Corrosion";
+      "Fatigue";
+      "Overload";
+      "Contamination";
+      "Wear";
+      "Other";
+    }
+    hyperparameters {
+      n_estimators = 300;
+      max_depth = 12;
+      min_samples_leaf = 5;
+      class_weight = "balanced";
+    }
+    metrics {
+      "accuracy";
+      "f1_macro";
+      "precision_macro";
+      "recall_macro";
+      "confusion_matrix";
+    }
+  }
+
+  model mdl_anomaly_detector {
+    type = anomaly_detection;
+    algorithm = IsolationForest;
+    input_schema = fs_anomaly_detection;
+    output = "is_anomaly";
+    hyperparameters {
+      n_estimators = 200;
+      contamination = 0.05;
+      max_features = 0.8;
+      random_state = 42;
+    }
+    metrics {
+      "precision";
+      "recall";
+      "f1_score";
+      "false_positive_rate";
+    }
+  }
+
+  model mdl_demand_forecast {
+    type = regression;
+    algorithm = XGBoost;
+    input_schema = fs_demand_forecast;
+    output = "demand_next_30d";
+    hyperparameters {
+      n_estimators = 400;
+      max_depth = 6;
+      learning_rate = 0.03;
+      reg_alpha = 0.1;
+      reg_lambda = 1.0;
+    }
+    metrics {
+      "mae";
+      "rmse";
+      "mape";
+      "r2_score";
+    }
+  }
+
+  model mdl_wo_duration_predictor {
+    type = regression;
+    algorithm = GradientBoosting;
+    input_schema = fs_wo_duration_prediction;
+    output = "actual_duration_hours";
+    hyperparameters {
+      n_estimators = 250;
+      max_depth = 6;
+      learning_rate = 0.05;
+      min_samples_split = 10;
+    }
+    metrics {
+      "mae";
+      "rmse";
+      "r2_score";
+    }
+  }
+
+  model mdl_vendor_risk_scorer {
+    type = regression;
+    algorithm = GradientBoosting;
+    input_schema = fs_vendor_risk;
+    output = "risk_score";
+    hyperparameters {
+      n_estimators = 150;
+      max_depth = 5;
+      learning_rate = 0.1;
+    }
+    metrics {
+      "mae";
+      "rmse";
+      "r2_score";
+    }
+  }
+
+  model mdl_asset_health_index {
+    type = regression;
+    algorithm = GradientBoosting;
+    input_schema = fs_asset_health_index;
+    output = "health_index";
+    hyperparameters {
+      n_estimators = 300;
+      max_depth = 7;
+      learning_rate = 0.05;
+      min_samples_split = 15;
+    }
+    metrics {
+      "mae";
+      "rmse";
+      "r2_score";
+    }
+  }
+
+  /* ================================================================ */
+  /* BAYESIAN MODELS                                                  */
+  /* ================================================================ */
+
+  bayesianModel bn_failure_risk {
+    nodes {
+      Criticality { "A"; "B"; "C"; }
+      AssetAge { "New"; "Mid-Life"; "Aging"; "End-of-Life"; }
+      ConditionStatus { "Good"; "Warning"; "Critical"; }
+      MaintenanceCompliance { "High"; "Medium"; "Low"; }
+      FailureRisk { "Low"; "Medium"; "High"; "Critical"; }
+    }
+
+    edges {
+      Criticality -> FailureRisk;
+      AssetAge -> FailureRisk;
+      ConditionStatus -> FailureRisk;
+      MaintenanceCompliance -> FailureRisk;
+      AssetAge -> ConditionStatus;
+      MaintenanceCompliance -> ConditionStatus;
+    }
+
+    cpt FailureRisk {
+      when "Criticality=A, ConditionStatus=Critical":
+        Critical = 0.70;
+        High = 0.20;
+        Medium = 0.08;
+        Low = 0.02;
+      ;
+      when "Criticality=A, ConditionStatus=Warning":
+        Critical = 0.25;
+        High = 0.45;
+        Medium = 0.25;
+        Low = 0.05;
+      ;
+      when "Criticality=A, ConditionStatus=Good":
+        Critical = 0.05;
+        High = 0.15;
+        Medium = 0.40;
+        Low = 0.40;
+      ;
+      when "Criticality=B, ConditionStatus=Critical":
+        Critical = 0.40;
+        High = 0.35;
+        Medium = 0.20;
+        Low = 0.05;
+      ;
+      when "Criticality=B, ConditionStatus=Warning":
+        Critical = 0.10;
+        High = 0.30;
+        Medium = 0.40;
+        Low = 0.20;
+      ;
+      when "Criticality=B, ConditionStatus=Good":
+        Critical = 0.02;
+        High = 0.08;
+        Medium = 0.30;
+        Low = 0.60;
+      ;
+      when "Criticality=C, ConditionStatus=Critical":
+        Critical = 0.20;
+        High = 0.30;
+        Medium = 0.35;
+        Low = 0.15;
+      ;
+      when "Criticality=C, ConditionStatus=Warning":
+        Critical = 0.05;
+        High = 0.15;
+        Medium = 0.40;
+        Low = 0.40;
+      ;
+      when "Criticality=C, ConditionStatus=Good":
+        Critical = 0.01;
+        High = 0.04;
+        Medium = 0.15;
+        Low = 0.80;
+      ;
+    }
+
+    evidenceBinding eb_failure_risk {
+      bind Criticality to asset.criticality using direct_map;
+      bind AssetAge to asset.install_date using age_category_mapper;
+      bind ConditionStatus to condition_monitoring.alert_status using status_mapper;
+      bind MaintenanceCompliance to kpi.pm_compliance_pct using compliance_category_mapper;
+    }
+
+    inference inf_failure_risk {
+      output = "FailureRisk probability distribution";
+    }
+  }
+
+  bayesianModel bn_maintenance_priority {
+    nodes {
+      AssetCriticality { "A"; "B"; "C"; }
+      RequestSeverity { "Critical"; "High"; "Medium"; "Low"; }
+      FailureRisk { "Low"; "Medium"; "High"; "Critical"; }
+      BacklogLevel { "Low"; "Normal"; "High"; "Overloaded"; }
+      RecommendedPriority { "Emergency"; "Urgent"; "High"; "Medium"; "Low"; }
+    }
+
+    edges {
+      AssetCriticality -> RecommendedPriority;
+      RequestSeverity -> RecommendedPriority;
+      FailureRisk -> RecommendedPriority;
+      BacklogLevel -> RecommendedPriority;
+    }
+
+    cpt RecommendedPriority {
+      when "AssetCriticality=A, RequestSeverity=Critical, FailureRisk=Critical":
+        Emergency = 0.90;
+        Urgent = 0.08;
+        High = 0.02;
+        Medium = 0.00;
+        Low = 0.00;
+      ;
+      when "AssetCriticality=A, RequestSeverity=Critical, FailureRisk=High":
+        Emergency = 0.70;
+        Urgent = 0.25;
+        High = 0.05;
+        Medium = 0.00;
+        Low = 0.00;
+      ;
+      when "AssetCriticality=A, RequestSeverity=High, FailureRisk=Medium":
+        Emergency = 0.15;
+        Urgent = 0.55;
+        High = 0.25;
+        Medium = 0.05;
+        Low = 0.00;
+      ;
+      when "AssetCriticality=B, RequestSeverity=Medium, FailureRisk=Low":
+        Emergency = 0.00;
+        Urgent = 0.05;
+        High = 0.15;
+        Medium = 0.60;
+        Low = 0.20;
+      ;
+      when "AssetCriticality=C, RequestSeverity=Low, FailureRisk=Low":
+        Emergency = 0.00;
+        Urgent = 0.00;
+        High = 0.05;
+        Medium = 0.25;
+        Low = 0.70;
+      ;
+    }
+
+    evidenceBinding eb_maintenance_priority {
+      bind AssetCriticality to asset.criticality using direct_map;
+      bind RequestSeverity to maintenance_request.severity using direct_map;
+      bind FailureRisk to bn_failure_risk.FailureRisk using pass_through;
+      bind BacklogLevel to work_order.backlog_count using backlog_category_mapper;
+    }
+
+    inference inf_maintenance_priority {
+      output = "RecommendedPriority probability distribution";
+    }
+  }
+
+  /* ================================================================ */
+  /* PREPROCESSING PIPELINES                                          */
+  /* ================================================================ */
+
+  preprocessingPipeline preprocess_vibration {
+    steps {
+      "resample to 1-second intervals";
+      "apply Hamming window";
+      "compute FFT";
+      "extract RMS amplitude";
+      "extract peak frequency";
+      "compute crest factor";
+      "normalize by baseline RMS";
+    }
+    output_type = "feature_vector";
+  }
+
+  preprocessingPipeline preprocess_temperature {
+    steps {
+      "forward-fill missing readings (max 5min gap)";
+      "compute 15-minute moving average";
+      "compute rate of change (degrees/hour)";
+      "detect rapid excursions (>5 degrees/10min)";
+      "normalize to 0-1 range based on asset operating range";
+    }
+    output_type = "feature_vector";
+  }
+
+  preprocessingPipeline preprocess_pressure {
+    steps {
+      "remove out-of-range readings (sensor limits)";
+      "compute 5-minute moving average";
+      "detect pressure spikes (>2 std dev in 1min)";
+      "compute baseline deviation percentage";
+      "flag sustained pressure deviations (>10% for 30min)";
+    }
+    output_type = "feature_vector";
+  }
+
+  preprocessingPipeline preprocess_oil {
+    steps {
+      "interpolate to daily frequency";
+      "compute particle count trend (linear regression)";
+      "compute viscosity deviation from baseline";
+      "flag contamination indicators";
+      "compute wear metal concentration trends";
+    }
+    output_type = "feature_vector";
+  }
+
+  preprocessingPipeline preprocess_text {
+    steps {
+      "lowercase and strip whitespace";
+      "remove special characters";
+      "tokenize with word boundaries";
+      "remove stopwords (English + maintenance domain)";
+      "apply TF-IDF vectorization (max 100 features)";
+    }
+    output_type = "sparse_matrix";
+  }
+
+  /* ================================================================ */
+  /* TRAINING PIPELINES                                               */
+  /* ================================================================ */
+
+  trainingPipeline train_predictive_maintenance {
+    dataset = dataset_predictive_maintenance;
+    steps {
+      "load and validate dataset";
+      "apply feature transforms (xform_breakdown_aggregation, xform_wo_aggregation, xform_kpi_features)";
+      "handle missing values (median imputation for numerics)";
+      "encode categorical variables (label encoding)";
+      "split 80/20 train/test stratified by criticality";
+      "train GradientBoosting regressor";
+      "evaluate on hold-out test set";
+      "compute SHAP feature importance";
+      "save model artifact and metrics";
+    }
+    metrics {
+      "mae < 15 days";
+      "rmse < 25 days";
+      "r2_score > 0.70";
+    }
+  }
+
+  trainingPipeline train_failure_classifier {
+    dataset = dataset_failure_classification;
+    steps {
+      "load and validate dataset";
+      "encode text descriptions (preprocess_text)";
+      "handle class imbalance with SMOTE";
+      "feature selection (top 20 by mutual information)";
+      "split 80/20 train/test stratified by failure_mode";
+      "train RandomForest classifier";
+      "evaluate metrics on test set";
+      "save model artifact and confusion matrix";
+    }
+    metrics {
+      "f1_macro > 0.75";
+      "accuracy > 0.80";
+    }
+  }
+
+  trainingPipeline train_anomaly_detector {
+    dataset = dataset_anomaly_detection;
+    steps {
+      "load sensor data window (trailing 90 days)";
+      "apply sensor preprocessing pipelines";
+      "standardize features (StandardScaler)";
+      "train IsolationForest on normal-labeled data";
+      "validate false positive rate on labeled anomalies";
+      "save model artifact";
+    }
+    metrics {
+      "precision > 0.85";
+      "recall > 0.80";
+      "false_positive_rate < 0.05";
+    }
+  }
+
+  trainingPipeline train_demand_forecast {
+    dataset = dataset_demand_forecast;
+    steps {
+      "load inventory transaction history (trailing 2 years)";
+      "apply STL decomposition for trend/seasonality";
+      "compute lagged features (7d, 14d, 30d, 90d)";
+      "split by time (train: first 18 months, test: last 6 months)";
+      "train XGBoost regressor";
+      "evaluate on test period";
+      "save model artifact and metrics";
+    }
+    metrics {
+      "mape < 20%";
+      "rmse normalized < 0.15";
+    }
+  }
+
+  trainingPipeline train_wo_duration {
+    dataset = dataset_wo_duration;
+    steps {
+      "load completed WO history";
+      "compute actual_duration_hours from start/end dates";
+      "encode work_order_type, priority, asset_class";
+      "split 80/20 train/test";
+      "train GradientBoosting regressor";
+      "evaluate on test set";
+      "save model artifact";
+    }
+    metrics {
+      "mae < 4 hours";
+      "r2_score > 0.65";
+    }
+  }
+
+  trainingPipeline train_vendor_risk {
+    dataset = dataset_vendor_risk;
+    steps {
+      "load vendor performance history";
+      "compute risk_score from composite formula";
+      "normalize features";
+      "train GradientBoosting regressor";
+      "cross-validate (5-fold)";
+      "save model artifact";
+    }
+    metrics {
+      "mae < 0.1";
+      "r2_score > 0.75";
+    }
+  }
+
+  trainingPipeline train_asset_health_index {
+    dataset = dataset_asset_health;
+    steps {
+      "load asset master and KPI history";
+      "compute health_index from weighted composite scoring";
+      "apply condition monitoring transforms";
+      "split 80/20 train/test";
+      "train GradientBoosting regressor";
+      "evaluate on test set";
+      "save model artifact";
+    }
+    metrics {
+      "mae < 5 points (0-100 scale)";
+      "r2_score > 0.80";
+    }
+  }
+
+  /* ================================================================ */
+  /* INFERENCE ARCHITECTURE                                           */
+  /* ================================================================ */
+
+  inferenceArchitecture ia_eam_ml {
+    edge_nodes {
+      ot.plc_gateway;
+      ot.sensor_collector;
+    }
+    cloud_nodes {
+      eam_chi_ml.mdl_predictive_maintenance;
+      eam_chi_ml.mdl_failure_classifier;
+      eam_chi_ml.mdl_anomaly_detector;
+      eam_chi_ml.mdl_demand_forecast;
+      eam_chi_ml.mdl_wo_duration_predictor;
+      eam_chi_ml.mdl_vendor_risk_scorer;
+      eam_chi_ml.mdl_asset_health_index;
+      eam_chi_ml.bn_failure_risk;
+      eam_chi_ml.bn_maintenance_priority;
+    }
+    data_flow {
+      "OT sensors -> sensor_collector -> ds_sensor_data";
+      "ds_sensor_data -> preprocess_vibration/temperature/pressure -> anomaly_detector (real-time)";
+      "anomaly alerts -> condition_monitoring table -> maintenance_request (if critical)";
+      "daily batch: ds_asset_master + ds_work_order_history + ds_kpi_history -> predictive_maintenance";
+      "daily batch: ds_inventory_transactions -> demand_forecast";
+      "on WO create: asset context -> wo_duration_predictor -> estimated_hours";
+      "on MR create: asset + severity -> bn_maintenance_priority -> priority suggestion";
+      "on PO receipt: vendor history -> vendor_risk_scorer -> vendor ratings update";
+      "weekly batch: all asset data -> asset_health_index -> dashboard";
+    }
+    fallback_logic {
+      "if anomaly_detector latency > 5s: use threshold-based alerting from condition_monitoring";
+      "if predictive_maintenance unavailable: fallback to interval-based PM scheduling";
+      "if demand_forecast unavailable: use static reorder points from item master";
+      "if vendor_risk_scorer unavailable: use raw delivery_rating and quality_rating";
+    }
+    latency_targets {
+      anomaly_detection = "< 2 seconds";
+      predictive_maintenance = "< 30 seconds";
+      failure_classification = "< 10 seconds";
+      demand_forecast = "< 60 seconds";
+      wo_duration_prediction = "< 5 seconds";
+      vendor_risk_scoring = "< 10 seconds";
+      asset_health_index = "< 60 seconds";
+      bayesian_failure_risk = "< 1 second";
+      bayesian_priority = "< 1 second";
+    }
+  }
+
+  /* ================================================================ */
+  /* MODEL SERVING                                                    */
+  /* ================================================================ */
+
+  modelServing serve_anomaly_detector {
+    model = eam_chi_ml.mdl_anomaly_detector;
+    location = "cloud-api";
+    batch_size = 100;
+    concurrency = 4;
+    autoscale = enabled;
+    retry_policy = "retry 3 times with exponential backoff";
+    gpu_enabled = false;
+  }
+
+  modelServing serve_predictive_maintenance {
+    model = eam_chi_ml.mdl_predictive_maintenance;
+    location = "cloud-api";
+    batch_size = 50;
+    concurrency = 2;
+    autoscale = enabled;
+    retry_policy = "retry 2 times with 5s delay";
+    gpu_enabled = false;
+  }
+
+  modelServing serve_failure_classifier {
+    model = eam_chi_ml.mdl_failure_classifier;
+    location = "cloud-api";
+    batch_size = 20;
+    concurrency = 2;
+    autoscale = enabled;
+    retry_policy = "retry 2 times with 5s delay";
+    gpu_enabled = false;
+  }
+
+  modelServing serve_demand_forecast {
+    model = eam_chi_ml.mdl_demand_forecast;
+    location = "cloud-api";
+    batch_size = 200;
+    concurrency = 1;
+    autoscale = disabled;
+    retry_policy = "retry 1 time";
+    gpu_enabled = false;
+  }
+
+  modelServing serve_wo_duration {
+    model = eam_chi_ml.mdl_wo_duration_predictor;
+    location = "cloud-api";
+    batch_size = 10;
+    concurrency = 4;
+    autoscale = enabled;
+    retry_policy = "retry 2 times with 2s delay";
+    gpu_enabled = false;
+  }
+
+  modelServing serve_vendor_risk {
+    model = eam_chi_ml.mdl_vendor_risk_scorer;
+    location = "cloud-api";
+    batch_size = 50;
+    concurrency = 1;
+    autoscale = disabled;
+    retry_policy = "retry 1 time";
+    gpu_enabled = false;
+  }
+
+  modelServing serve_asset_health {
+    model = eam_chi_ml.mdl_asset_health_index;
+    location = "cloud-api";
+    batch_size = 100;
+    concurrency = 2;
+    autoscale = enabled;
+    retry_policy = "retry 2 times with 5s delay";
+    gpu_enabled = false;
+  }
+
+  /* ================================================================ */
+  /* MODEL REGISTRY                                                   */
+  /* ================================================================ */
+
+  modelRegistry eam_model_registry {
+    models {
+      eam_chi_ml.mdl_predictive_maintenance;
+      eam_chi_ml.mdl_failure_classifier;
+      eam_chi_ml.mdl_anomaly_detector;
+      eam_chi_ml.mdl_demand_forecast;
+      eam_chi_ml.mdl_wo_duration_predictor;
+      eam_chi_ml.mdl_vendor_risk_scorer;
+      eam_chi_ml.mdl_asset_health_index;
+    }
+    states {
+      development;
+      staging;
+      production;
+      archived;
+      retired;
+    }
+  }
+
+  /* ================================================================ */
+  /* RETRAINING POLICIES                                              */
+  /* ================================================================ */
+
+  retrainingPolicy retrain_predictive_maintenance {
+    triggers {
+      "mae degrades > 20% from baseline";
+      "data drift detected (PSI > 0.2)";
+      "90 days since last training";
+      "50+ new failure events recorded";
+    }
+    actions {
+      "snapshot current model as fallback";
+      "rebuild dataset with latest 2 years of data";
+      "retrain mdl_predictive_maintenance";
+      "evaluate against staging test set";
+      "promote to production if metrics pass thresholds";
+    }
+    approval_required {
+      sec.role_system_manager;
+    }
+  }
+
+  retrainingPolicy retrain_failure_classifier {
+    triggers {
+      "f1_macro degrades > 15% from baseline";
+      "new failure_code category added to system";
+      "120 days since last training";
+    }
+    actions {
+      "snapshot current model";
+      "rebuild dataset with new failure codes";
+      "handle class imbalance (SMOTE)";
+      "retrain mdl_failure_classifier";
+      "evaluate and compare confusion matrices";
+      "promote if f1_macro > 0.75";
+    }
+    approval_required {
+      sec.role_system_manager;
+    }
+  }
+
+  retrainingPolicy retrain_anomaly_detector {
+    triggers {
+      "false_positive_rate > 10% over 7-day window";
+      "new sensor type deployed";
+      "60 days since last training";
+    }
+    actions {
+      "collect labeled anomaly feedback from operators";
+      "retrain IsolationForest with updated normal/anomaly labels";
+      "validate false_positive_rate < 5%";
+      "deploy to production";
+    }
+  }
+
+  retrainingPolicy retrain_demand_forecast {
+    triggers {
+      "mape > 25% over trailing month";
+      "30 days since last training";
+      "seasonal period boundary (quarterly)";
+    }
+    actions {
+      "rebuild dataset with latest transactions";
+      "re-decompose seasonality";
+      "retrain XGBoost regressor";
+      "evaluate on most recent quarter";
+      "promote if mape < 20%";
+    }
+  }
+
+  retrainingPolicy retrain_vendor_risk {
+    triggers {
+      "60 days since last training";
+      "10+ new vendors added";
+    }
+    actions {
+      "rebuild vendor performance dataset";
+      "retrain GradientBoosting regressor";
+      "cross-validate";
+      "promote if r2 > 0.75";
+    }
+  }
+
+  /* ================================================================ */
+  /* CANARY DEPLOYMENTS                                               */
+  /* ================================================================ */
+
+  canaryDeployment canary_predictive_maintenance {
+    model = eam_chi_ml.mdl_predictive_maintenance;
+    traffic_split {
+      current_production = "90%";
+      canary_candidate = "10%";
+    }
+    success_criteria {
+      "canary mae <= production mae * 1.1 over 7 days";
+      "canary r2_score >= production r2_score * 0.95";
+      "no prediction timeouts > 30s";
+    }
+    rollback_conditions {
+      "canary mae > production mae * 1.3";
+      "canary error_rate > 5%";
+      "canary latency_p99 > 60s";
+    }
+  }
+
+  canaryDeployment canary_anomaly_detector {
+    model = eam_chi_ml.mdl_anomaly_detector;
+    traffic_split {
+      current_production = "80%";
+      canary_candidate = "20%";
+    }
+    success_criteria {
+      "canary false_positive_rate <= 5% over 3 days";
+      "canary recall >= 80%";
+    }
+    rollback_conditions {
+      "canary false_positive_rate > 15%";
+      "canary recall < 60%";
+    }
+  }
+
+  /* ================================================================ */
+  /* DATA QUALITY RULES                                               */
+  /* ================================================================ */
+
+  dataQualityRule dq_sensor_readings {
+    conditions {
+      "reading_value IS NOT NULL";
+      "reading_value BETWEEN sensor.min_threshold * 0.5 AND sensor.max_threshold * 2.0";
+      "reading_timestamp <= NOW()";
+      "reading_timestamp >= NOW() - INTERVAL 24 HOURS";
+      "no duplicate (sensor_id, reading_timestamp) pairs";
+    }
+    severity = "critical";
+  }
+
+  dataQualityRule dq_work_order_completeness {
+    conditions {
+      "asset IS NOT NULL for completed WOs";
+      "actual_start_date <= actual_end_date";
+      "total_cost >= 0";
+      "downtime_hours >= 0";
+      "failure_code IS NOT NULL when work_order_type = 'Corrective'";
+    }
+    severity = "warning";
+  }
+
+  dataQualityRule dq_inventory_consistency {
+    conditions {
+      "actual_inv >= 0";
+      "reorder_point >= 0";
+      "transaction quantity != 0";
+      "lot_number IS NOT NULL when item.is_lot_tracked = true";
+      "expiry_date > transaction_date when expiry_date IS NOT NULL";
+    }
+    severity = "error";
+  }
+
+  dataQualityRule dq_kpi_bounds {
+    conditions {
+      "mtbf_hours >= 0";
+      "mttr_hours >= 0";
+      "pm_compliance_pct BETWEEN 0 AND 100";
+      "availability_pct BETWEEN 0 AND 100";
+    }
+    severity = "error";
+  }
+
+  dataQualityRule dq_vendor_ratings {
+    conditions {
+      "delivery_rating BETWEEN 0.0 AND 5.0";
+      "quality_rating BETWEEN 0.0 AND 5.0";
+      "overall_rating BETWEEN 0.0 AND 5.0";
+      "total_orders >= on_time_deliveries + rejected_deliveries";
+    }
+    severity = "warning";
+  }
+
+  /* ================================================================ */
+  /* DRIFT DETECTORS                                                  */
+  /* ================================================================ */
+
+  driftDetector drift_predictive_maintenance {
+    method = "PSI (Population Stability Index)";
+    monitored_features {
+      age_years;
+      mtbf_hours;
+      mttr_hours;
+      breakdown_count_90d;
+      avg_vibration_rms;
+      avg_temperature;
+      total_maintenance_cost_12m;
+    }
+    drift_threshold = 0.2;
+  }
+
+  driftDetector drift_anomaly_features {
+    method = "KS (Kolmogorov-Smirnov) test";
+    monitored_features {
+      reading_value;
+      moving_avg_1h;
+      std_dev_1h;
+      baseline_deviation;
+      rate_of_change;
+    }
+    drift_threshold = 0.05;
+  }
+
+  driftDetector drift_demand_features {
+    method = "PSI (Population Stability Index)";
+    monitored_features {
+      avg_daily_consumption_30d;
+      consumption_trend;
+      seasonality_index;
+      active_wo_count;
+    }
+    drift_threshold = 0.25;
+  }
+
+  driftDetector drift_failure_classes {
+    method = "Chi-squared test on label distribution";
+    monitored_features {
+      vibration_rms;
+      temperature_current;
+      pressure_current;
+      meter_reading_value;
+    }
+    drift_threshold = 0.1;
+  }
+
+  /* ================================================================ */
+  /* EXPLAINABILITY                                                   */
+  /* ================================================================ */
+
+  explainability explain_predictive_maintenance {
+    method = "SHAP (TreeExplainer)";
+    applicable_models {
+      eam_chi_ml.mdl_predictive_maintenance;
+    }
+    outputs {
+      "global feature importance (bar chart)";
+      "per-asset SHAP waterfall plot";
+      "top 5 contributing factors per prediction";
+      "force plot for individual predictions";
+    }
+  }
+
+  explainability explain_failure_classifier {
+    method = "SHAP (TreeExplainer)";
+    applicable_models {
+      eam_chi_ml.mdl_failure_classifier;
+    }
+    outputs {
+      "per-class feature importance";
+      "confusion matrix with misclassification analysis";
+      "decision path visualization for top predictions";
+    }
+  }
+
+  explainability explain_anomaly_detector {
+    method = "Anomaly score decomposition";
+    applicable_models {
+      eam_chi_ml.mdl_anomaly_detector;
+    }
+    outputs {
+      "anomaly score per reading";
+      "top contributing features for flagged anomalies";
+      "time-series overlay: prediction vs actual vs threshold";
+    }
+  }
+
+  explainability explain_demand_forecast {
+    method = "SHAP (TreeExplainer)";
+    applicable_models {
+      eam_chi_ml.mdl_demand_forecast;
+    }
+    outputs {
+      "feature importance for demand drivers";
+      "trend vs seasonality decomposition chart";
+      "forecast confidence intervals (80%, 95%)";
+    }
+  }
+
+  explainability explain_asset_health {
+    method = "SHAP (TreeExplainer)";
+    applicable_models {
+      eam_chi_ml.mdl_asset_health_index;
+    }
+    outputs {
+      "health index breakdown by factor";
+      "trend chart: health index over time";
+      "comparison: asset vs fleet average";
+    }
+  }
+
+  explainability explain_bayesian_risk {
+    method = "Bayesian posterior decomposition";
+    applicable_models {
+      eam_chi_ml.bn_failure_risk;
+      eam_chi_ml.bn_maintenance_priority;
+    }
+    outputs {
+      "posterior probability distribution per node";
+      "evidence contribution breakdown";
+      "what-if scenario analysis (toggle evidence nodes)";
+    }
+  }
+
+  /* ================================================================ */
+  /* TUNING BLOCKS                                                    */
+  /* ================================================================ */
+
+  tuningBlock tune_predictive_maintenance {
+    algorithms {
+      GradientBoosting;
+      XGBoost;
+      RandomForest;
+      LightGBM;
+    }
+    search_method = "Bayesian Optimization (Optuna)";
+    max_trials = 100;
+    optimize_for {
+      primary = "minimize mae";
+      secondary = "maximize r2_score";
+    }
+  }
+
+  tuningBlock tune_failure_classifier {
+    algorithms {
+      RandomForest;
+      GradientBoosting;
+      XGBoost;
+      SVM;
+    }
+    search_method = "Bayesian Optimization (Optuna)";
+    max_trials = 80;
+    optimize_for {
+      primary = "maximize f1_macro";
+      secondary = "maximize recall_macro";
+    }
+  }
+
+  tuningBlock tune_anomaly_detector {
+    algorithms {
+      IsolationForest;
+      LocalOutlierFactor;
+      OneClassSVM;
+    }
+    search_method = "Grid Search";
+    max_trials = 50;
+    optimize_for {
+      primary = "maximize f1_score";
+      secondary = "minimize false_positive_rate";
+    }
+  }
+
+  tuningBlock tune_demand_forecast {
+    algorithms {
+      XGBoost;
+      LightGBM;
+      GradientBoosting;
+    }
+    search_method = "Bayesian Optimization (Optuna)";
+    max_trials = 60;
+    optimize_for {
+      primary = "minimize mape";
+      secondary = "minimize rmse";
+    }
+  }
+
+  /* ================================================================ */
+  /* SCHEDULES                                                        */
+  /* ================================================================ */
+
+  schedule sched_anomaly_realtime {
+    runs = "every 60 seconds";
+    tasks {
+      "collect sensor readings from ds_sensor_data (last 60s)";
+      "preprocess through vibration/temperature/pressure pipelines";
+      "invoke mdl_anomaly_detector via serve_anomaly_detector";
+      "write anomaly flags to condition_monitoring table";
+      "if Critical anomaly: trigger maintenance_request creation";
+    }
+  }
+
+  schedule sched_daily_predictions {
+    runs = "daily at 05:00";
+    tasks {
+      "rebuild predictive maintenance features (xform_breakdown_aggregation, xform_wo_aggregation, xform_kpi_features)";
+      "invoke mdl_predictive_maintenance for all active assets";
+      "update asset predicted_failure_date field";
+      "invoke mdl_asset_health_index for all active assets";
+      "update asset health_index field";
+      "flag assets with days_to_failure < 14 for review";
+    }
+  }
+
+  schedule sched_daily_demand {
+    runs = "daily at 04:00";
+    tasks {
+      "rebuild demand forecast features (xform_consumption_trend)";
+      "invoke mdl_demand_forecast for items with cycle_count_frequency set";
+      "compare forecast to reorder_point";
+      "generate alerts for items projected to reach reorder within 7 days";
+    }
+  }
+
+  schedule sched_weekly_vendor_risk {
+    runs = "weekly on Monday at 06:00";
+    tasks {
+      "rebuild vendor risk features (xform_vendor_aggregation)";
+      "invoke mdl_vendor_risk_scorer for all active vendors";
+      "update vendor risk_score field";
+      "flag vendors with risk_score > 0.7 for review";
+    }
+  }
+
+  schedule sched_weekly_drift_check {
+    runs = "weekly on Sunday at 23:00";
+    tasks {
+      "run drift_predictive_maintenance detector";
+      "run drift_anomaly_features detector";
+      "run drift_demand_features detector";
+      "run drift_failure_classes detector";
+      "if any drift_threshold exceeded: trigger retraining pipeline";
+      "log drift metrics to scheduled_job_log";
+    }
+  }
+
+  schedule sched_quarterly_retrain {
+    runs = "quarterly on 1st day at 02:00";
+    tasks {
+      "run train_predictive_maintenance pipeline";
+      "run train_failure_classifier pipeline";
+      "run train_anomaly_detector pipeline";
+      "run train_demand_forecast pipeline";
+      "run train_vendor_risk pipeline";
+      "run train_asset_health_index pipeline";
+      "compare new models vs production baselines";
+      "deploy via canary if metrics improve";
+    }
+  }
+
+  schedule sched_on_wo_create {
+    runs = "on event: work_order.after_save";
+    tasks {
+      "extract asset context and WO metadata";
+      "invoke mdl_wo_duration_predictor via serve_wo_duration";
+      "set estimated_hours on work_order if not manually set";
+    }
+  }
+
+  schedule sched_on_mr_create {
+    runs = "on event: maintenance_request.before_save";
+    tasks {
+      "extract asset criticality and request severity";
+      "invoke bn_maintenance_priority Bayesian inference";
+      "suggest priority to user (do not override if manually set)";
+    }
+  }
+
+  /* ================================================================ */
+  /* SECURITY                                                         */
+  /* ================================================================ */
+
+  security use sec.rbac_model;
+
+  /* ================================================================ */
+  /* ANNOTATIONS                                                      */
+  /* ================================================================ */
+
+  @version(major = 1, minor = 0, patch = 0);
+  @author(name = "EAM-CHI ML Team");
+  @created(date = "2026-03-23");
+  @compliance(standard = "ISO 55000", requirement = "data-driven asset management");
+  @compliance(standard = "ISO 14224", requirement = "reliability and maintenance data collection");
+
+} /* end aiml model */

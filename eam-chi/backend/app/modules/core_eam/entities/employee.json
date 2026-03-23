@@ -58,6 +58,14 @@
       "field_type": "string",
       "required": false,
       "in_list_view": true
+    },
+    {
+      "name": "reports_to",
+      "label": "Reports To",
+      "field_type": "link",
+      "link_entity": "employee",
+      "required": false,
+      "in_list_view": true
     }
   ],
   "rbac": {

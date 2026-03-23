@@ -1,0 +1,1490 @@
+uxml model eam_ux {
+
+  import "core_eam.dbml" as core;
+  import "asset_management.dbml" as asset;
+  import "maintenance_mgmt.dbml" as maint;
+  import "work_mgmt.dbml" as work;
+  import "purchasing_stores.dbml" as purch;
+  import "eam_security.sdml" as sec;
+
+  security use sec.eam_security;
+
+  (* ========================================== *)
+  (* THEME                                      *)
+  (* ========================================== *)
+
+  theme eam-default-theme {
+    label = "EAM Default Theme";
+    token primary-color = "#1976D2";
+    token secondary-color = "#424242";
+    token success-color = "#4CAF50";
+    token warning-color = "#FF9800";
+    token error-color = "#F44336";
+    token info-color = "#2196F3";
+    token background = "#F5F5F5";
+    token surface = "#FFFFFF";
+    token text-primary = "#212121";
+    token text-secondary = "#757575";
+    token font-family = "Inter, sans-serif";
+    token font-size-base = "14px";
+    token spacing-unit = "8px";
+    token border-radius = "4px";
+    token shadow-card = "0 2px 4px rgba(0,0,0,0.1)";
+    token breakpoint-sm = "640px";
+    token breakpoint-md = "1024px";
+    token breakpoint-lg = "1280px";
+    token breakpoint-xl = "1536px";
+  }
+
+  (* ========================================== *)
+  (* CHANNELS                                   *)
+  (* ========================================== *)
+
+  channel web-app {
+    label = "EAM Web Application";
+    kind = web-app;
+    entry-view = eam_ux.dashboard-view;
+  }
+
+  channel mobile-app {
+    label = "EAM Mobile Application";
+    kind = mobile-app;
+    entry-view = eam_ux.mobile-dashboard-view;
+  }
+
+  (* ========================================== *)
+  (* APP                                        *)
+  (* ========================================== *)
+
+  app eam-chi {
+    label = "CHI Enterprise Asset Management";
+    channel use eam_ux.web-app;
+    channel use eam_ux.mobile-app;
+    layout use eam_ux.main-shell;
+    theme use eam_ux.eam-default-theme;
+    feature use eam_ux.dashboard-feature;
+    feature use eam_ux.asset-management-feature;
+    feature use eam_ux.maintenance-feature;
+    feature use eam_ux.work-order-feature;
+    feature use eam_ux.purchasing-feature;
+    feature use eam_ux.inventory-feature;
+    feature use eam_ux.admin-feature;
+    setting default-locale = "en";
+    setting date-format = "YYYY-MM-DD";
+    setting currency-format = "USD";
+  }
+
+  (* ========================================== *)
+  (* LAYOUTS                                    *)
+  (* ========================================== *)
+
+  layout main-shell {
+    label = "Main Application Shell";
+    kind = shell;
+
+    slot header {
+      region = "top";
+      default-component = eam_ux.app-header;
+    }
+
+    slot sidebar {
+      region = "left";
+      default-component = eam_ux.nav-sidebar;
+    }
+
+    slot main-content {
+      region = "center";
+    }
+
+    slot footer {
+      region = "bottom";
+      default-component = eam_ux.app-footer;
+    }
+  }
+
+  layout page-with-tabs {
+    label = "Page with Tab Navigation";
+    kind = page;
+
+    slot page-header {
+      region = "top";
+    }
+
+    slot tab-bar {
+      region = "top-sub";
+    }
+
+    slot tab-content {
+      region = "center";
+    }
+
+    slot page-actions {
+      region = "bottom";
+    }
+  }
+
+  layout form-page {
+    label = "Standard Form Page";
+    kind = page;
+
+    slot form-header {
+      region = "top";
+    }
+
+    slot form-body {
+      region = "center";
+    }
+
+    slot form-actions {
+      region = "bottom";
+    }
+  }
+
+  layout dialog-layout {
+    label = "Modal Dialog";
+    kind = dialog;
+
+    slot dialog-header {
+      region = "top";
+    }
+
+    slot dialog-body {
+      region = "center";
+    }
+
+    slot dialog-actions {
+      region = "bottom";
+    }
+  }
+
+  (* ========================================== *)
+  (* COMPONENTS                                 *)
+  (* ========================================== *)
+
+  component app-header {
+    label = "Application Header";
+    kind = toolbar;
+    prop title : string;
+    prop show-search : boolean;
+    prop show-notifications : boolean;
+
+    slot user-menu {
+      label = "User Menu";
+    }
+  }
+
+  component nav-sidebar {
+    label = "Navigation Sidebar";
+    kind = custom;
+    prop collapsed : boolean;
+
+    slot nav-items {
+      label = "Navigation Items";
+      multiple = true;
+    }
+  }
+
+  component app-footer {
+    label = "Application Footer";
+    kind = layout-fragment;
+    prop version : string;
+  }
+
+  component entity-list-table {
+    label = "Entity List Table";
+    kind = table;
+    prop columns : json;
+    prop page-size : number;
+    prop searchable : boolean;
+    prop filterable : boolean;
+    prop sortable : boolean;
+    prop selectable : boolean;
+    prop export-enabled : boolean;
+
+    slot row-actions {
+      label = "Row Actions";
+    }
+
+    slot bulk-actions {
+      label = "Bulk Actions";
+    }
+  }
+
+  component entity-form {
+    label = "Entity Form";
+    kind = form-section;
+    prop fields : json;
+    prop readonly : boolean;
+    prop layout-columns : number;
+
+    slot form-sections {
+      label = "Form Sections";
+      multiple = true;
+    }
+
+    slot form-actions {
+      label = "Form Actions";
+    }
+  }
+
+  component detail-card {
+    label = "Detail Card";
+    kind = card;
+    prop title : string;
+    prop subtitle : string;
+
+    slot card-body {
+      label = "Card Body";
+    }
+
+    slot card-actions {
+      label = "Card Actions";
+    }
+  }
+
+  component workflow-status-badge {
+    label = "Workflow Status Badge";
+    kind = badge;
+    prop state : string;
+    prop color-map : json;
+  }
+
+  component kpi-widget {
+    label = "KPI Widget";
+    kind = card;
+    prop metric-name : string;
+    prop value : number;
+    prop unit : string;
+    prop trend : string;
+    prop color : string;
+  }
+
+  component chart-widget {
+    label = "Chart Widget";
+    kind = chart;
+    prop chart-type : string;
+    prop data-source : string;
+    prop title : string;
+    prop height : number;
+  }
+
+  component filter-toolbar {
+    label = "Filter Toolbar";
+    kind = filter-bar;
+    prop filters : json;
+    prop quick-search : boolean;
+  }
+
+  (* ========================================== *)
+  (* FEATURES                                   *)
+  (* ========================================== *)
+
+  feature dashboard-feature {
+    label = "Dashboard";
+    use view eam_ux.dashboard-view;
+    use view eam_ux.mobile-dashboard-view;
+  }
+
+  feature asset-management-feature {
+    label = "Asset Management";
+    use view eam_ux.asset-list-view;
+    use view eam_ux.asset-detail-view;
+    use view eam_ux.asset-form-view;
+    use view eam_ux.location-list-view;
+    use view eam_ux.equipment-list-view;
+    use view eam_ux.meter-reading-view;
+    use flow eam_ux.asset-registration-flow;
+  }
+
+  feature maintenance-feature {
+    label = "Maintenance Management";
+    use view eam_ux.maintenance-request-list-view;
+    use view eam_ux.maintenance-request-form-view;
+    use view eam_ux.maintenance-plan-list-view;
+    use view eam_ux.sensor-dashboard-view;
+    use view eam_ux.condition-monitoring-view;
+    use view eam_ux.failure-analysis-view;
+    use view eam_ux.inspection-route-view;
+    use flow eam_ux.maintenance-request-flow;
+  }
+
+  feature work-order-feature {
+    label = "Work Management";
+    use view eam_ux.work-order-list-view;
+    use view eam_ux.work-order-detail-view;
+    use view eam_ux.work-order-form-view;
+    use view eam_ux.safety-permit-list-view;
+    use view eam_ux.tool-checkout-view;
+    use flow eam_ux.work-order-execution-flow;
+  }
+
+  feature purchasing-feature {
+    label = "Purchasing";
+    use view eam_ux.purchase-request-list-view;
+    use view eam_ux.purchase-request-form-view;
+    use view eam_ux.purchase-order-list-view;
+    use view eam_ux.purchase-order-form-view;
+    use view eam_ux.rfq-list-view;
+    use view eam_ux.vendor-list-view;
+    use view eam_ux.vendor-invoice-list-view;
+    use flow eam_ux.procurement-flow;
+  }
+
+  feature inventory-feature {
+    label = "Inventory & Stores";
+    use view eam_ux.inventory-list-view;
+    use view eam_ux.item-list-view;
+    use view eam_ux.item-issue-list-view;
+    use view eam_ux.item-return-list-view;
+    use view eam_ux.stock-count-list-view;
+    use view eam_ux.transfer-list-view;
+    use flow eam_ux.stock-count-flow;
+  }
+
+  feature admin-feature {
+    label = "Administration";
+    use view eam_ux.employee-list-view;
+    use view eam_ux.site-list-view;
+    use view eam_ux.department-list-view;
+    use view eam_ux.series-list-view;
+    use view eam_ux.work-schedule-view;
+    use view eam_ux.audit-log-view;
+  }
+
+  (* ========================================== *)
+  (* VIEWS — DASHBOARD                          *)
+  (* ========================================== *)
+
+  view dashboard-view {
+    label = "Main Dashboard";
+    kind = dashboard;
+    layout = eam_ux.main-shell;
+
+    region kpi-row {
+      label = "Key Metrics";
+      slot = main-content;
+      use component eam_ux.kpi-widget {
+        prop metric-name = "Open Work Orders";
+      }
+      use component eam_ux.kpi-widget {
+        prop metric-name = "Overdue Maintenance";
+      }
+      use component eam_ux.kpi-widget {
+        prop metric-name = "Open Purchase Requests";
+      }
+      use component eam_ux.kpi-widget {
+        prop metric-name = "Low Stock Items";
+      }
+    }
+
+    region charts-row {
+      label = "Dashboard Charts";
+      slot = main-content;
+      use component eam_ux.chart-widget {
+        prop chart-type = "bar";
+        prop title = "Work Orders by Status";
+      }
+      use component eam_ux.chart-widget {
+        prop chart-type = "pie";
+        prop title = "Maintenance by Type";
+      }
+      use component eam_ux.chart-widget {
+        prop chart-type = "line";
+        prop title = "PM Compliance Trend";
+      }
+    }
+  }
+
+  view mobile-dashboard-view {
+    label = "Mobile Dashboard";
+    kind = dashboard;
+
+    region mobile-kpis {
+      label = "Mobile KPIs";
+      use component eam_ux.kpi-widget {
+        prop metric-name = "My Work Orders";
+      }
+      use component eam_ux.kpi-widget {
+        prop metric-name = "Pending Approvals";
+      }
+    }
+  }
+
+  (* ========================================== *)
+  (* VIEWS — ASSET MANAGEMENT                   *)
+  (* ========================================== *)
+
+  view asset-list-view {
+    label = "Asset Registry";
+    kind = list;
+    entity = asset.Asset;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.filter-toolbar {
+        prop quick-search = true;
+      }
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+        prop sortable = true;
+        prop export-enabled = true;
+      }
+    }
+
+    actions {
+      action create {
+        label = "New Asset";
+        icon = "mdi-plus";
+        invoke = eam_ux.asset-form-view;
+        variant = "primary";
+      }
+    }
+
+    guard auth-check {
+      when = "user.role == viewer";
+      message = "View-only access";
+    }
+  }
+
+  view asset-detail-view {
+    label = "Asset Detail";
+    kind = detail;
+    entity = asset.Asset;
+    layout = eam_ux.page-with-tabs;
+
+    bind asset-tag {
+      to = asset.Asset.id;
+      mode = read;
+    }
+
+    bind lifecycle-state {
+      to = asset.Asset.lifecycle_state;
+      mode = read;
+    }
+
+    region header-section {
+      slot = page-header;
+      use component eam_ux.detail-card {
+        prop title = "Asset Overview";
+      }
+      use component eam_ux.workflow-status-badge;
+    }
+
+    actions {
+      action edit {
+        label = "Edit";
+        icon = "mdi-pencil";
+        when = "user.role != viewer";
+        invoke = eam_ux.asset-form-view;
+      }
+
+      action transfer {
+        label = "Transfer";
+        icon = "mdi-swap-horizontal";
+        when = "user.role == planner or user.role == admin";
+      }
+
+      action dispose {
+        label = "Dispose";
+        icon = "mdi-delete";
+        when = "user.role == manager or user.role == admin";
+        variant = "danger";
+      }
+    }
+  }
+
+  view asset-form-view {
+    label = "Asset Form";
+    kind = form;
+    entity = asset.Asset;
+    layout = eam_ux.form-page;
+
+    region form-area {
+      slot = form-body;
+      use component eam_ux.entity-form {
+        prop layout-columns = 2;
+      }
+    }
+
+    actions {
+      action save {
+        label = "Save";
+        icon = "mdi-content-save";
+        variant = "primary";
+      }
+
+      action cancel {
+        label = "Cancel";
+        variant = "text";
+      }
+    }
+  }
+
+  view location-list-view {
+    label = "Locations";
+    kind = list;
+    entity = asset.Location;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+      }
+    }
+  }
+
+  view equipment-list-view {
+    label = "Equipment";
+    kind = list;
+    entity = asset.Equipment;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+      }
+    }
+  }
+
+  view meter-reading-view {
+    label = "Meter Readings";
+    kind = form;
+    entity = asset.MeterReading;
+    layout = eam_ux.form-page;
+
+    region reading-form {
+      slot = form-body;
+      use component eam_ux.entity-form;
+    }
+  }
+
+  (* ========================================== *)
+  (* VIEWS — MAINTENANCE                        *)
+  (* ========================================== *)
+
+  view maintenance-request-list-view {
+    label = "Maintenance Requests";
+    kind = list;
+    entity = maint.MaintenanceRequest;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.filter-toolbar {
+        prop quick-search = true;
+      }
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+        prop sortable = true;
+      }
+    }
+
+    actions {
+      action create {
+        label = "New Request";
+        icon = "mdi-plus";
+        invoke = eam_ux.maintenance-request-form-view;
+        variant = "primary";
+      }
+    }
+  }
+
+  view maintenance-request-form-view {
+    label = "Maintenance Request Form";
+    kind = form;
+    entity = maint.MaintenanceRequest;
+    layout = eam_ux.form-page;
+
+    bind state {
+      to = maint.MaintenanceRequest.workflow_state;
+      mode = read;
+    }
+
+    region form-area {
+      slot = form-body;
+      use component eam_ux.entity-form {
+        prop layout-columns = 2;
+      }
+    }
+
+    actions {
+      action save {
+        label = "Save Draft";
+        icon = "mdi-content-save";
+        when = "workflow_state == draft";
+      }
+
+      action submit {
+        label = "Submit";
+        icon = "mdi-send";
+        when = "workflow_state == draft";
+        variant = "primary";
+      }
+
+      action approve {
+        label = "Approve";
+        icon = "mdi-check";
+        when = "workflow_state == submitted and user.role == planner";
+        variant = "success";
+      }
+
+      action reject {
+        label = "Reject";
+        icon = "mdi-close";
+        when = "workflow_state == submitted and user.role == planner";
+        variant = "danger";
+      }
+    }
+  }
+
+  view maintenance-plan-list-view {
+    label = "Maintenance Plans";
+    kind = list;
+    entity = maint.MaintenancePlan;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+      }
+    }
+  }
+
+  view sensor-dashboard-view {
+    label = "Sensor Dashboard";
+    kind = dashboard;
+    entity = maint.Sensor;
+    layout = eam_ux.main-shell;
+
+    region sensor-overview {
+      slot = main-content;
+      use component eam_ux.kpi-widget {
+        prop metric-name = "Active Sensors";
+      }
+      use component eam_ux.chart-widget {
+        prop chart-type = "line";
+        prop title = "Sensor Readings Trend";
+      }
+    }
+  }
+
+  view condition-monitoring-view {
+    label = "Condition Monitoring";
+    kind = list;
+    entity = maint.ConditionMonitoring;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+      }
+    }
+  }
+
+  view failure-analysis-view {
+    label = "Failure Analysis";
+    kind = form;
+    entity = maint.FailureAnalysis;
+    layout = eam_ux.form-page;
+
+    region form-area {
+      slot = form-body;
+      use component eam_ux.entity-form {
+        prop layout-columns = 2;
+      }
+    }
+  }
+
+  view inspection-route-view {
+    label = "Inspection Routes";
+    kind = list;
+    entity = maint.InspectionRoute;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+      }
+    }
+  }
+
+  (* ========================================== *)
+  (* VIEWS — WORK MANAGEMENT                    *)
+  (* ========================================== *)
+
+  view work-order-list-view {
+    label = "Work Orders";
+    kind = list;
+    entity = work.WorkOrder;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.filter-toolbar {
+        prop quick-search = true;
+      }
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+        prop sortable = true;
+        prop export-enabled = true;
+      }
+    }
+
+    actions {
+      action create {
+        label = "New Work Order";
+        icon = "mdi-plus";
+        invoke = eam_ux.work-order-form-view;
+        variant = "primary";
+      }
+    }
+  }
+
+  view work-order-detail-view {
+    label = "Work Order Detail";
+    kind = detail;
+    entity = work.WorkOrder;
+    layout = eam_ux.page-with-tabs;
+
+    bind state {
+      to = work.WorkOrder.workflow_state;
+      mode = read;
+    }
+
+    region header-section {
+      slot = page-header;
+      use component eam_ux.detail-card {
+        prop title = "Work Order";
+      }
+      use component eam_ux.workflow-status-badge;
+    }
+
+    actions {
+      action plan {
+        label = "Plan";
+        when = "workflow_state == draft and user.role == planner";
+        variant = "primary";
+      }
+
+      action schedule {
+        label = "Schedule";
+        when = "workflow_state == planned and user.role == planner";
+        variant = "primary";
+      }
+
+      action start {
+        label = "Start Work";
+        when = "workflow_state == scheduled and user.role == technician";
+        variant = "success";
+      }
+
+      action complete {
+        label = "Complete";
+        when = "workflow_state == in-progress and user.role == technician";
+        variant = "success";
+      }
+
+      action close {
+        label = "Close";
+        when = "workflow_state == completed and user.role == planner";
+      }
+    }
+  }
+
+  view work-order-form-view {
+    label = "Work Order Form";
+    kind = form;
+    entity = work.WorkOrder;
+    layout = eam_ux.form-page;
+
+    region form-area {
+      slot = form-body;
+      use component eam_ux.entity-form {
+        prop layout-columns = 2;
+      }
+    }
+  }
+
+  view safety-permit-list-view {
+    label = "Safety Permits";
+    kind = list;
+    entity = work.SafetyPermit;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+      }
+    }
+  }
+
+  view tool-checkout-view {
+    label = "Tool Checkout";
+    kind = list;
+    entity = work.ToolCheckout;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+      }
+    }
+  }
+
+  (* ========================================== *)
+  (* VIEWS — PURCHASING                         *)
+  (* ========================================== *)
+
+  view purchase-request-list-view {
+    label = "Purchase Requests";
+    kind = list;
+    entity = purch.PurchaseRequest;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.filter-toolbar {
+        prop quick-search = true;
+      }
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+        prop sortable = true;
+      }
+    }
+
+    actions {
+      action create {
+        label = "New Request";
+        icon = "mdi-plus";
+        invoke = eam_ux.purchase-request-form-view;
+        variant = "primary";
+      }
+    }
+  }
+
+  view purchase-request-form-view {
+    label = "Purchase Request Form";
+    kind = form;
+    entity = purch.PurchaseRequest;
+    layout = eam_ux.form-page;
+
+    region form-area {
+      slot = form-body;
+      use component eam_ux.entity-form {
+        prop layout-columns = 2;
+      }
+    }
+  }
+
+  view purchase-order-list-view {
+    label = "Purchase Orders";
+    kind = list;
+    entity = purch.PurchaseOrder;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+        prop sortable = true;
+        prop export-enabled = true;
+      }
+    }
+  }
+
+  view purchase-order-form-view {
+    label = "Purchase Order Form";
+    kind = form;
+    entity = purch.PurchaseOrder;
+    layout = eam_ux.form-page;
+
+    region form-area {
+      slot = form-body;
+      use component eam_ux.entity-form {
+        prop layout-columns = 2;
+      }
+    }
+  }
+
+  view rfq-list-view {
+    label = "Requests for Quotation";
+    kind = list;
+    entity = purch.RequestForQuotation;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+      }
+    }
+  }
+
+  view vendor-list-view {
+    label = "Vendors";
+    kind = list;
+    entity = purch.Vendor;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+      }
+    }
+  }
+
+  view vendor-invoice-list-view {
+    label = "Vendor Invoices";
+    kind = list;
+    entity = purch.VendorInvoice;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+        prop sortable = true;
+      }
+    }
+  }
+
+  (* ========================================== *)
+  (* VIEWS — INVENTORY                          *)
+  (* ========================================== *)
+
+  view inventory-list-view {
+    label = "Inventory";
+    kind = list;
+    entity = purch.Inventory;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.filter-toolbar {
+        prop quick-search = true;
+      }
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+        prop sortable = true;
+        prop export-enabled = true;
+      }
+    }
+  }
+
+  view item-list-view {
+    label = "Item Catalog";
+    kind = list;
+    entity = purch.Item;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+      }
+    }
+  }
+
+  view item-issue-list-view {
+    label = "Item Issues";
+    kind = list;
+    entity = purch.ItemIssue;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+      }
+    }
+  }
+
+  view item-return-list-view {
+    label = "Item Returns";
+    kind = list;
+    entity = purch.ItemReturn;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+      }
+    }
+  }
+
+  view stock-count-list-view {
+    label = "Stock Counts";
+    kind = list;
+    entity = purch.StockCount;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+      }
+    }
+  }
+
+  view transfer-list-view {
+    label = "Store Transfers";
+    kind = list;
+    entity = purch.Transfer;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+      }
+    }
+  }
+
+  (* ========================================== *)
+  (* VIEWS — ADMIN                              *)
+  (* ========================================== *)
+
+  view employee-list-view {
+    label = "Employees";
+    kind = list;
+    entity = core.Employee;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+      }
+    }
+  }
+
+  view site-list-view {
+    label = "Sites";
+    kind = list;
+    entity = core.Site;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+      }
+    }
+  }
+
+  view department-list-view {
+    label = "Departments";
+    kind = list;
+    entity = core.Department;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+      }
+    }
+  }
+
+  view series-list-view {
+    label = "Series Configuration";
+    kind = list;
+    entity = core.Series;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+      }
+    }
+  }
+
+  view work-schedule-view {
+    label = "Work Schedules";
+    kind = list;
+    entity = core.WorkSchedule;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+      }
+    }
+  }
+
+  view audit-log-view {
+    label = "Audit Logs";
+    kind = list;
+    entity = core.MasterDataChange;
+    layout = eam_ux.main-shell;
+
+    region list-area {
+      slot = main-content;
+      use component eam_ux.entity-list-table {
+        prop searchable = true;
+        prop filterable = true;
+        prop sortable = true;
+        prop export-enabled = true;
+      }
+    }
+
+    guard admin-only {
+      when = "user.role != admin and user.role != manager";
+      redirect-to = eam_ux.dashboard-view;
+      message = "Admin access required";
+    }
+  }
+
+  (* ========================================== *)
+  (* LOGIC                                      *)
+  (* ========================================== *)
+
+  logic work-order-form-logic {
+    label = "Work Order Form Logic";
+    for-view = eam_ux.work-order-form-view;
+    context = work.WorkOrder;
+
+    rule show-safety-fields {
+      when = "wo_type == emergency or wo_type == corrective";
+      expose work.WorkOrder.category_of_failure;
+      expose work.WorkOrder.cause_code;
+      expose work.WorkOrder.remedy_code;
+    }
+
+    rule hide-job-plan-for-emergency {
+      when = "wo_type == emergency";
+      hide work.WorkOrder.job_plan;
+    }
+
+    rule require-asset-for-corrective {
+      when = "wo_type == corrective";
+      require work.WorkOrder.asset;
+    }
+  }
+
+  logic maintenance-request-form-logic {
+    label = "Maintenance Request Form Logic";
+    for-view = eam_ux.maintenance-request-form-view;
+    context = maint.MaintenanceRequest;
+
+    rule require-asset-or-location {
+      when = "asset == null and location == null";
+      require maint.MaintenanceRequest.asset;
+    }
+
+    rule show-sla-fields {
+      when = "workflow_state != draft";
+      expose maint.MaintenanceRequest.sla_response_due;
+      expose maint.MaintenanceRequest.sla_resolution_due;
+      expose maint.MaintenanceRequest.sla_status;
+    }
+  }
+
+  (* ========================================== *)
+  (* FLOWS                                      *)
+  (* ========================================== *)
+
+  flow asset-registration-flow {
+    label = "Asset Registration Wizard";
+    entry = eam_ux.step-basic-info;
+
+    step step-basic-info {
+      label = "Basic Information";
+      view = eam_ux.asset-form-view;
+      kind = screen;
+    }
+
+    step step-classification {
+      label = "Classification";
+      kind = screen;
+    }
+
+    step step-properties {
+      label = "Properties";
+      kind = screen;
+    }
+
+    step step-review {
+      label = "Review & Confirm";
+      kind = screen;
+    }
+
+    step step-complete {
+      label = "Registration Complete";
+      kind = terminal;
+    }
+
+    transition next-to-class {
+      from = step-basic-info;
+      to = step-classification;
+      via-action = next;
+    }
+
+    transition next-to-props {
+      from = step-classification;
+      to = step-properties;
+      via-action = next;
+    }
+
+    transition next-to-review {
+      from = step-properties;
+      to = step-review;
+      via-action = next;
+    }
+
+    transition confirm {
+      from = step-review;
+      to = step-complete;
+      via-action = confirm;
+    }
+  }
+
+  flow maintenance-request-flow {
+    label = "Maintenance Request Submission";
+    entry = eam_ux.mr-step-create;
+
+    step mr-step-create {
+      label = "Create Request";
+      view = eam_ux.maintenance-request-form-view;
+      use-logic = eam_ux.maintenance-request-form-logic;
+      kind = screen;
+    }
+
+    step mr-step-review {
+      label = "Review & Submit";
+      kind = screen;
+    }
+
+    step mr-step-done {
+      label = "Submitted";
+      kind = terminal;
+    }
+
+    transition to-review {
+      from = mr-step-create;
+      to = mr-step-review;
+      via-action = next;
+    }
+
+    transition submit {
+      from = mr-step-review;
+      to = mr-step-done;
+      via-action = submit;
+    }
+  }
+
+  flow work-order-execution-flow {
+    label = "Work Order Execution";
+    entry = eam_ux.wo-step-plan;
+
+    step wo-step-plan {
+      label = "Planning";
+      view = eam_ux.work-order-form-view;
+      use-logic = eam_ux.work-order-form-logic;
+      kind = screen;
+    }
+
+    step wo-step-schedule {
+      label = "Scheduling";
+      kind = screen;
+    }
+
+    step wo-step-execute {
+      label = "Execution";
+      kind = screen;
+    }
+
+    step wo-step-complete {
+      label = "Completion";
+      kind = screen;
+    }
+
+    step wo-step-close {
+      label = "Closed";
+      kind = terminal;
+    }
+
+    transition plan-to-schedule {
+      from = wo-step-plan;
+      to = wo-step-schedule;
+      via-action = schedule;
+    }
+
+    transition schedule-to-execute {
+      from = wo-step-schedule;
+      to = wo-step-execute;
+      via-action = start;
+    }
+
+    transition execute-to-complete {
+      from = wo-step-execute;
+      to = wo-step-complete;
+      via-action = complete;
+    }
+
+    transition complete-to-close {
+      from = wo-step-complete;
+      to = wo-step-close;
+      via-action = close;
+    }
+  }
+
+  flow procurement-flow {
+    label = "Procurement Cycle";
+    entry = eam_ux.proc-step-request;
+
+    step proc-step-request {
+      label = "Purchase Request";
+      view = eam_ux.purchase-request-form-view;
+      kind = screen;
+    }
+
+    step proc-step-rfq {
+      label = "RFQ (Optional)";
+      view = eam_ux.rfq-list-view;
+      kind = screen;
+    }
+
+    step proc-step-order {
+      label = "Purchase Order";
+      view = eam_ux.purchase-order-form-view;
+      kind = screen;
+    }
+
+    step proc-step-receive {
+      label = "Goods Receipt";
+      kind = screen;
+    }
+
+    step proc-step-done {
+      label = "Complete";
+      kind = terminal;
+    }
+
+    transition request-to-rfq {
+      from = proc-step-request;
+      to = proc-step-rfq;
+      when = "requires_rfq == true";
+    }
+
+    transition request-to-order {
+      from = proc-step-request;
+      to = proc-step-order;
+      when = "requires_rfq == false";
+    }
+
+    transition rfq-to-order {
+      from = proc-step-rfq;
+      to = proc-step-order;
+      via-action = award;
+    }
+
+    transition order-to-receive {
+      from = proc-step-order;
+      to = proc-step-receive;
+      via-action = send;
+    }
+
+    transition receive-to-done {
+      from = proc-step-receive;
+      to = proc-step-done;
+      via-action = receive;
+    }
+  }
+
+  flow stock-count-flow {
+    label = "Stock Count Process";
+    entry = eam_ux.sc-step-init;
+
+    step sc-step-init {
+      label = "Initialize Count";
+      kind = screen;
+    }
+
+    step sc-step-count {
+      label = "Perform Count";
+      kind = screen;
+    }
+
+    step sc-step-review {
+      label = "Review Variances";
+      kind = screen;
+    }
+
+    step sc-step-post {
+      label = "Post Adjustments";
+      kind = terminal;
+    }
+
+    transition init-to-count {
+      from = sc-step-init;
+      to = sc-step-count;
+      via-action = start;
+    }
+
+    transition count-to-review {
+      from = sc-step-count;
+      to = sc-step-review;
+      via-action = complete;
+    }
+
+    transition review-to-post {
+      from = sc-step-review;
+      to = sc-step-post;
+      via-action = approve;
+    }
+  }
+
+  (* ========================================== *)
+  (* STRINGS                                    *)
+  (* ========================================== *)
+
+  strings en {
+    locale = "en-US";
+    text app-title = "CHI Enterprise Asset Management";
+    text dashboard = "Dashboard";
+    text assets = "Assets";
+    text maintenance = "Maintenance";
+    text work-orders = "Work Orders";
+    text purchasing = "Purchasing";
+    text inventory = "Inventory & Stores";
+    text admin = "Administration";
+    text save = "Save";
+    text cancel = "Cancel";
+    text submit = "Submit";
+    text approve = "Approve";
+    text reject = "Reject";
+    text delete = "Delete";
+    text search = "Search...";
+    text no-results = "No results found";
+    text loading = "Loading...";
+    text confirm-delete = "Are you sure you want to delete this record?";
+  }
+
+}

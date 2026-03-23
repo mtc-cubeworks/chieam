@@ -1,0 +1,1493 @@
+dbml model asset_management {
+
+  import "core_eam.dbml" as core;
+  import "work_mgmt.dbml" as work;
+  import "purchasing_stores.dbml" as purch;
+  import "maintenance_mgmt.dbml" as maint;
+
+  (* ========================================== *)
+  (* ENUMS                                      *)
+  (* ========================================== *)
+
+  enum AssetLifecycleState {
+    active;
+    inactive;
+    disposed;
+    in_repair;
+    in_transit;
+    decommissioned;
+  }
+
+  enum Criticality {
+    A;
+    B;
+    C;
+  }
+
+  enum DepreciationMethod {
+    straight_line;
+    declining_balance;
+    sum_of_years;
+    units_of_production;
+  }
+
+  enum TransferType {
+    site;
+    location;
+    department;
+    custodian;
+  }
+
+  enum AssetTransferState {
+    draft;
+    pending_approval;
+    in_transit;
+    received;
+    cancelled;
+  }
+
+  enum WarrantyClaimState {
+    draft;
+    submitted;
+    under_review;
+    approved;
+    rejected;
+    settled;
+  }
+
+  enum PositionRelationType {
+    parent;
+    child;
+    redundant;
+    backup;
+  }
+
+  enum DisposalMethod {
+    sold;
+    scrapped;
+    donated;
+    recycled;
+    returned;
+  }
+
+  enum MeterType {
+    runtime;
+    odometer;
+    gauge;
+    incremental;
+  }
+
+  enum IncidentSeverity {
+    minor;
+    moderate;
+    major;
+    critical;
+  }
+
+  enum IncidentType {
+    safety;
+    environmental;
+    equipment_failure;
+    near_miss;
+    property_damage;
+  }
+
+  (* ========================================== *)
+  (* LIFECYCLES                                 *)
+  (* ========================================== *)
+
+  lifecycle asset-lifecycle {
+    entity = asset_management.Asset;
+    state active { initial = true; }
+    state inactive {}
+    state in-repair {}
+    state in-transit {}
+    state disposed { final = true; }
+    state decommissioned { final = true; }
+  }
+
+  lifecycle asset-transfer-lifecycle {
+    entity = asset_management.AssetTransfer;
+    state draft { initial = true; }
+    state pending-approval {}
+    state in-transit {}
+    state received { final = true; }
+    state cancelled { final = true; }
+  }
+
+  lifecycle warranty-claim-lifecycle {
+    entity = asset_management.WarrantyClaim;
+    state draft { initial = true; }
+    state submitted {}
+    state under-review {}
+    state approved {}
+    state rejected { final = true; }
+    state settled { final = true; }
+  }
+
+  (* ========================================== *)
+  (* WORKFLOWS                                  *)
+  (* ========================================== *)
+
+  workflow asset-workflow {
+    entity = asset_management.Asset;
+    state-field = workflow_state;
+
+    state active { initial = true; }
+    state inactive {}
+    state in-repair {}
+    state in-transit {}
+    state disposed { final = true; }
+    state decommissioned { final = true; }
+
+    transition deactivate {
+      from = active;
+      to = inactive;
+      role = core.manager;
+    }
+
+    transition reactivate {
+      from = inactive;
+      to = active;
+      role = core.manager;
+    }
+
+    transition send-for-repair {
+      from = active;
+      to = in-repair;
+      role = core.planner;
+    }
+
+    transition return-from-repair {
+      from = in-repair;
+      to = active;
+      role = core.technician;
+    }
+
+    transition initiate-transfer {
+      from = active;
+      to = in-transit;
+      role = core.manager;
+    }
+
+    transition complete-transfer {
+      from = in-transit;
+      to = active;
+      role = core.storekeeper;
+    }
+
+    transition dispose {
+      from = active;
+      to = disposed;
+      role = core.manager;
+    }
+
+    transition decommission {
+      from = inactive;
+      to = decommissioned;
+      role = core.manager;
+    }
+  }
+
+  workflow asset-transfer-workflow {
+    entity = asset_management.AssetTransfer;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state pending-approval {}
+    state in-transit {}
+    state received { final = true; }
+    state cancelled { final = true; }
+
+    transition submit {
+      from = draft;
+      to = pending-approval;
+      role = core.requester;
+    }
+
+    transition approve {
+      from = pending-approval;
+      to = in-transit;
+      role = core.manager;
+    }
+
+    transition receive {
+      from = in-transit;
+      to = received;
+      role = core.storekeeper;
+    }
+
+    transition cancel {
+      from = draft;
+      to = cancelled;
+      role = core.requester;
+    }
+
+    transition reject {
+      from = pending-approval;
+      to = cancelled;
+      role = core.manager;
+    }
+  }
+
+  workflow warranty-claim-workflow {
+    entity = asset_management.WarrantyClaim;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state submitted {}
+    state under-review {}
+    state approved {}
+    state rejected { final = true; }
+    state settled { final = true; }
+
+    transition submit {
+      from = draft;
+      to = submitted;
+      role = core.requester;
+    }
+
+    transition review {
+      from = submitted;
+      to = under-review;
+      role = core.manager;
+    }
+
+    transition approve {
+      from = under-review;
+      to = approved;
+      role = core.manager;
+    }
+
+    transition reject {
+      from = under-review;
+      to = rejected;
+      role = core.manager;
+    }
+
+    transition settle {
+      from = approved;
+      to = settled;
+      role = core.admin;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES                                   *)
+  (* ========================================== *)
+
+  entity LocationType {
+    label = "Location Type";
+    category = config;
+    kind = root;
+
+    field id : string { required = true; }
+    field name : string { label = "Name"; }
+  }
+
+  entity SystemType {
+    label = "System Type";
+    category = config;
+    kind = root;
+
+    field id : string { required = true; }
+    field name : string { label = "Name"; }
+  }
+
+  entity PropertyType {
+    label = "Property Type";
+    category = config;
+    kind = root;
+
+    field id : string { required = true; }
+    field name : string { label = "Name"; }
+  }
+
+  entity EquipmentGroup {
+    label = "Equipment Group";
+    category = config;
+    kind = root;
+
+    field id : string { required = true; }
+    field name : string { label = "Name"; }
+  }
+
+  entity Property {
+    label = "Property";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field name : string { label = "Name"; }
+    field description : text { label = "Description"; }
+    field unit_of_measure : string { label = "Unit of Measure"; }
+    field property_type : string { label = "Property Type"; }
+    field system : boolean { label = "System Property"; }
+    field inactive : boolean { label = "Inactive"; }
+
+    relation uom-ref {
+      from = asset_management.Property.unit_of_measure;
+      to = purch.UnitOfMeasure.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation type-ref {
+      from = asset_management.Property.property_type;
+      to = asset_management.PropertyType.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Location {
+    label = "Location";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field name : string { label = "Name"; }
+    field description : text { label = "Description"; }
+    field location_type : string { label = "Location Type"; }
+    field location_type_name : string { label = "Location Type Name"; }
+    field parent_location : string { label = "Parent Location"; }
+    field site : string { label = "Site"; }
+    field latitude : float { label = "Latitude"; }
+    field longitude : float { label = "Longitude"; }
+    field address : string { label = "Address"; }
+
+    relation type-ref {
+      from = asset_management.Location.location_type;
+      to = asset_management.LocationType.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation parent-ref {
+      from = asset_management.Location.parent_location;
+      to = asset_management.Location.id;
+      kind = tree-parent;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = asset_management.Location.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity System {
+    label = "System";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field name : string { label = "Name"; }
+    field description : text { label = "Description"; }
+    field system_type : string { label = "System Type"; }
+    field system_type_name : string { label = "System Type Name"; }
+    field parent_system : string { label = "Parent System"; }
+    field location : string { label = "Location"; }
+    field site : string { label = "Site"; }
+
+    relation type-ref {
+      from = asset_management.System.system_type;
+      to = asset_management.SystemType.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation parent-ref {
+      from = asset_management.System.parent_system;
+      to = asset_management.System.id;
+      kind = tree-parent;
+      cardinality = many-to-one;
+    }
+
+    relation location-ref {
+      from = asset_management.System.location;
+      to = asset_management.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = asset_management.System.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity AssetClass {
+    label = "Asset Class";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field name : string { label = "Name"; }
+    field description : text { label = "Description"; }
+    field class_icon : string { label = "Class Icon"; }
+    field due_date_lead_time : integer { label = "Due Date Lead Time (days)"; }
+    field parent_asset_class : string { label = "Parent Asset Class"; }
+
+    relation parent-ref {
+      from = asset_management.AssetClass.parent_asset_class;
+      to = asset_management.AssetClass.id;
+      kind = tree-parent;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity AssetClassProperty {
+    label = "Asset Class Property";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field asset_class : string { label = "Asset Class"; }
+    field property : string { label = "Property"; }
+    field unit_of_measure : string { label = "Unit of Measure"; }
+    field default_value : string { label = "Default Value"; }
+
+    relation class-ref {
+      from = asset_management.AssetClassProperty.asset_class;
+      to = asset_management.AssetClass.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation property-ref {
+      from = asset_management.AssetClassProperty.property;
+      to = asset_management.Property.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation uom-ref {
+      from = asset_management.AssetClassProperty.unit_of_measure;
+      to = purch.UnitOfMeasure.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity AssetClassAvailability {
+    label = "Asset Class Availability";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field asset_class : string { label = "Asset Class"; }
+    field specific_datetime : datetime { label = "Specific Date/Time"; }
+    field remaining_capacity : integer { label = "Remaining Capacity"; }
+    field reserved_capacity : integer { label = "Reserved Capacity"; }
+    field available_capacity : integer { label = "Available Capacity"; }
+
+    relation class-ref {
+      from = asset_management.AssetClassAvailability.asset_class;
+      to = asset_management.AssetClass.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Position {
+    label = "Position";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field position_tag : string { label = "Position Tag"; }
+    field description : string { label = "Description"; }
+    field attach_img : string { label = "Attached Image"; }
+    field asset_class : string { label = "Asset Class"; }
+    field asset_class_name : string { label = "Asset Class Name"; }
+    field system : string { label = "System"; }
+    field system_name : string { label = "System Name"; }
+    field location : string { label = "Location"; }
+    field location_name : string { label = "Location Name"; }
+    field site : string { label = "Site"; }
+    field current_asset : string { label = "Current Asset"; }
+
+    relation class-ref {
+      from = asset_management.Position.asset_class;
+      to = asset_management.AssetClass.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation system-ref {
+      from = asset_management.Position.system;
+      to = asset_management.System.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation location-ref {
+      from = asset_management.Position.location;
+      to = asset_management.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = asset_management.Position.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation current-asset-ref {
+      from = asset_management.Position.current_asset;
+      to = asset_management.Asset.id;
+      kind = association;
+      cardinality = one-to-one;
+    }
+  }
+
+  entity PositionRelation {
+    label = "Position Relation";
+    category = master;
+    kind = junction;
+
+    field id : string { required = true; }
+    field position_a : string { label = "Position A"; }
+    field position_a_description : string { label = "Position A Description"; }
+    field position_relation_type : string { label = "Relation Type"; enum = PositionRelationType; }
+    field position_b : string { label = "Position B"; }
+    field position_b_description : string { label = "Position B Description"; }
+
+    relation pos-a-ref {
+      from = asset_management.PositionRelation.position_a;
+      to = asset_management.Position.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation pos-b-ref {
+      from = asset_management.PositionRelation.position_b;
+      to = asset_management.Position.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Asset {
+    label = "Asset";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field asset_tag : string { label = "Asset Tag"; unique = true; }
+    field asset_class : string { label = "Asset Class"; }
+    field description : text { label = "Description"; }
+    field series : string { label = "Series"; }
+    field model : string { label = "Model"; }
+    field serial_number : string { label = "Serial Number"; }
+    field date_purchased : date { label = "Date Purchased"; }
+    field cost : float { label = "Cost"; }
+    field block_number : integer { label = "Block Number"; }
+    field number_of_repairs : integer { label = "Number of Repairs"; }
+    field location : string { label = "Location"; }
+    field site : string { label = "Site"; }
+    field department : string { label = "Department"; }
+    field assigned_to : string { label = "Assigned To"; }
+    field inventory : string { label = "Inventory"; }
+    field system : string { label = "System"; }
+    field position : string { label = "Position"; }
+    field item : string { label = "Item"; }
+    field defective : boolean { label = "Defective"; }
+    field item_type : string { label = "Item Type"; }
+    field is_equipment : boolean { label = "Is Equipment"; }
+    field need_repair : boolean { label = "Need Repair"; }
+    field bypass_process : boolean { label = "Bypass Process"; default = false; }
+    field lifecycle_state : string { label = "Lifecycle State"; default = "Active"; enum = AssetLifecycleState; }
+    field parent_asset : string { label = "Parent Asset"; }
+    field functional_location : string { label = "Functional Location"; }
+    field criticality : string { label = "Criticality"; enum = Criticality; }
+    field risk_score : integer { label = "Risk Score"; }
+    field warranty_start : date { label = "Warranty Start"; }
+    field warranty_end : date { label = "Warranty End"; }
+    field warranty_vendor : string { label = "Warranty Vendor"; }
+    field manufacturer : string { label = "Manufacturer"; }
+    field manufacturer_part_number : string { label = "Manufacturer Part Number"; }
+    field rated_capacity : string { label = "Rated Capacity"; }
+    field rated_power : string { label = "Rated Power"; }
+    field weight : float { label = "Weight"; }
+    field technical_specs : text { label = "Technical Specs"; }
+    field depreciation_method : string { label = "Depreciation Method"; enum = DepreciationMethod; }
+    field useful_life_years : integer { label = "Useful Life Years"; }
+    field salvage_value : float { label = "Salvage Value"; }
+    field accumulated_depreciation : float { label = "Accumulated Depreciation"; }
+    field commissioning_date : date { label = "Commissioning Date"; }
+
+    relation class-ref {
+      from = asset_management.Asset.asset_class;
+      to = asset_management.AssetClass.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation model-ref {
+      from = asset_management.Asset.model;
+      to = core.Model.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation location-ref {
+      from = asset_management.Asset.location;
+      to = asset_management.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = asset_management.Asset.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation dept-ref {
+      from = asset_management.Asset.department;
+      to = core.Department.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation assigned-ref {
+      from = asset_management.Asset.assigned_to;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation inventory-ref {
+      from = asset_management.Asset.inventory;
+      to = purch.Inventory.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation system-ref {
+      from = asset_management.Asset.system;
+      to = asset_management.System.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation position-ref {
+      from = asset_management.Asset.position;
+      to = asset_management.Position.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = asset_management.Asset.item;
+      to = purch.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation parent-ref {
+      from = asset_management.Asset.parent_asset;
+      to = asset_management.Asset.id;
+      kind = tree-parent;
+      cardinality = many-to-one;
+    }
+
+    relation functional-loc-ref {
+      from = asset_management.Asset.functional_location;
+      to = asset_management.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation warranty-vendor-ref {
+      from = asset_management.Asset.warranty_vendor;
+      to = purch.Vendor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use asset_management.asset-lifecycle;
+
+    behavior {
+      workflow use asset_management.asset-workflow;
+
+      action clone-asset {
+        kind = server;
+        invoke = "asset_management.hooks.asset_clone.clone_asset";
+      }
+
+      permissions {
+        role core.admin {
+          allow = read, write, create, delete;
+        }
+        role core.manager {
+          allow = read, write, create, submit;
+        }
+        role core.planner {
+          allow = read, write;
+        }
+        role core.technician {
+          allow = read;
+        }
+        role core.viewer {
+          allow = read;
+        }
+      }
+
+      on create {
+        do = asset_management.auto-assign-tag;
+      }
+
+      on update {
+        when = "lifecycle_state == disposed";
+        do = asset_management.create-disposal-record;
+      }
+    }
+  }
+
+  entity AssetProperty {
+    label = "Asset Property";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field asset : string { label = "Asset"; }
+    field property : string { label = "Property"; }
+    field property_value : string { label = "Property Value"; }
+    field unit_of_measure : string { label = "Unit of Measure"; }
+    field property_type : string { label = "Property Type"; }
+
+    relation asset-ref {
+      from = asset_management.AssetProperty.asset;
+      to = asset_management.Asset.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation property-ref {
+      from = asset_management.AssetProperty.property;
+      to = asset_management.Property.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation uom-ref {
+      from = asset_management.AssetProperty.unit_of_measure;
+      to = purch.UnitOfMeasure.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity AssetPosition {
+    label = "Asset Position History";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field position : string { label = "Position"; }
+    field asset : string { label = "Asset"; }
+    field date_installed : date { label = "Date Installed"; }
+    field date_removed : date { label = "Date Removed"; }
+
+    relation position-ref {
+      from = asset_management.AssetPosition.position;
+      to = asset_management.Position.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation asset-ref {
+      from = asset_management.AssetPosition.asset;
+      to = asset_management.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Equipment {
+    label = "Equipment";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field equipment_type : string { label = "Equipment Type"; }
+    field equipment_group : string { label = "Equipment Group"; }
+    field equipment_group_name : string { label = "Equipment Group Name"; }
+    field custodian : string { label = "Custodian"; }
+    field location : string { label = "Location"; }
+    field location_name : string { label = "Location Name"; }
+    field site : string { label = "Site"; }
+    field inventory : string { label = "Inventory"; }
+    field pr_line_no : string { label = "PR Line No"; }
+    field description : string { label = "Description"; }
+    field equipment_cost : float { label = "Equipment Cost"; }
+
+    relation group-ref {
+      from = asset_management.Equipment.equipment_group;
+      to = asset_management.EquipmentGroup.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation custodian-ref {
+      from = asset_management.Equipment.custodian;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation location-ref {
+      from = asset_management.Equipment.location;
+      to = asset_management.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = asset_management.Equipment.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation inventory-ref {
+      from = asset_management.Equipment.inventory;
+      to = purch.Inventory.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation pr-line-ref {
+      from = asset_management.Equipment.pr_line_no;
+      to = purch.PurchaseRequestLine.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Incident {
+    label = "Incident";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field title : string { label = "Title"; }
+    field description : text { label = "Description"; }
+    field incident_type : string { label = "Incident Type"; enum = IncidentType; }
+    field incident_datetime : datetime { label = "Incident Date/Time"; }
+    field date_reported : date { label = "Date Reported"; }
+    field location : string { label = "Location"; }
+    field asset : string { label = "Asset"; }
+    field reported_by : string { label = "Reported By"; }
+    field site : string { label = "Site"; }
+    field department : string { label = "Department"; }
+    field severity : string { label = "Severity"; enum = IncidentSeverity; }
+    field immediate_action_taken : text { label = "Immediate Action Taken"; }
+    field preventive_actions : text { label = "Preventive Actions"; }
+    field assigned_to : string { label = "Assigned To"; }
+    field closed_date : date { label = "Closed Date"; }
+    field incident_subtype : string { label = "Incident Subtype"; }
+    field osha_recordable : boolean { label = "OSHA Recordable"; default = false; }
+    field regulatory_status : string { label = "Regulatory Status"; }
+    field reporting_deadline : date { label = "Reporting Deadline"; }
+    field failure_analysis : string { label = "Failure Analysis"; }
+
+    relation location-ref {
+      from = asset_management.Incident.location;
+      to = asset_management.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation asset-ref {
+      from = asset_management.Incident.asset;
+      to = asset_management.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation reporter-ref {
+      from = asset_management.Incident.reported_by;
+      to = users.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = asset_management.Incident.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation dept-ref {
+      from = asset_management.Incident.department;
+      to = core.Department.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation assigned-ref {
+      from = asset_management.Incident.assigned_to;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation fa-ref {
+      from = asset_management.Incident.failure_analysis;
+      to = maint.FailureAnalysis.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity IncidentEmployee {
+    label = "Incident Employee";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field incident : string { label = "Incident"; }
+    field employee : string { label = "Employee"; }
+    field role_in_incident : string { label = "Role in Incident"; }
+    field injured : boolean { label = "Injured"; }
+    field injury_severity : string { label = "Injury Severity"; }
+    field injury_description : text { label = "Injury Description"; }
+    field ppe_used : boolean { label = "PPE Used"; }
+    field treatment : text { label = "Treatment"; }
+
+    relation incident-ref {
+      from = asset_management.IncidentEmployee.incident;
+      to = asset_management.Incident.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation employee-ref {
+      from = asset_management.IncidentEmployee.employee;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Breakdown {
+    label = "Breakdown";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field equipment : string { label = "Equipment"; }
+    field breakdown_date : date { label = "Breakdown Date"; }
+    field start_time : string { label = "Start Time"; }
+    field end_time : string { label = "End Time"; }
+    field cause : text { label = "Cause"; }
+
+    relation equipment-ref {
+      from = asset_management.Breakdown.equipment;
+      to = asset_management.Equipment.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Disposed {
+    label = "Disposed Asset";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field asset : string { label = "Asset"; }
+    field condition : string { label = "Condition"; }
+    field disposal_date : date { label = "Disposal Date"; }
+    field disposal_reason : text { label = "Disposal Reason"; }
+    field disposal_method : string { label = "Disposal Method"; enum = DisposalMethod; }
+    field disposal_status : string { label = "Disposal Status"; }
+    field site : string { label = "Site"; }
+
+    relation asset-ref {
+      from = asset_management.Disposed.asset;
+      to = asset_management.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = asset_management.Disposed.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity SubAsset {
+    label = "Sub Asset";
+    category = master;
+    kind = junction;
+
+    field id : string { required = true; }
+    field main_asset : string { label = "Main Asset"; }
+    field child_asset : string { label = "Child Asset"; }
+
+    relation main-ref {
+      from = asset_management.SubAsset.main_asset;
+      to = asset_management.Asset.id;
+      kind = aggregation;
+      cardinality = many-to-one;
+    }
+
+    relation child-ref {
+      from = asset_management.SubAsset.child_asset;
+      to = asset_management.Asset.id;
+      kind = aggregation;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity AssetMaintenanceHistory {
+    label = "Asset Maintenance History";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field asset : string { label = "Asset"; }
+    field work_order : string { label = "Work Order"; }
+    field work_order_activity : string { label = "Work Order Activity"; }
+    field maintenance_type : string { label = "Maintenance Type"; }
+    field description : text { label = "Description"; }
+    field completed_date : datetime { label = "Completed Date"; }
+    field downtime_hours : float { label = "Downtime Hours"; }
+    field total_cost : float { label = "Total Cost"; }
+    field category_of_failure : string { label = "Category of Failure"; }
+    field cause_code : string { label = "Cause Code"; }
+    field remedy_code : string { label = "Remedy Code"; }
+    field site : string { label = "Site"; }
+
+    relation asset-ref {
+      from = asset_management.AssetMaintenanceHistory.asset;
+      to = asset_management.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation wo-ref {
+      from = asset_management.AssetMaintenanceHistory.work_order;
+      to = work.WorkOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation woa-ref {
+      from = asset_management.AssetMaintenanceHistory.work_order_activity;
+      to = work.WorkOrderActivity.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation failure-ref {
+      from = asset_management.AssetMaintenanceHistory.category_of_failure;
+      to = work.CategoryOfFailure.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = asset_management.AssetMaintenanceHistory.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WarrantyClaim {
+    label = "Warranty Claim";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field asset : string { label = "Asset"; }
+    field vendor : string { label = "Vendor"; }
+    field work_order : string { label = "Work Order"; }
+    field claim_description : text { label = "Claim Description"; }
+    field claim_date : date { label = "Claim Date"; }
+    field warranty_start : date { label = "Warranty Start"; }
+    field warranty_end : date { label = "Warranty End"; }
+    field claim_amount : float { label = "Claim Amount"; }
+    field credited_amount : float { label = "Credited Amount"; }
+    field resolution_notes : text { label = "Resolution Notes"; }
+    field site : string { label = "Site"; }
+    field workflow_state : string { label = "Workflow State"; }
+
+    relation asset-ref {
+      from = asset_management.WarrantyClaim.asset;
+      to = asset_management.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation vendor-ref {
+      from = asset_management.WarrantyClaim.vendor;
+      to = purch.Vendor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation wo-ref {
+      from = asset_management.WarrantyClaim.work_order;
+      to = work.WorkOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = asset_management.WarrantyClaim.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use asset_management.warranty-claim-lifecycle;
+
+    behavior {
+      workflow use asset_management.warranty-claim-workflow;
+
+      permissions {
+        role core.admin {
+          allow = read, write, create, delete;
+        }
+        role core.manager {
+          allow = read, write, submit, cancel;
+        }
+        role core.planner {
+          allow = read, create, submit;
+        }
+        role core.viewer {
+          allow = read;
+        }
+      }
+    }
+  }
+
+  entity Meter {
+    label = "Meter";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field meter_name : string { label = "Meter Name"; }
+    field meter_type : string { label = "Meter Type"; enum = MeterType; }
+    field unit_of_measure : string { label = "Unit of Measure"; }
+    field asset : string { label = "Asset"; }
+    field last_reading : float { label = "Last Reading"; }
+    field rollover_point : float { label = "Rollover Point"; }
+    field active : boolean { label = "Active"; default = true; }
+    field site : string { label = "Site"; }
+
+    relation asset-ref {
+      from = asset_management.Meter.asset;
+      to = asset_management.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = asset_management.Meter.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity MeterReading {
+    label = "Meter Reading";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field meter : string { label = "Meter"; }
+    field reading_value : float { label = "Reading Value"; }
+    field reading_date : datetime { label = "Reading Date"; }
+    field work_order : string { label = "Work Order"; }
+    field recorded_by : string { label = "Recorded By"; }
+    field notes : text { label = "Notes"; }
+
+    relation meter-ref {
+      from = asset_management.MeterReading.meter;
+      to = asset_management.Meter.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation wo-ref {
+      from = asset_management.MeterReading.work_order;
+      to = work.WorkOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation recorder-ref {
+      from = asset_management.MeterReading.recorded_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity AssetTransfer {
+    label = "Asset Transfer";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field asset : string { label = "Asset"; required = true; }
+    field transfer_type : string { label = "Transfer Type"; enum = TransferType; }
+    field from_site : string { label = "From Site"; }
+    field to_site : string { label = "To Site"; }
+    field from_location : string { label = "From Location"; }
+    field to_location : string { label = "To Location"; }
+    field from_department : string { label = "From Department"; }
+    field to_department : string { label = "To Department"; }
+    field transferred_by : string { label = "Transferred By"; }
+    field received_by : string { label = "Received By"; }
+    field transfer_date : datetime { label = "Transfer Date"; }
+    field received_date : datetime { label = "Received Date"; }
+    field reason : text { label = "Reason"; }
+    field notes : text { label = "Notes"; }
+
+    relation asset-ref {
+      from = asset_management.AssetTransfer.asset;
+      to = asset_management.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation from-site-ref {
+      from = asset_management.AssetTransfer.from_site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation to-site-ref {
+      from = asset_management.AssetTransfer.to_site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation from-loc-ref {
+      from = asset_management.AssetTransfer.from_location;
+      to = asset_management.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation to-loc-ref {
+      from = asset_management.AssetTransfer.to_location;
+      to = asset_management.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation from-dept-ref {
+      from = asset_management.AssetTransfer.from_department;
+      to = core.Department.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation to-dept-ref {
+      from = asset_management.AssetTransfer.to_department;
+      to = core.Department.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation transferred-by-ref {
+      from = asset_management.AssetTransfer.transferred_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation received-by-ref {
+      from = asset_management.AssetTransfer.received_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use asset_management.asset-transfer-lifecycle;
+
+    behavior {
+      workflow use asset_management.asset-transfer-workflow;
+
+      on submit {
+        do = asset_management.validate-transfer;
+      }
+
+      on update {
+        when = "workflow_state == received";
+        do = asset_management.update-asset-location;
+      }
+    }
+  }
+
+  entity EquipmentAvailability {
+    label = "Equipment Availability";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field equipment : string { label = "Equipment"; }
+    field equipment_name : string { label = "Equipment Name"; }
+    field date : date { label = "Date"; }
+
+    relation equipment-ref {
+      from = asset_management.EquipmentAvailability.equipment;
+      to = asset_management.Equipment.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity EquipmentAvailabilityDetails {
+    label = "Equipment Availability Details";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field equipment_availability : string { label = "Equipment Availability"; }
+    field hour : string { label = "Hour"; }
+    field status : string { label = "Status"; }
+    field reason : text { label = "Reason"; }
+
+    relation parent-ref {
+      from = asset_management.EquipmentAvailabilityDetails.equipment_availability;
+      to = asset_management.EquipmentAvailability.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity EquipmentSchedule {
+    label = "Equipment Schedule";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field schedule_name : string { label = "Schedule Name"; }
+    field equipment_group : string { label = "Equipment Group"; }
+    field equipment : string { label = "Equipment"; }
+    field start_date : date { label = "Start Date"; }
+    field end_date : date { label = "End Date"; }
+
+    relation group-ref {
+      from = asset_management.EquipmentSchedule.equipment_group;
+      to = asset_management.EquipmentGroup.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation equipment-ref {
+      from = asset_management.EquipmentSchedule.equipment;
+      to = asset_management.Equipment.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity EquipmentScheduleDetails {
+    label = "Equipment Schedule Details";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field equipment_schedule : string { label = "Equipment Schedule"; }
+    field day : string { label = "Day"; }
+    field start_time : string { label = "Start Time"; }
+    field end_time : string { label = "End Time"; }
+    field is_operating : boolean { label = "Is Operating"; }
+
+    relation parent-ref {
+      from = asset_management.EquipmentScheduleDetails.equipment_schedule;
+      to = asset_management.EquipmentSchedule.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+  }
+
+  (* ========================================== *)
+  (* ACTIONS                                    *)
+  (* ========================================== *)
+
+  action auto-assign-tag {
+    kind = server;
+    entity = asset_management.Asset;
+    handler = "asset_management.hooks.asset_hooks.auto_assign_asset_tag";
+  }
+
+  action create-disposal-record {
+    kind = server;
+    entity = asset_management.Asset;
+    handler = "asset_management.hooks.asset_hooks.create_disposal_record";
+  }
+
+  action validate-transfer {
+    kind = server;
+    entity = asset_management.AssetTransfer;
+    handler = "asset_management.hooks.asset_transfer.validate_transfer";
+  }
+
+  action update-asset-location {
+    kind = server;
+    entity = asset_management.AssetTransfer;
+    handler = "asset_management.hooks.asset_transfer.update_asset_location";
+  }
+
+  (* ========================================== *)
+  (* METRICS                                    *)
+  (* ========================================== *)
+
+  metrics asset-metrics {
+    metric total-assets {
+      entity = asset_management.Asset;
+      aggregation = count;
+    }
+
+    metric total-asset-value {
+      entity = asset_management.Asset;
+      field = cost;
+      aggregation = sum;
+    }
+
+    metric active-meters {
+      entity = asset_management.Meter;
+      aggregation = count;
+    }
+
+    metric pending-transfers {
+      entity = asset_management.AssetTransfer;
+      aggregation = count;
+    }
+
+    metric incident-count {
+      entity = asset_management.Incident;
+      aggregation = count;
+    }
+  }
+
+}

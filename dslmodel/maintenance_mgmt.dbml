@@ -1,0 +1,1369 @@
+dbml model maintenance_mgmt {
+
+  import "core_eam.dbml" as core;
+  import "asset_management.dbml" as asset;
+  import "work_mgmt.dbml" as work;
+  import "purchasing_stores.dbml" as purch;
+
+  (* ========================================== *)
+  (* ENUMS                                      *)
+  (* ========================================== *)
+
+  enum MaintenanceSchedule {
+    calendar;
+    condition;
+    interval;
+    event;
+  }
+
+  enum MaintenanceType {
+    preventive;
+    corrective;
+    predictive;
+    condition_based;
+    emergency;
+  }
+
+  enum Priority {
+    low;
+    medium;
+    high;
+    critical;
+    emergency;
+  }
+
+  enum ComparisonOperator {
+    equals;
+    not_equals;
+    greater_than;
+    greater_than_or_equal;
+    less_than;
+    less_than_or_equal;
+  }
+
+  enum MaintenanceRequestState {
+    draft;
+    submitted;
+    approved;
+    rejected;
+    in_progress;
+    completed;
+    cancelled;
+  }
+
+  enum FailureAnalysisState {
+    draft;
+    in_analysis;
+    root_cause_identified;
+    corrective_action_assigned;
+    closed;
+  }
+
+  enum CorrectiveActionState {
+    draft;
+    assigned;
+    in_progress;
+    completed;
+    verified;
+  }
+
+  enum ConditionMonitoringState {
+    active;
+    warning;
+    critical;
+    maintenance_triggered;
+    resolved;
+  }
+
+  enum ChecklistType {
+    inspection;
+    safety;
+    maintenance;
+    quality;
+  }
+
+  enum AnalysisMethod {
+    five_why;
+    fishbone;
+    fmea;
+    fault_tree;
+    pareto;
+  }
+
+  enum ActionType {
+    preventive;
+    corrective;
+    design_change;
+    training;
+    procedure_update;
+  }
+
+  enum TrendDirection {
+    increasing;
+    decreasing;
+    stable;
+    erratic;
+  }
+
+  enum AlertStatus {
+    normal;
+    warning;
+    critical;
+    alarm;
+  }
+
+  enum SlaStatus {
+    within_sla;
+    at_risk;
+    breached;
+  }
+
+  enum RequestCategory {
+    breakdown;
+    planned;
+    emergency;
+    inspection;
+    project;
+  }
+
+  (* ========================================== *)
+  (* LIFECYCLES                                 *)
+  (* ========================================== *)
+
+  lifecycle maintenance-request-lifecycle {
+    entity = maintenance_mgmt.MaintenanceRequest;
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state rejected {}
+    state in-progress {}
+    state completed { final = true; }
+    state cancelled { final = true; }
+  }
+
+  lifecycle failure-analysis-lifecycle {
+    entity = maintenance_mgmt.FailureAnalysis;
+    state draft { initial = true; }
+    state in-analysis {}
+    state root-cause-identified {}
+    state corrective-action-assigned {}
+    state closed { final = true; }
+  }
+
+  lifecycle corrective-action-lifecycle {
+    entity = maintenance_mgmt.CorrectiveAction;
+    state draft { initial = true; }
+    state assigned {}
+    state in-progress {}
+    state completed {}
+    state verified { final = true; }
+  }
+
+  lifecycle condition-monitoring-lifecycle {
+    entity = maintenance_mgmt.ConditionMonitoring;
+    state active { initial = true; }
+    state warning {}
+    state critical {}
+    state maintenance-triggered {}
+    state resolved { final = true; }
+  }
+
+  (* ========================================== *)
+  (* WORKFLOWS                                  *)
+  (* ========================================== *)
+
+  workflow maintenance-request-workflow {
+    entity = maintenance_mgmt.MaintenanceRequest;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state submitted {}
+    state approved {}
+    state rejected {}
+    state in-progress {}
+    state completed { final = true; }
+    state cancelled { final = true; }
+
+    transition submit {
+      from = draft;
+      to = submitted;
+      role = core.requester;
+    }
+
+    transition approve {
+      from = submitted;
+      to = approved;
+      role = core.planner;
+    }
+
+    transition reject {
+      from = submitted;
+      to = rejected;
+      role = core.planner;
+    }
+
+    transition start-work {
+      from = approved;
+      to = in-progress;
+      role = core.planner;
+    }
+
+    transition complete {
+      from = in-progress;
+      to = completed;
+      role = core.technician;
+    }
+
+    transition cancel {
+      from = draft;
+      to = cancelled;
+      role = core.requester;
+    }
+
+    transition reopen {
+      from = rejected;
+      to = draft;
+      role = core.requester;
+    }
+  }
+
+  workflow failure-analysis-workflow {
+    entity = maintenance_mgmt.FailureAnalysis;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state in-analysis {}
+    state root-cause-identified {}
+    state corrective-action-assigned {}
+    state closed { final = true; }
+
+    transition begin-analysis {
+      from = draft;
+      to = in-analysis;
+      role = core.planner;
+    }
+
+    transition identify-root-cause {
+      from = in-analysis;
+      to = root-cause-identified;
+      role = core.planner;
+    }
+
+    transition assign-corrective-action {
+      from = root-cause-identified;
+      to = corrective-action-assigned;
+      role = core.planner;
+    }
+
+    transition close {
+      from = corrective-action-assigned;
+      to = closed;
+      role = core.manager;
+    }
+  }
+
+  workflow corrective-action-workflow {
+    entity = maintenance_mgmt.CorrectiveAction;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state assigned {}
+    state in-progress {}
+    state completed {}
+    state verified { final = true; }
+
+    transition assign {
+      from = draft;
+      to = assigned;
+      role = core.planner;
+    }
+
+    transition start {
+      from = assigned;
+      to = in-progress;
+      role = core.technician;
+    }
+
+    transition complete {
+      from = in-progress;
+      to = completed;
+      role = core.technician;
+    }
+
+    transition verify {
+      from = completed;
+      to = verified;
+      role = core.manager;
+    }
+  }
+
+  workflow condition-monitoring-workflow {
+    entity = maintenance_mgmt.ConditionMonitoring;
+    state-field = workflow_state;
+
+    state active { initial = true; }
+    state warning {}
+    state critical {}
+    state maintenance-triggered {}
+    state resolved { final = true; }
+
+    transition escalate-to-warning {
+      from = active;
+      to = warning;
+    }
+
+    transition escalate-to-critical {
+      from = warning;
+      to = critical;
+    }
+
+    transition trigger-maintenance {
+      from = critical;
+      to = maintenance-triggered;
+    }
+
+    transition resolve {
+      from = maintenance-triggered;
+      to = resolved;
+      role = core.technician;
+    }
+
+    transition reset-to-active {
+      from = warning;
+      to = active;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES                                   *)
+  (* ========================================== *)
+
+  entity Checklist {
+    label = "Checklist";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field checklist_name : string { label = "Checklist Name"; }
+    field checklist_type : string { label = "Checklist Type"; enum = ChecklistType; }
+  }
+
+  entity ChecklistDetails {
+    label = "Checklist Details";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field checklist : string { label = "Checklist"; }
+    field item_name : string { label = "Item Name"; }
+    field is_mandatory : boolean { label = "Is Mandatory"; }
+
+    relation checklist-ref {
+      from = maintenance_mgmt.ChecklistDetails.checklist;
+      to = maintenance_mgmt.Checklist.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity MaintenanceActivity {
+    label = "Maintenance Activity";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field activity_name : string { label = "Activity Name"; }
+    field description : text { label = "Description"; }
+  }
+
+  entity MaintenancePlan {
+    label = "Maintenance Plan";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field description : string { label = "Description"; }
+    field asset_class : string { label = "Asset Class"; }
+    field asset_class_name : string { label = "Asset Class Name"; }
+    field manufacturer : string { label = "Manufacturer"; }
+    field manufacturer_name : string { label = "Manufacturer Name"; }
+    field model : string { label = "Model"; }
+    field model_name : string { label = "Model Name"; }
+
+    relation class-ref {
+      from = maintenance_mgmt.MaintenancePlan.asset_class;
+      to = asset.AssetClass.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation manufacturer-ref {
+      from = maintenance_mgmt.MaintenancePlan.manufacturer;
+      to = core.Manufacturer.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation model-ref {
+      from = maintenance_mgmt.MaintenancePlan.model;
+      to = core.Model.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity PlannedMaintenanceActivity {
+    label = "Planned Maintenance Activity";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field maintenance_plan : string { label = "Maintenance Plan"; }
+    field maintenance_plan_name : string { label = "Maintenance Plan Name"; }
+    field maintenance_activity : string { label = "Maintenance Activity"; }
+    field maintenance_activity_name : string { label = "Maintenance Activity Name"; }
+    field checklist : string { label = "Checklist"; }
+    field checklist_name : string { label = "Checklist Name"; }
+    field maintenance_schedule : string { label = "Maintenance Schedule"; enum = MaintenanceSchedule; }
+    field maintenance_type : string { label = "Maintenance Type"; }
+
+    relation plan-ref {
+      from = maintenance_mgmt.PlannedMaintenanceActivity.maintenance_plan;
+      to = maintenance_mgmt.MaintenancePlan.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation activity-ref {
+      from = maintenance_mgmt.PlannedMaintenanceActivity.maintenance_activity;
+      to = maintenance_mgmt.MaintenanceActivity.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation checklist-ref {
+      from = maintenance_mgmt.PlannedMaintenanceActivity.checklist;
+      to = maintenance_mgmt.Checklist.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation type-ref {
+      from = maintenance_mgmt.PlannedMaintenanceActivity.maintenance_type;
+      to = core.RequestActivityType.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity MaintenanceCalendar {
+    label = "Maintenance Calendar";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field planned_maintenance_activity : string { label = "Planned Maintenance Activity"; }
+    field maintenance_plan : string { label = "Maintenance Plan"; }
+    field maintenance_activity : string { label = "Maintenance Activity"; }
+    field frequency : string { label = "Frequency"; }
+    field lead_calendar_days : integer { label = "Lead Calendar Days"; }
+    field last_maintenance_date_property : string { label = "Last Maintenance Date Property"; }
+
+    relation pma-ref {
+      from = maintenance_mgmt.MaintenanceCalendar.planned_maintenance_activity;
+      to = maintenance_mgmt.PlannedMaintenanceActivity.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation plan-ref {
+      from = maintenance_mgmt.MaintenanceCalendar.maintenance_plan;
+      to = maintenance_mgmt.MaintenancePlan.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation activity-ref {
+      from = maintenance_mgmt.MaintenanceCalendar.maintenance_activity;
+      to = maintenance_mgmt.MaintenanceActivity.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation property-ref {
+      from = maintenance_mgmt.MaintenanceCalendar.last_maintenance_date_property;
+      to = asset.Property.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity MaintenanceCondition {
+    label = "Maintenance Condition";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field planned_maintenance_activity : string { label = "Planned Maintenance Activity"; }
+    field maintenance_plan : string { label = "Maintenance Plan"; }
+    field maintenance_activity : string { label = "Maintenance Activity"; }
+    field sensor : string { label = "Sensor"; }
+    field uom_short_name : string { label = "UOM Short Name"; }
+    field property_type : string { label = "Property Type"; }
+    field comparison_operator : string { label = "Comparison Operator"; enum = ComparisonOperator; }
+    field threshold_property : string { label = "Threshold Property"; }
+
+    relation pma-ref {
+      from = maintenance_mgmt.MaintenanceCondition.planned_maintenance_activity;
+      to = maintenance_mgmt.PlannedMaintenanceActivity.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation plan-ref {
+      from = maintenance_mgmt.MaintenanceCondition.maintenance_plan;
+      to = maintenance_mgmt.MaintenancePlan.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation activity-ref {
+      from = maintenance_mgmt.MaintenanceCondition.maintenance_activity;
+      to = maintenance_mgmt.MaintenanceActivity.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation sensor-ref {
+      from = maintenance_mgmt.MaintenanceCondition.sensor;
+      to = maintenance_mgmt.Sensor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation threshold-ref {
+      from = maintenance_mgmt.MaintenanceCondition.threshold_property;
+      to = asset.Property.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity MaintenanceInterval {
+    label = "Maintenance Interval";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field planned_maintenance_activity : string { label = "Planned Maintenance Activity"; }
+    field maintenance_plan : string { label = "Maintenance Plan"; }
+    field maintenance_activity : string { label = "Maintenance Activity"; }
+    field lead_interval : float { label = "Lead Interval"; }
+    field interval : float { label = "Interval"; }
+    field interval_unit_of_measure : string { label = "Interval UOM"; }
+    field running_interval_property : string { label = "Running Interval Property"; }
+    field last_interval_property : string { label = "Last Interval Property"; }
+
+    relation pma-ref {
+      from = maintenance_mgmt.MaintenanceInterval.planned_maintenance_activity;
+      to = maintenance_mgmt.PlannedMaintenanceActivity.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation plan-ref {
+      from = maintenance_mgmt.MaintenanceInterval.maintenance_plan;
+      to = maintenance_mgmt.MaintenancePlan.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation activity-ref {
+      from = maintenance_mgmt.MaintenanceInterval.maintenance_activity;
+      to = maintenance_mgmt.MaintenanceActivity.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation uom-ref {
+      from = maintenance_mgmt.MaintenanceInterval.interval_unit_of_measure;
+      to = purch.UnitOfMeasure.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation running-prop-ref {
+      from = maintenance_mgmt.MaintenanceInterval.running_interval_property;
+      to = asset.Property.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation last-prop-ref {
+      from = maintenance_mgmt.MaintenanceInterval.last_interval_property;
+      to = asset.Property.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity MaintenanceEquipment {
+    label = "Maintenance Equipment Requirement";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field maintenance_activity : string { label = "Maintenance Activity"; }
+    field equipment : string { label = "Equipment"; }
+    field required_qty : integer { label = "Required Quantity"; }
+    field required_hours : float { label = "Required Hours"; }
+
+    relation activity-ref {
+      from = maintenance_mgmt.MaintenanceEquipment.maintenance_activity;
+      to = maintenance_mgmt.MaintenanceActivity.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation equipment-ref {
+      from = maintenance_mgmt.MaintenanceEquipment.equipment;
+      to = asset.Equipment.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity MaintenanceParts {
+    label = "Maintenance Parts Requirement";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field maintenance_activity : string { label = "Maintenance Activity"; }
+    field item : string { label = "Item"; }
+    field quantity : integer { label = "Quantity"; }
+
+    relation activity-ref {
+      from = maintenance_mgmt.MaintenanceParts.maintenance_activity;
+      to = maintenance_mgmt.MaintenanceActivity.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = maintenance_mgmt.MaintenanceParts.item;
+      to = purch.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity MaintenanceTrade {
+    label = "Maintenance Trade Requirement";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field maintenance_activity : string { label = "Maintenance Activity"; }
+    field trade : string { label = "Trade"; }
+    field required_qty : integer { label = "Required Quantity"; }
+    field required_hours : float { label = "Required Hours"; }
+
+    relation activity-ref {
+      from = maintenance_mgmt.MaintenanceTrade.maintenance_activity;
+      to = maintenance_mgmt.MaintenanceActivity.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation trade-ref {
+      from = maintenance_mgmt.MaintenanceTrade.trade;
+      to = core.Trade.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity MaintenanceOrder {
+    label = "Maintenance Order";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field created_date : date { label = "Created Date"; }
+    field work_order : string { label = "Work Order"; }
+
+    relation wo-ref {
+      from = maintenance_mgmt.MaintenanceOrder.work_order;
+      to = work.WorkOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity MaintenanceOrderDetail {
+    label = "Maintenance Order Detail";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field maintenance_order : string { label = "Maintenance Order"; }
+    field seq_num : integer { label = "Sequence Number"; }
+    field maint_req : string { label = "Maintenance Request"; }
+    field asset : string { label = "Asset"; }
+    field due_date : string { label = "Due Date"; }
+    field resource_availability_status : string { label = "Resource Availability Status"; }
+
+    relation order-ref {
+      from = maintenance_mgmt.MaintenanceOrderDetail.maintenance_order;
+      to = maintenance_mgmt.MaintenanceOrder.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation mr-ref {
+      from = maintenance_mgmt.MaintenanceOrderDetail.maint_req;
+      to = maintenance_mgmt.MaintenanceRequest.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation asset-ref {
+      from = maintenance_mgmt.MaintenanceOrderDetail.asset;
+      to = asset.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity MaintenanceRequest {
+    label = "Maintenance Request";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field requestor : string { label = "Requestor"; }
+    field requested_date : date { label = "Requested Date"; }
+    field description : text { label = "Description"; }
+    field priority : string { label = "Priority"; enum = Priority; }
+    field asset : string { label = "Asset"; }
+    field request_type : string { label = "Request Type"; }
+    field location : string { label = "Location"; }
+    field site : string { label = "Site"; }
+    field department : string { label = "Department"; }
+    field position : string { label = "Position"; }
+    field incident : string { label = "Incident"; }
+    field planned_maintenance_activity : string { label = "Planned Maintenance Activity"; }
+    field due_date : date { label = "Due Date"; }
+    field next_maintenance_request : string { label = "Next Maintenance Request"; }
+    field closed_date : date { label = "Closed Date"; }
+    field work_order_activity : string { label = "Work Order Activity"; }
+    field property : string { label = "Property"; }
+    field maintenance_interval_property : string { label = "Maintenance Interval"; }
+    field running_interval_value : float { label = "Running Interval Value"; }
+    field sla_response_due : date { label = "SLA Response Due"; }
+    field sla_resolution_due : date { label = "SLA Resolution Due"; }
+    field sla_status : string { label = "SLA Status"; enum = SlaStatus; }
+    field is_overdue : boolean { label = "Is Overdue"; default = false; }
+    field request_category : string { label = "Request Category"; enum = RequestCategory; }
+
+    relation requestor-ref {
+      from = maintenance_mgmt.MaintenanceRequest.requestor;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation asset-ref {
+      from = maintenance_mgmt.MaintenanceRequest.asset;
+      to = asset.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation location-ref {
+      from = maintenance_mgmt.MaintenanceRequest.location;
+      to = asset.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = maintenance_mgmt.MaintenanceRequest.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation dept-ref {
+      from = maintenance_mgmt.MaintenanceRequest.department;
+      to = core.Department.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation position-ref {
+      from = maintenance_mgmt.MaintenanceRequest.position;
+      to = asset.Position.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation incident-ref {
+      from = maintenance_mgmt.MaintenanceRequest.incident;
+      to = asset.Incident.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation pma-ref {
+      from = maintenance_mgmt.MaintenanceRequest.planned_maintenance_activity;
+      to = maintenance_mgmt.PlannedMaintenanceActivity.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation next-mr-ref {
+      from = maintenance_mgmt.MaintenanceRequest.next_maintenance_request;
+      to = maintenance_mgmt.MaintenanceRequest.id;
+      kind = link;
+      cardinality = one-to-one;
+    }
+
+    relation woa-ref {
+      from = maintenance_mgmt.MaintenanceRequest.work_order_activity;
+      to = work.WorkOrderActivity.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation property-ref {
+      from = maintenance_mgmt.MaintenanceRequest.property;
+      to = asset.Property.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation interval-ref {
+      from = maintenance_mgmt.MaintenanceRequest.maintenance_interval_property;
+      to = maintenance_mgmt.MaintenanceInterval.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use maintenance_mgmt.maintenance-request-lifecycle;
+
+    behavior {
+      workflow use maintenance_mgmt.maintenance-request-workflow;
+
+      permissions {
+        role core.admin {
+          allow = read, write, create, delete;
+        }
+        role core.planner {
+          allow = read, write, create, submit, cancel;
+        }
+        role core.technician {
+          allow = read, write, submit;
+        }
+        role core.requester {
+          allow = read, create, submit;
+        }
+        role core.viewer {
+          allow = read;
+        }
+      }
+
+      on submit {
+        do = maintenance_mgmt.calculate-sla;
+      }
+
+      on update {
+        when = "workflow_state == completed";
+        do = maintenance_mgmt.close-maintenance-request;
+      }
+    }
+  }
+
+  entity ServiceRequest {
+    label = "Service Request";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field title : string { label = "Title"; }
+    field description : text { label = "Description"; }
+    field status : string { label = "Status"; }
+    field priority : string { label = "Priority"; enum = Priority; }
+    field date_reported : date { label = "Date Reported"; }
+    field closed_date : date { label = "Closed Date"; }
+    field asset : string { label = "Asset"; }
+    field site : string { label = "Site"; }
+    field location : string { label = "Location"; }
+    field work_order : string { label = "Work Order"; }
+    field incident : string { label = "Incident"; }
+
+    relation asset-ref {
+      from = maintenance_mgmt.ServiceRequest.asset;
+      to = asset.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = maintenance_mgmt.ServiceRequest.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation location-ref {
+      from = maintenance_mgmt.ServiceRequest.location;
+      to = asset.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation wo-ref {
+      from = maintenance_mgmt.ServiceRequest.work_order;
+      to = work.WorkOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation incident-ref {
+      from = maintenance_mgmt.ServiceRequest.incident;
+      to = asset.Incident.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity Sensor {
+    label = "Sensor";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field sensor_name : string { label = "Sensor Name"; }
+    field asset : string { label = "Asset"; }
+    field asset_name : text { label = "Asset Name"; }
+    field asset_property : string { label = "Asset Property"; }
+    field uom_short_name : string { label = "UOM Short Name"; }
+    field property_type : string { label = "Property Type"; }
+    field root_topic_name : string { label = "Root Topic Name"; }
+    field collection_frequency : string { label = "Collection Frequency"; }
+    field site : string { label = "Site"; }
+
+    relation asset-ref {
+      from = maintenance_mgmt.Sensor.asset;
+      to = asset.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation property-ref {
+      from = maintenance_mgmt.Sensor.asset_property;
+      to = asset.AssetProperty.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = maintenance_mgmt.Sensor.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity SensorData {
+    label = "Sensor Data";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field sensor : string { label = "Sensor"; }
+    field value : string { label = "Value"; }
+    field timestamp : string { label = "Timestamp"; }
+
+    relation sensor-ref {
+      from = maintenance_mgmt.SensorData.sensor;
+      to = maintenance_mgmt.Sensor.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity FailureAnalysis {
+    label = "Failure Analysis";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field work_order : string { label = "Work Order"; }
+    field incident : string { label = "Incident"; }
+    field asset : string { label = "Asset"; }
+    field category_of_failure : string { label = "Category of Failure"; }
+    field cause_code : string { label = "Cause Code"; }
+    field remedy_code : string { label = "Remedy Code"; }
+    field analysis_method : string { label = "Analysis Method"; enum = AnalysisMethod; }
+    field root_cause_description : text { label = "Root Cause Description"; }
+    field contributing_factors : text { label = "Contributing Factors"; }
+    field analysis_date : date { label = "Analysis Date"; }
+    field analyst : string { label = "Analyst"; }
+    field site : string { label = "Site"; }
+    field workflow_state : string { label = "Workflow State"; }
+
+    relation wo-ref {
+      from = maintenance_mgmt.FailureAnalysis.work_order;
+      to = work.WorkOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation incident-ref {
+      from = maintenance_mgmt.FailureAnalysis.incident;
+      to = asset.Incident.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation asset-ref {
+      from = maintenance_mgmt.FailureAnalysis.asset;
+      to = asset.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation failure-ref {
+      from = maintenance_mgmt.FailureAnalysis.category_of_failure;
+      to = work.CategoryOfFailure.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation analyst-ref {
+      from = maintenance_mgmt.FailureAnalysis.analyst;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = maintenance_mgmt.FailureAnalysis.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use maintenance_mgmt.failure-analysis-lifecycle;
+
+    behavior {
+      workflow use maintenance_mgmt.failure-analysis-workflow;
+
+      on update {
+        when = "workflow_state == root-cause-identified";
+        do = maintenance_mgmt.route-failure-to-rca;
+      }
+
+      permissions {
+        role core.admin {
+          allow = read, write, create, delete;
+        }
+        role core.planner {
+          allow = read, write, create, submit;
+        }
+        role core.technician {
+          allow = read, write;
+        }
+        role core.viewer {
+          allow = read;
+        }
+      }
+    }
+  }
+
+  entity CorrectiveAction {
+    label = "Corrective Action";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field failure_analysis : string { label = "Failure Analysis"; }
+    field action_type : string { label = "Action Type"; enum = ActionType; }
+    field description : text { label = "Description"; }
+    field assigned_to : string { label = "Assigned To"; }
+    field due_date : date { label = "Due Date"; }
+    field completion_date : date { label = "Completion Date"; }
+    field verification_notes : text { label = "Verification Notes"; }
+    field work_order : string { label = "Work Order"; }
+    field site : string { label = "Site"; }
+    field workflow_state : string { label = "Workflow State"; }
+
+    relation fa-ref {
+      from = maintenance_mgmt.CorrectiveAction.failure_analysis;
+      to = maintenance_mgmt.FailureAnalysis.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation assigned-ref {
+      from = maintenance_mgmt.CorrectiveAction.assigned_to;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation wo-ref {
+      from = maintenance_mgmt.CorrectiveAction.work_order;
+      to = work.WorkOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = maintenance_mgmt.CorrectiveAction.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use maintenance_mgmt.corrective-action-lifecycle;
+
+    behavior {
+      workflow use maintenance_mgmt.corrective-action-workflow;
+    }
+  }
+
+  entity InspectionRoute {
+    label = "Inspection Route";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field route_name : string { label = "Route Name"; }
+    field description : text { label = "Description"; }
+    field frequency : string { label = "Frequency"; }
+    field site : string { label = "Site"; }
+    field department : string { label = "Department"; }
+    field active : boolean { label = "Active"; default = true; }
+
+    relation site-ref {
+      from = maintenance_mgmt.InspectionRoute.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation dept-ref {
+      from = maintenance_mgmt.InspectionRoute.department;
+      to = core.Department.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity InspectionPoint {
+    label = "Inspection Point";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field inspection_route : string { label = "Inspection Route"; }
+    field sequence : integer { label = "Sequence"; }
+    field asset : string { label = "Asset"; }
+    field location : string { label = "Location"; }
+    field description : text { label = "Description"; }
+    field measurement_type : string { label = "Measurement Type"; }
+    field expected_value : string { label = "Expected Value"; }
+    field tolerance : string { label = "Tolerance"; }
+
+    relation route-ref {
+      from = maintenance_mgmt.InspectionPoint.inspection_route;
+      to = maintenance_mgmt.InspectionRoute.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation asset-ref {
+      from = maintenance_mgmt.InspectionPoint.asset;
+      to = asset.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation location-ref {
+      from = maintenance_mgmt.InspectionPoint.location;
+      to = asset.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity ConditionMonitoring {
+    label = "Condition Monitoring";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field asset : string { label = "Asset"; required = true; }
+    field sensor : string { label = "Sensor"; }
+    field monitoring_type : string { label = "Monitoring Type"; }
+    field reading_value : float { label = "Reading Value"; }
+    field reading_unit : string { label = "Reading Unit"; }
+    field reading_timestamp : datetime { label = "Reading Timestamp"; }
+    field baseline_value : float { label = "Baseline Value"; }
+    field warning_threshold : float { label = "Warning Threshold"; }
+    field critical_threshold : float { label = "Critical Threshold"; }
+    field alert_status : string { label = "Alert Status"; enum = AlertStatus; }
+    field trend_direction : string { label = "Trend Direction"; enum = TrendDirection; }
+    field analysis_notes : text { label = "Analysis Notes"; }
+    field maintenance_request : string { label = "Maintenance Request"; }
+    field site : string { label = "Site"; }
+
+    relation asset-ref {
+      from = maintenance_mgmt.ConditionMonitoring.asset;
+      to = asset.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation sensor-ref {
+      from = maintenance_mgmt.ConditionMonitoring.sensor;
+      to = maintenance_mgmt.Sensor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation mr-ref {
+      from = maintenance_mgmt.ConditionMonitoring.maintenance_request;
+      to = maintenance_mgmt.MaintenanceRequest.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = maintenance_mgmt.ConditionMonitoring.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use maintenance_mgmt.condition-monitoring-lifecycle;
+
+    behavior {
+      workflow use maintenance_mgmt.condition-monitoring-workflow;
+
+      on update {
+        when = "alert_status == critical";
+        do = maintenance_mgmt.auto-create-maintenance-request;
+      }
+    }
+  }
+
+  (* ========================================== *)
+  (* ACTIONS                                    *)
+  (* ========================================== *)
+
+  action calculate-sla {
+    kind = server;
+    entity = maintenance_mgmt.MaintenanceRequest;
+    handler = "maintenance_mgmt.hooks.maintenance_request_hooks.calculate_sla_dates";
+  }
+
+  action close-maintenance-request {
+    kind = server;
+    entity = maintenance_mgmt.MaintenanceRequest;
+    handler = "maintenance_mgmt.hooks.maintenance_request_hooks.close_request";
+  }
+
+  action route-failure-to-rca {
+    kind = server;
+    entity = maintenance_mgmt.FailureAnalysis;
+    handler = "maintenance_mgmt.hooks.failure_rca_routing.route_failure_to_rca";
+  }
+
+  action auto-create-maintenance-request {
+    kind = server;
+    entity = maintenance_mgmt.ConditionMonitoring;
+    handler = "maintenance_mgmt.hooks.condition_monitoring.auto_create_maintenance_request";
+  }
+
+  action generate-maintenance-requests {
+    kind = scheduled;
+    entity = maintenance_mgmt.MaintenanceRequest;
+    handler = "maintenance_mgmt.scheduled_jobs.generate_maintenance_requests";
+  }
+
+  action run-fmea-analysis {
+    kind = server;
+    entity = maintenance_mgmt.FailureAnalysis;
+    handler = "maintenance_mgmt.hooks.fmea_service.run_fmea_analysis";
+  }
+
+  (* ========================================== *)
+  (* AUTOMATIONS                                *)
+  (* ========================================== *)
+
+  automation pm-generation {
+    entity = maintenance_mgmt.MaintenanceRequest;
+    trigger daily-check {
+      schedule = "0 1 * * *";
+      invoke = maintenance_mgmt.generate-maintenance-requests;
+    }
+  }
+
+  automation sla-monitoring {
+    entity = maintenance_mgmt.MaintenanceRequest;
+    trigger hourly-check {
+      schedule = "0 * * * *";
+      invoke = maintenance_mgmt.check-sla-status;
+    }
+  }
+
+  action check-sla-status {
+    kind = scheduled;
+    entity = maintenance_mgmt.MaintenanceRequest;
+    handler = "maintenance_mgmt.scheduled_jobs.check_sla_breaches";
+  }
+
+  (* ========================================== *)
+  (* METRICS                                    *)
+  (* ========================================== *)
+
+  metrics maintenance-metrics {
+    metric open-requests {
+      entity = maintenance_mgmt.MaintenanceRequest;
+      aggregation = count;
+    }
+
+    metric overdue-requests {
+      entity = maintenance_mgmt.MaintenanceRequest;
+      aggregation = count;
+    }
+
+    metric sensor-count {
+      entity = maintenance_mgmt.Sensor;
+      aggregation = count;
+    }
+
+    metric active-condition-monitors {
+      entity = maintenance_mgmt.ConditionMonitoring;
+      aggregation = count;
+    }
+
+    metric failure-analyses {
+      entity = maintenance_mgmt.FailureAnalysis;
+      aggregation = count;
+    }
+
+    report pm-compliance-report {
+      entity = maintenance_mgmt.MaintenanceRequest;
+      kind = tabular;
+    }
+  }
+
+}

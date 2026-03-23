@@ -1,0 +1,994 @@
+dbml model work_mgmt {
+
+  import "core_eam.dbml" as core;
+  import "asset_management.dbml" as asset;
+  import "maintenance_mgmt.dbml" as maint;
+  import "purchasing_stores.dbml" as purch;
+
+  (* ========================================== *)
+  (* ENUMS                                      *)
+  (* ========================================== *)
+
+  enum WorkOrderState {
+    draft;
+    planned;
+    scheduled;
+    in_progress;
+    completed;
+    closed;
+    cancelled;
+  }
+
+  enum WorkOrderType {
+    preventive;
+    corrective;
+    emergency;
+    project;
+    inspection;
+    calibration;
+  }
+
+  enum WorkOrderPriority {
+    low;
+    medium;
+    high;
+    critical;
+    emergency;
+  }
+
+  enum SafetyPermitState {
+    draft;
+    requested;
+    approved;
+    active;
+    completed;
+    cancelled;
+  }
+
+  enum PermitType {
+    hot_work;
+    confined_space;
+    electrical;
+    excavation;
+    lifting;
+    general;
+  }
+
+  enum ToolStatus {
+    available;
+    checked_out;
+    maintenance;
+    retired;
+  }
+
+  (* ========================================== *)
+  (* LIFECYCLES                                 *)
+  (* ========================================== *)
+
+  lifecycle work-order-lifecycle {
+    entity = work_mgmt.WorkOrder;
+    state draft { initial = true; }
+    state planned {}
+    state scheduled {}
+    state in-progress {}
+    state completed {}
+    state closed { final = true; }
+    state cancelled { final = true; }
+  }
+
+  lifecycle safety-permit-lifecycle {
+    entity = work_mgmt.SafetyPermit;
+    state draft { initial = true; }
+    state requested {}
+    state approved {}
+    state active {}
+    state completed { final = true; }
+    state cancelled { final = true; }
+  }
+
+  (* ========================================== *)
+  (* WORKFLOWS                                  *)
+  (* ========================================== *)
+
+  workflow work-order-workflow {
+    entity = work_mgmt.WorkOrder;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state planned {}
+    state scheduled {}
+    state in-progress {}
+    state completed {}
+    state closed { final = true; }
+    state cancelled { final = true; }
+
+    transition plan {
+      from = draft;
+      to = planned;
+      role = core.planner;
+    }
+
+    transition schedule {
+      from = planned;
+      to = scheduled;
+      role = core.planner;
+    }
+
+    transition start-work {
+      from = scheduled;
+      to = in-progress;
+      role = core.technician;
+    }
+
+    transition complete {
+      from = in-progress;
+      to = completed;
+      role = core.technician;
+    }
+
+    transition close {
+      from = completed;
+      to = closed;
+      role = core.planner;
+    }
+
+    transition cancel {
+      from = draft;
+      to = cancelled;
+      role = core.planner;
+    }
+
+    transition cancel-planned {
+      from = planned;
+      to = cancelled;
+      role = core.manager;
+    }
+
+    transition reopen {
+      from = completed;
+      to = in-progress;
+      role = core.planner;
+    }
+  }
+
+  workflow safety-permit-workflow {
+    entity = work_mgmt.SafetyPermit;
+    state-field = workflow_state;
+
+    state draft { initial = true; }
+    state requested {}
+    state approved {}
+    state active {}
+    state completed { final = true; }
+    state cancelled { final = true; }
+
+    transition submit {
+      from = draft;
+      to = requested;
+      role = core.technician;
+    }
+
+    transition approve {
+      from = requested;
+      to = approved;
+      role = core.manager;
+    }
+
+    transition activate {
+      from = approved;
+      to = active;
+      role = core.technician;
+    }
+
+    transition complete {
+      from = active;
+      to = completed;
+      role = core.technician;
+    }
+
+    transition cancel {
+      from = draft;
+      to = cancelled;
+      role = core.manager;
+    }
+
+    transition reject {
+      from = requested;
+      to = draft;
+      role = core.manager;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES — REFERENCE / MASTER              *)
+  (* ========================================== *)
+
+  entity CategoryOfFailure {
+    label = "Category of Failure";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field name : string { label = "Name"; }
+    field description : text { label = "Description"; }
+  }
+
+  entity CauseCode {
+    label = "Cause Code";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field name : string { label = "Name"; }
+    field description : text { label = "Description"; }
+  }
+
+  entity RemedyCode {
+    label = "Remedy Code";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field name : string { label = "Name"; }
+    field description : text { label = "Description"; }
+  }
+
+  entity JobPlan {
+    label = "Job Plan";
+    category = master;
+    kind = root;
+
+    field id : string { required = true; }
+    field job_plan_name : string { label = "Job Plan Name"; }
+    field description : text { label = "Description"; }
+    field site : string { label = "Site"; }
+
+    relation site-ref {
+      from = work_mgmt.JobPlan.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity JobPlanTask {
+    label = "Job Plan Task";
+    category = master;
+    kind = child;
+
+    field id : string { required = true; }
+    field job_plan : string { label = "Job Plan"; }
+    field task_name : string { label = "Task Name"; }
+    field sequence : integer { label = "Sequence"; }
+    field description : text { label = "Description"; }
+    field estimated_hours : float { label = "Estimated Hours"; }
+    field trade : string { label = "Trade"; }
+
+    relation plan-ref {
+      from = work_mgmt.JobPlanTask.job_plan;
+      to = work_mgmt.JobPlan.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation trade-ref {
+      from = work_mgmt.JobPlanTask.trade;
+      to = core.Trade.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES — WORK ORDER (TRANSACTIONAL)      *)
+  (* ========================================== *)
+
+  entity WorkOrder {
+    label = "Work Order";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field wo_type : string { label = "Work Order Type"; enum = WorkOrderType; }
+    field priority : string { label = "Priority"; enum = WorkOrderPriority; }
+    field description : text { label = "Description"; }
+    field asset : string { label = "Asset"; }
+    field location : string { label = "Location"; }
+    field site : string { label = "Site"; }
+    field department : string { label = "Department"; }
+    field position : string { label = "Position"; }
+    field job_plan : string { label = "Job Plan"; }
+    field planned_start : datetime { label = "Planned Start"; }
+    field planned_finish : datetime { label = "Planned Finish"; }
+    field actual_start : datetime { label = "Actual Start"; }
+    field actual_finish : datetime { label = "Actual Finish"; }
+    field reported_by : string { label = "Reported By"; }
+    field owned_by : string { label = "Owned By"; }
+    field supervisor : string { label = "Supervisor"; }
+    field parent_wo : string { label = "Parent Work Order"; }
+    field maintenance_request : string { label = "Maintenance Request"; }
+    field category_of_failure : string { label = "Category of Failure"; }
+    field cause_code : string { label = "Cause Code"; }
+    field remedy_code : string { label = "Remedy Code"; }
+    field estimated_cost : decimal { label = "Estimated Cost"; }
+    field actual_cost : decimal { label = "Actual Cost"; }
+
+    relation asset-ref {
+      from = work_mgmt.WorkOrder.asset;
+      to = asset.Asset.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation location-ref {
+      from = work_mgmt.WorkOrder.location;
+      to = asset.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = work_mgmt.WorkOrder.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation dept-ref {
+      from = work_mgmt.WorkOrder.department;
+      to = core.Department.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation position-ref {
+      from = work_mgmt.WorkOrder.position;
+      to = asset.Position.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation job-plan-ref {
+      from = work_mgmt.WorkOrder.job_plan;
+      to = work_mgmt.JobPlan.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation reported-by-ref {
+      from = work_mgmt.WorkOrder.reported_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation owned-by-ref {
+      from = work_mgmt.WorkOrder.owned_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation supervisor-ref {
+      from = work_mgmt.WorkOrder.supervisor;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation parent-ref {
+      from = work_mgmt.WorkOrder.parent_wo;
+      to = work_mgmt.WorkOrder.id;
+      kind = link;
+      cardinality = many-to-one;
+    }
+
+    relation mr-ref {
+      from = work_mgmt.WorkOrder.maintenance_request;
+      to = maint.MaintenanceRequest.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation failure-ref {
+      from = work_mgmt.WorkOrder.category_of_failure;
+      to = work_mgmt.CategoryOfFailure.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation cause-ref {
+      from = work_mgmt.WorkOrder.cause_code;
+      to = work_mgmt.CauseCode.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation remedy-ref {
+      from = work_mgmt.WorkOrder.remedy_code;
+      to = work_mgmt.RemedyCode.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use work_mgmt.work-order-lifecycle;
+
+    behavior {
+      workflow use work_mgmt.work-order-workflow;
+
+      permissions {
+        role core.admin {
+          allow = read, write, create, delete;
+        }
+        role core.planner {
+          allow = read, write, create, submit;
+        }
+        role core.technician {
+          allow = read, write;
+        }
+        role core.requester {
+          allow = read;
+        }
+        role core.viewer {
+          allow = read;
+        }
+      }
+
+      on complete {
+        do = work_mgmt.update-asset-maintenance-history;
+      }
+
+      rule cost-validation {
+        when = "actual_cost > estimated_cost * 1.2";
+        then = "require manager approval";
+      }
+    }
+  }
+
+  entity WorkOrderActivity {
+    label = "Work Order Activity";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_order : string { label = "Work Order"; }
+    field activity_name : string { label = "Activity Name"; }
+    field sequence : integer { label = "Sequence"; }
+    field description : text { label = "Description"; }
+    field planned_hours : float { label = "Planned Hours"; }
+    field actual_hours : float { label = "Actual Hours"; }
+    field status : string { label = "Status"; }
+
+    relation wo-ref {
+      from = work_mgmt.WorkOrderActivity.work_order;
+      to = work_mgmt.WorkOrder.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkOrderActivityLogs {
+    label = "Work Order Activity Log";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_order_activity : string { label = "Work Order Activity"; }
+    field log_date : datetime { label = "Log Date"; }
+    field hours : float { label = "Hours"; }
+    field notes : text { label = "Notes"; }
+    field logged_by : string { label = "Logged By"; }
+
+    relation activity-ref {
+      from = work_mgmt.WorkOrderActivityLogs.work_order_activity;
+      to = work_mgmt.WorkOrderActivity.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation logged-by-ref {
+      from = work_mgmt.WorkOrderActivityLogs.logged_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkOrderChecklist {
+    label = "Work Order Checklist";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_order : string { label = "Work Order"; }
+    field checklist : string { label = "Checklist"; }
+    field checklist_name : string { label = "Checklist Name"; }
+
+    relation wo-ref {
+      from = work_mgmt.WorkOrderChecklist.work_order;
+      to = work_mgmt.WorkOrder.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation checklist-ref {
+      from = work_mgmt.WorkOrderChecklist.checklist;
+      to = maint.Checklist.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkOrderChecklistDetail {
+    label = "Work Order Checklist Detail";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_order_checklist : string { label = "Work Order Checklist"; }
+    field item_name : string { label = "Item Name"; }
+    field is_checked : boolean { label = "Is Checked"; default = false; }
+    field notes : text { label = "Notes"; }
+    field checked_by : string { label = "Checked By"; }
+    field checked_date : datetime { label = "Checked Date"; }
+
+    relation woc-ref {
+      from = work_mgmt.WorkOrderChecklistDetail.work_order_checklist;
+      to = work_mgmt.WorkOrderChecklist.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation checked-by-ref {
+      from = work_mgmt.WorkOrderChecklistDetail.checked_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkOrderEquipment {
+    label = "Work Order Equipment";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_order : string { label = "Work Order"; }
+    field equipment : string { label = "Equipment"; }
+    field required_qty : integer { label = "Required Quantity"; }
+    field required_hours : float { label = "Required Hours"; }
+
+    relation wo-ref {
+      from = work_mgmt.WorkOrderEquipment.work_order;
+      to = work_mgmt.WorkOrder.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation equipment-ref {
+      from = work_mgmt.WorkOrderEquipment.equipment;
+      to = asset.Equipment.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkOrderEquipmentActualHours {
+    label = "Work Order Equipment Actual Hours";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_order_equipment : string { label = "Work Order Equipment"; }
+    field date : date { label = "Date"; }
+    field hours : float { label = "Hours"; }
+
+    relation equip-ref {
+      from = work_mgmt.WorkOrderEquipmentActualHours.work_order_equipment;
+      to = work_mgmt.WorkOrderEquipment.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkOrderEquipmentAssignment {
+    label = "Work Order Equipment Assignment";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_order : string { label = "Work Order"; }
+    field equipment : string { label = "Equipment"; }
+    field assigned_date : date { label = "Assigned Date"; }
+    field return_date : date { label = "Return Date"; }
+
+    relation wo-ref {
+      from = work_mgmt.WorkOrderEquipmentAssignment.work_order;
+      to = work_mgmt.WorkOrder.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation equipment-ref {
+      from = work_mgmt.WorkOrderEquipmentAssignment.equipment;
+      to = asset.Equipment.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkOrderLabor {
+    label = "Work Order Labor";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_order : string { label = "Work Order"; }
+    field trade : string { label = "Trade"; }
+    field required_qty : integer { label = "Required Quantity"; }
+    field required_hours : float { label = "Required Hours"; }
+
+    relation wo-ref {
+      from = work_mgmt.WorkOrderLabor.work_order;
+      to = work_mgmt.WorkOrder.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation trade-ref {
+      from = work_mgmt.WorkOrderLabor.trade;
+      to = core.Trade.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkOrderLaborActualHours {
+    label = "Work Order Labor Actual Hours";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_order_labor : string { label = "Work Order Labor"; }
+    field labor : string { label = "Labor"; }
+    field date : date { label = "Date"; }
+    field hours : float { label = "Hours"; }
+
+    relation labor-req-ref {
+      from = work_mgmt.WorkOrderLaborActualHours.work_order_labor;
+      to = work_mgmt.WorkOrderLabor.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation labor-ref {
+      from = work_mgmt.WorkOrderLaborActualHours.labor;
+      to = core.Labor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkOrderLaborAssignment {
+    label = "Work Order Labor Assignment";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_order : string { label = "Work Order"; }
+    field labor : string { label = "Labor"; }
+    field assigned_date : date { label = "Assigned Date"; }
+
+    relation wo-ref {
+      from = work_mgmt.WorkOrderLaborAssignment.work_order;
+      to = work_mgmt.WorkOrder.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation labor-ref {
+      from = work_mgmt.WorkOrderLaborAssignment.labor;
+      to = core.Labor.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkOrderParts {
+    label = "Work Order Parts";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_order : string { label = "Work Order"; }
+    field item : string { label = "Item"; }
+    field quantity : integer { label = "Quantity"; }
+    field store : string { label = "Store"; }
+
+    relation wo-ref {
+      from = work_mgmt.WorkOrderParts.work_order;
+      to = work_mgmt.WorkOrder.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation item-ref {
+      from = work_mgmt.WorkOrderParts.item;
+      to = purch.Item.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation store-ref {
+      from = work_mgmt.WorkOrderParts.store;
+      to = purch.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  entity WorkOrderPartsReservation {
+    label = "Work Order Parts Reservation";
+    category = transactional;
+    kind = child;
+
+    field id : string { required = true; }
+    field work_order_parts : string { label = "Work Order Parts"; }
+    field store : string { label = "Store"; }
+    field bin : string { label = "Bin"; }
+    field reserved_qty : integer { label = "Reserved Quantity"; }
+    field issued_qty : integer { label = "Issued Quantity"; }
+
+    relation parts-ref {
+      from = work_mgmt.WorkOrderPartsReservation.work_order_parts;
+      to = work_mgmt.WorkOrderParts.id;
+      kind = composition;
+      cardinality = many-to-one;
+    }
+
+    relation store-ref {
+      from = work_mgmt.WorkOrderPartsReservation.store;
+      to = purch.Store.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation bin-ref {
+      from = work_mgmt.WorkOrderPartsReservation.bin;
+      to = purch.Bin.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  (* ========================================== *)
+  (* ENTITIES — SAFETY & TOOLS                  *)
+  (* ========================================== *)
+
+  entity SafetyPermit {
+    label = "Safety Permit";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field workflow_state : string { label = "Workflow State"; }
+    field permit_type : string { label = "Permit Type"; enum = PermitType; }
+    field description : text { label = "Description"; }
+    field work_order : string { label = "Work Order"; }
+    field location : string { label = "Location"; }
+    field site : string { label = "Site"; }
+    field requested_by : string { label = "Requested By"; }
+    field approved_by : string { label = "Approved By"; }
+    field valid_from : datetime { label = "Valid From"; }
+    field valid_to : datetime { label = "Valid To"; }
+    field hazards : text { label = "Hazards"; }
+    field precautions : text { label = "Precautions"; }
+    field emergency_procedures : text { label = "Emergency Procedures"; }
+
+    relation wo-ref {
+      from = work_mgmt.SafetyPermit.work_order;
+      to = work_mgmt.WorkOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation location-ref {
+      from = work_mgmt.SafetyPermit.location;
+      to = asset.Location.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = work_mgmt.SafetyPermit.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation requested-ref {
+      from = work_mgmt.SafetyPermit.requested_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation approved-ref {
+      from = work_mgmt.SafetyPermit.approved_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    lifecycle use work_mgmt.safety-permit-lifecycle;
+
+    behavior {
+      workflow use work_mgmt.safety-permit-workflow;
+
+      permissions {
+        role core.admin {
+          allow = read, write, create, delete;
+        }
+        role core.manager {
+          allow = read, write, create, submit, approve;
+        }
+        role core.technician {
+          allow = read, write, create, submit;
+        }
+        role core.viewer {
+          allow = read;
+        }
+      }
+    }
+  }
+
+  entity ToolCheckout {
+    label = "Tool Checkout";
+    category = transactional;
+    kind = root;
+
+    field id : string { required = true; }
+    field work_order : string { label = "Work Order"; }
+    field equipment : string { label = "Equipment / Tool"; }
+    field checked_out_by : string { label = "Checked Out By"; }
+    field checkout_date : datetime { label = "Checkout Date"; }
+    field expected_return : datetime { label = "Expected Return"; }
+    field actual_return : datetime { label = "Actual Return"; }
+    field condition_out : string { label = "Condition Out"; }
+    field condition_in : string { label = "Condition In"; }
+    field notes : text { label = "Notes"; }
+    field site : string { label = "Site"; }
+
+    relation wo-ref {
+      from = work_mgmt.ToolCheckout.work_order;
+      to = work_mgmt.WorkOrder.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation equipment-ref {
+      from = work_mgmt.ToolCheckout.equipment;
+      to = asset.Equipment.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation employee-ref {
+      from = work_mgmt.ToolCheckout.checked_out_by;
+      to = core.Employee.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+
+    relation site-ref {
+      from = work_mgmt.ToolCheckout.site;
+      to = core.Site.id;
+      kind = association;
+      cardinality = many-to-one;
+    }
+  }
+
+  (* ========================================== *)
+  (* ACTIONS                                    *)
+  (* ========================================== *)
+
+  action update-asset-maintenance-history {
+    kind = server;
+    entity = work_mgmt.WorkOrder;
+    handler = "work_mgmt.hooks.work_order_hooks.update_asset_maintenance_history";
+  }
+
+  action auto-generate-wo-from-mr {
+    kind = server;
+    entity = work_mgmt.WorkOrder;
+    handler = "work_mgmt.hooks.work_order_hooks.auto_generate_from_maintenance_request";
+  }
+
+  action calculate-wo-cost {
+    kind = server;
+    entity = work_mgmt.WorkOrder;
+    handler = "work_mgmt.hooks.work_order_hooks.calculate_actual_cost";
+  }
+
+  action check-resource-availability {
+    kind = server;
+    entity = work_mgmt.WorkOrder;
+    handler = "work_mgmt.hooks.resource_checker.check_availability";
+  }
+
+  action reserve-parts {
+    kind = server;
+    entity = work_mgmt.WorkOrderParts;
+    handler = "work_mgmt.hooks.parts_reservation.reserve_inventory";
+  }
+
+  action validate-safety-permit {
+    kind = server;
+    entity = work_mgmt.SafetyPermit;
+    handler = "work_mgmt.hooks.safety_permit_hooks.validate_permit";
+  }
+
+  (* ========================================== *)
+  (* AUTOMATIONS                                *)
+  (* ========================================== *)
+
+  automation wo-overdue-check {
+    entity = work_mgmt.WorkOrder;
+    trigger daily-overdue-scan {
+      schedule = "0 6 * * *";
+      invoke = work_mgmt.scan-overdue-work-orders;
+    }
+  }
+
+  action scan-overdue-work-orders {
+    kind = scheduled;
+    entity = work_mgmt.WorkOrder;
+    handler = "work_mgmt.scheduled_jobs.scan_overdue_work_orders";
+  }
+
+  (* ========================================== *)
+  (* METRICS                                    *)
+  (* ========================================== *)
+
+  metrics work-order-metrics {
+    metric open-work-orders {
+      entity = work_mgmt.WorkOrder;
+      aggregation = count;
+    }
+
+    metric overdue-work-orders {
+      entity = work_mgmt.WorkOrder;
+      aggregation = count;
+    }
+
+    metric average-completion-time {
+      entity = work_mgmt.WorkOrder;
+      field = actual_finish;
+      aggregation = avg;
+    }
+
+    metric total-labor-hours {
+      entity = work_mgmt.WorkOrderLaborActualHours;
+      field = hours;
+      aggregation = sum;
+    }
+
+    metric total-wo-cost {
+      entity = work_mgmt.WorkOrder;
+      field = actual_cost;
+      aggregation = sum;
+    }
+
+    metric active-safety-permits {
+      entity = work_mgmt.SafetyPermit;
+      aggregation = count;
+    }
+
+    report work-order-backlog-report {
+      entity = work_mgmt.WorkOrder;
+      kind = tabular;
+    }
+  }
+
+}

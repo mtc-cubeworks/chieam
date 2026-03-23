@@ -1,27 +1,41 @@
-Phase 5: Remaining Section 2 workflow gaps - field additions, new models & business logic
+Phase 6: Complete 86/86 workflow gap coverage
 
-Models updated (46 new columns across 4 tables):
-- asset.py: AR-1 lifecycle_state, AR-2 parent_asset/functional_location,
-  AR-3 criticality/risk_score, AR-5 warranty fields, AR-6 nameplate/specs,
-  AR-7 depreciation fields (19 columns)
-- incident.py: IN-4 incident_subtype, IN-5 OSHA/regulatory fields,
-  IN-1 failure_analysis link (5 columns)
-- work_order.py: WO-2 job_plan, WO-3 scheduled/actual dates,
-  WO-4 approval fields, WO-5 cost rollup columns, WO-8 safety/LOTO,
-  WO-9 feedback fields, WO-10 follow-up/parent WO (19 columns)
-- maintenance_request.py: MR-2 SLA fields, MR-6 request_category (5 columns)
+Schema Changes (55+ new columns across 11 tables + 3 new tables):
+- work_order_activity: sequence, predecessor, dependency_type, acceptance_criteria, completion_status
+- work_order_labor: shift, rate, rate_type, overtime_multiplier, labor_type
+- item_return: return_reason, return_reason_notes, inspection_required/status/notes
+- item_issue: work_order FK, issue_destination, require_wo
+- purchase_request: budget_code, budget_amount, total_amount
+- vendor: 11 fields (contact info, ratings, order stats)
+- purchase_order: 10 fields (amendment tracking, blanket/contract, terms)
+- stock_count: variance_threshold_pct, auto_adjust, blind_count
+- stock_count_task: counter_number, recount_required
+- inventory: lot_number, expiry_date
+- item: reorder_point/qty, min/max stock, is_lot_tracked, cycle_count_frequency
+- NEW: condition_monitoring (MW-5), asset_transfer (MW-11), master_data_change (MW-18)
 
-New models created:
-- VendorInvoice + VendorInvoiceLine (MW-17: 3-way matching)
-- ToolCheckout (MW-14: tool/equipment checkout tracking)
+Business Logic:
+- AR-8: Asset clone server action
+- PO-3: Vendor performance auto-calculation on purchase receipt
+- PO-4: PO amendment number auto-increment
+- PQ-1: Budget validation on purchase request
+- PI-1/PI-3: Item issue WO enforcement and destination validation
+- SC-1: Stock count auto-inventory-adjustment on approval
+- IV-6: Cycle count auto-scheduling (daily at 4AM)
+- XW-4: WO parts shortage auto-PR generation
+- XW-10: WO failure code -> failure analysis auto-routing
+- MR-5/MW-9: SMTP notification service for MR/WO lifecycle
+- MW-7: FMEA service (5-Why, Fishbone, RPN calculation)
+- MW-11: Asset transfer workflow with location auto-update
+- MW-18: Master data change approval with auto-apply
 
-New business logic:
-- MR-1: Priority auto-calculation from asset criticality x severity
-- MR-4: Duplicate MR detection for same asset
-- PO-1: 3-way matching service (PO vs GR vs Invoice)
-- WO-10: Follow-up WO server action
-- Vendor invoice workflow hook
+State Machine Enhancements (SM-1 through SM-6):
+- SM-1: State-based field permission control (read-only fields per state)
+- SM-2: Required-field validation per workflow transition
+- SM-4: Backward transition justification enforcement
+- SM-5: Per-state SLA escalation thresholds
+- SM-6: Enhanced audit logging with justification and SLA breach metadata
 
-Entity JSON updates: asset, incident, work_order, maintenance_request
-New entity configs: vendor_invoice, vendor_invoice_line, tool_checkout
-Alembic migration: j5e6f7g8h9i0
+Alembic migration: k6f7g8h9i0j1
+Entity JSONs: 14 updated + 3 new
+Model registrations: 3 new models in module __init__.py files
