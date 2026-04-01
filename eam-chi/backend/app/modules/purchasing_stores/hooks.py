@@ -23,11 +23,11 @@ async def purchase_request_line_before_save(doc, ctx):
         next_row = len(existing_lines) + 1
 
         if isinstance(doc, dict):
-            if not doc.get("row_number"):
-                doc["row_number"] = next_row
+            if not doc.get("row_no"):
+                doc["row_no"] = next_row
         else:
-            if not getattr(doc, "row_number", None):
-                doc.row_number = next_row
+            if not getattr(doc, "row_no", None):
+                doc.row_no = next_row
 
         return doc, None
     except Exception as e:

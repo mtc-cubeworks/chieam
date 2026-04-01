@@ -462,6 +462,10 @@ const columns = computed<NuGridColumn<Record<string, any>>[]>(() => {
   return cols;
 });
 
+const gridMinWidth = computed(() => {
+  return columns.value.reduce((sum, col: any) => sum + (col.size || 160), 0);
+});
+
 // ── NuGrid events ─────────────────────────────────────────────────────────────
 
 function onCellEditingStarted(_event: any): void {
@@ -642,7 +646,7 @@ watch(
     </div>
 
     <div v-if="gridData.length > 0" class="overflow-x-auto">
-      <div class="w-full">
+      <div :style="{ minWidth: gridMinWidth + 'px' }">
         <NuGrid
           ref="gridRef"
           v-model:column-pinning="columnPinning"
@@ -650,7 +654,7 @@ watch(
           :columns="columns"
           :get-row-id="(row: Record<string, any>) => String(row.id)"
           :layout="{
-            autoSize: 'fill',
+            autoSize: 'fit',
             resizeMode: 'shift',
           }"
           :editing="

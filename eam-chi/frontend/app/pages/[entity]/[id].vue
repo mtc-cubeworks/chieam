@@ -1431,13 +1431,13 @@ definePageMeta({
       class="w-full flex-1 min-h-0 flex flex-col"
       :ui="{
         root: 'flex flex-col min-h-0',
-        list: 'shrink-0 overflow-x-auto',
-        trigger: 'shrink-0 min-w-fit',
+        list: 'shrink-0 overflow-x-auto bg-gray-100 dark:bg-gray-800 rounded-lg p-1',
+        trigger: 'shrink-0 min-w-fit data-[state=active]:bg-white dark:data-[state=active]:bg-gray-900 data-[state=active]:shadow-sm rounded-md px-3 py-1.5',
         label: 'whitespace-nowrap overflow-visible',
-        content: 'flex-1 min-h-0 flex flex-col',
+        content: 'flex-1 min-h-0 flex flex-col mt-2',
       }"
       size="md"
-      variant="link"
+      variant="pill"
     >
       <template #default="{ item }">
         <div class="flex items-center gap-2">

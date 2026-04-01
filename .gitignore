@@ -33,3 +33,4 @@ Thumbs.db
 # Nuxt/Next
 .nitro/
 .cache/
+~$ST_GUIDE.docx
