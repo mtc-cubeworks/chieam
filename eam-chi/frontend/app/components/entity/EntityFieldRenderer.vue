@@ -346,6 +346,19 @@
     />
 
     <UInput
+      v-else-if="field.field_type === 'time'"
+      type="time"
+      :model-value="modelValue"
+      @update:model-value="$emit('update:modelValue', $event)"
+      :placeholder="`Enter ${field.label.toLowerCase()}`"
+      :required="!!field.required"
+      :disabled="disabled"
+      :loading="props.loading"
+      class="w-full"
+      size="lg"
+    />
+
+    <UInput
       v-else
       :model-value="modelValue"
       @update:model-value="$emit('update:modelValue', $event)"

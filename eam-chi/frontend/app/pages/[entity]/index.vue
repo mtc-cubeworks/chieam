@@ -369,7 +369,7 @@ const visibleFields = computed(() => {
   fields.push({
     id: "_last_edited",
     accessorKey: "updated_at",
-    header: "",
+    header: "Last Edited",
     fieldName: "_last_edited",
   });
 

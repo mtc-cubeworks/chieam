@@ -14,7 +14,9 @@
       "name": "account_code",
       "label": "Account Code",
       "field_type": "string",
-      "required": false
+      "required": false,
+      "unique": true,
+      "in_list_view": true
     },
     {
       "name": "account_name",

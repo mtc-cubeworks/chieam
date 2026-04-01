@@ -273,6 +273,13 @@ const columns = computed<NuGridColumn<Record<string, any>>[]>(() => {
         );
         return hit?.label ?? v;
       };
+    } else if (ft === "time") {
+      col.cellDataType = "text";
+      col.cell = ({ row }: { row: { original: Record<string, any> } }) => {
+        const v = row.original[field.name];
+        if (v === null || v === undefined || v === "") return "";
+        return String(v);
+      };
     } else if (ft === "link" && field.link_entity) {
       const entity = field.link_entity;
       // ensureLookupArray creates the array if it doesn't exist yet.
