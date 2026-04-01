@@ -54,7 +54,7 @@ const moduleNavigationGroups = computed(() => {
               icon: child.icon,
               to: child.to,
             })),
-            defaultOpen: item.defaultOpen ?? true,
+            defaultOpen: item.defaultOpen ?? false,
           } satisfies SidebarNavigationItem;
         })
         .filter(isDefined);

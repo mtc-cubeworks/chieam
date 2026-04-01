@@ -43,7 +43,7 @@ class EntityService:
         from sqlalchemy.sql.sqltypes import String, Text, DateTime, Date, Integer, Float, BigInteger, SmallInteger, Numeric, DECIMAL, REAL
 
         cols = getattr(model, "__table__").columns
-        out = dict(data)
+        out = {k: v for k, v in data.items() if k in cols}
         for key, value in list(out.items()):
             if key not in cols:
                 continue

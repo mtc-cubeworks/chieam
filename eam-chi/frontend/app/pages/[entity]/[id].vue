@@ -797,10 +797,14 @@ const headerMenuItems = computed(() => {
           duplicateData.workflow_state = workflowMeta.value.initial_state;
         }
 
-        // Store duplicate data and navigate to /new form
+        // Store duplicate data and link titles, then navigate to /new form
         sessionStorage.setItem(
           `duplicate_${entityName.value}`,
           JSON.stringify(duplicateData),
+        );
+        sessionStorage.setItem(
+          `duplicate_${entityName.value}_link_titles`,
+          JSON.stringify(linkTitles.value),
         );
         router.push(`/${entityName.value}/new?duplicate=true`);
       },
@@ -910,11 +914,16 @@ const loadData = async () => {
       if (route.query.duplicate === "true") {
         const duplicateKey = `duplicate_${entityName.value}`;
         const duplicateDataStr = sessionStorage.getItem(duplicateKey);
+        const duplicateTitlesStr = sessionStorage.getItem(`${duplicateKey}_link_titles`);
         if (duplicateDataStr) {
           try {
             const duplicateData = JSON.parse(duplicateDataStr);
             formData.value = { ...defaults, ...duplicateData };
             sessionStorage.removeItem(duplicateKey);
+            if (duplicateTitlesStr) {
+              linkTitles.value = JSON.parse(duplicateTitlesStr);
+              sessionStorage.removeItem(`${duplicateKey}_link_titles`);
+            }
           } catch {
             formData.value = defaults;
           }

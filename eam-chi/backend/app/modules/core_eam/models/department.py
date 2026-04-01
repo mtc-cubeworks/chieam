@@ -8,7 +8,7 @@ class Department(BaseModel):
     __tablename__ = "department"
     
     department_name: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
-    department_code: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
+    department_code: Mapped[str] = mapped_column(String(255), unique=True, nullable=True, default=None)
     site: Mapped[str] = mapped_column(String(50), ForeignKey("site.id"), nullable=True, default=None)
     site_name: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
     department_manager: Mapped[str] = mapped_column(String(50), ForeignKey("employee.id"), nullable=True, default=None)

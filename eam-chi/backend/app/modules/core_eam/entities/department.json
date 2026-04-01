@@ -22,6 +22,7 @@
       "label": "Department Code",
       "field_type": "string",
       "required": false,
+      "unique": true,
       "in_list_view": true
     },
     {
