@@ -38,14 +38,14 @@ class Asset(BaseModel):
     parent_asset: Mapped[str] = mapped_column(String(50), ForeignKey("asset.id"), nullable=True, default=None)
     functional_location: Mapped[str] = mapped_column(String(50), ForeignKey("location.id"), nullable=True, default=None)
     # AR-3: Criticality Classification
-    criticality: Mapped[str] = mapped_column(String(10), nullable=True, default=None)
+    criticality: Mapped[str] = mapped_column(String(50), nullable=True, default=None)
     risk_score: Mapped[int] = mapped_column(Integer, nullable=True, default=None)
     # AR-5: Warranty Linkage
     warranty_start: Mapped[date] = mapped_column(Date, nullable=True, default=None)
     warranty_end: Mapped[date] = mapped_column(Date, nullable=True, default=None)
     warranty_vendor: Mapped[str] = mapped_column(String(50), ForeignKey("vendor.id"), nullable=True, default=None)
     # AR-6: Nameplate / Specification Data
-    manufacturer: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
+    manufacturer: Mapped[str] = mapped_column(String(50), ForeignKey("manufacturer.id"), nullable=True, default=None)
     manufacturer_part_number: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
     rated_capacity: Mapped[str] = mapped_column(String(100), nullable=True, default=None)
     rated_power: Mapped[str] = mapped_column(String(100), nullable=True, default=None)

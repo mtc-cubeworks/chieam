@@ -696,10 +696,23 @@ const fetchLinkOptions = async (search: string) => {
   if (!props.field.link_entity) return;
   isLoadingLinkOptions.value = true;
   try {
+    // Build filters from link_filters config (e.g. {"site": "site"} means filter linked entity's site by current form's site value)
+    let filters: Record<string, string> | undefined;
+    const linkFilters = props.field.link_filters;
+    if (linkFilters && props.formState) {
+      filters = {};
+      for (const [linkedField, formField] of Object.entries(linkFilters)) {
+        const val = props.formState[formField as string];
+        if (val) filters[linkedField] = String(val);
+      }
+      if (Object.keys(filters).length === 0) filters = undefined;
+    }
+
     const response = await getEntityOptions(
       props.field.link_entity,
       search || undefined,
       10,
+      filters,
     );
     if (response.status === "success") {
       linkSearchResults.value = (response.options || []).map((o: any) => ({

@@ -142,6 +142,83 @@ function ensureLookupArray(entity: string): any[] {
   return lookupArrays[entity];
 }
 
+const GridSelectEditor = defineComponent({
+  name: "GridSelectEditor",
+  props: {
+    modelValue: { type: [String, Number, null] as any, default: null },
+    fieldName: { type: String, required: true },
+    disabled: { type: Boolean, default: false },
+  },
+  emits: ["update:modelValue"],
+  setup(p, { emit }) {
+    const searchTerm = ref("");
+
+    const items = computed(() => {
+      const fields = childFields.value;
+      const field = fields.find((f: any) => f?.name === p.fieldName);
+      const raw = (field as any)?.options;
+      const opts = Array.isArray(raw)
+        ? raw.map((o: any) =>
+            typeof o === "string" ? { label: o, value: o } : o,
+          )
+        : [];
+
+      const normalized = opts
+        .filter(Boolean)
+        .map((o: any) => ({
+          ...o,
+          value:
+            o?.value === null || o?.value === undefined ? "" : String(o.value),
+          label:
+            o?.label === null || o?.label === undefined
+              ? String(o?.value)
+              : String(o.label),
+        }))
+        .filter((o: any) => o.value !== "");
+
+      const term = (searchTerm.value || "").toLowerCase();
+      if (!term) return normalized;
+      return normalized.filter((o: any) =>
+        String(o?.label || "")
+          .toLowerCase()
+          .includes(term),
+      );
+    });
+
+    function update(val: any) {
+      emit("update:modelValue", val);
+    }
+
+    const displayValue = computed(() => {
+      if (p.modelValue === null || p.modelValue === undefined) return null;
+      const stringValue = String(p.modelValue);
+      const option = items.value.find(
+        (o: any) => String(o.value) === stringValue,
+      );
+      return option || null;
+    });
+
+    return () =>
+      h(resolveComponent("USelectMenu") as any, {
+        modelValue: displayValue.value,
+        "onUpdate:modelValue": (selected: any) => {
+          update(selected?.value ?? null);
+        },
+        items: items.value,
+        disabled: p.disabled,
+        searchable: true,
+        ignoreFilter: true,
+        valueKey: "value",
+        labelKey: "label",
+        class: "w-full",
+        size: "md",
+        "onUpdate:searchTerm": (t: string) => {
+          searchTerm.value = t || "";
+        },
+      });
+  },
+});
+
 async function fetchLookupOptions(entity: string): Promise<void> {
   if (linkFetchInFlight.has(entity)) return;
   if (lookupArrays[entity]?.length) return;
@@ -257,14 +334,10 @@ const columns = computed<NuGridColumn<Record<string, any>>[]>(() => {
     } else if (["int", "integer", "float", "number"].includes(ft)) {
       col.cellDataType = "number";
     } else if (ft === "select" && field.options?.length) {
-      col.cellDataType = "selection";
+      col.cellDataType = "text";
       const selectOptions = field.options.map((o: any) =>
         typeof o === "string" ? { label: o, value: o } : o,
       );
-      col.cellDataTypeOptions = {
-        options: selectOptions,
-        searchable: true,
-      };
       col.cell = ({ row }: { row: { original: Record<string, any> } }) => {
         const v = row.original[field.name];
         if (v === null || v === undefined || v === "") return "";
@@ -272,6 +345,12 @@ const columns = computed<NuGridColumn<Record<string, any>>[]>(() => {
           (o: any) => String(o?.value) === String(v),
         );
         return hit?.label ?? v;
+      };
+      col.editor = {
+        component: GridSelectEditor,
+        props: {
+          fieldName: field.name,
+        },
       };
     } else if (ft === "time") {
       col.cellDataType = "text";

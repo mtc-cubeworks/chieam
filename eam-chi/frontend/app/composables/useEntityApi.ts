@@ -188,12 +188,13 @@ export const useEntityApi = () => {
       })
     },
 
-    async getEntityOptions(entity: string, search?: string, limit?: number) {
+    async getEntityOptions(entity: string, search?: string, limit?: number, filters?: Record<string, string>) {
       const params = new URLSearchParams()
       if (search) params.append('search', search)
       if (limit) params.append('limit', limit.toString())
+      if (filters && Object.keys(filters).length) params.append('filters', JSON.stringify(filters))
 
-      if (search) {
+      if (search || filters) {
         return apiFetch<{ status: string; options: { value: string; label: string }[] }>(
           `${baseURL}/entity/${entity}/options?${params.toString()}`
         )

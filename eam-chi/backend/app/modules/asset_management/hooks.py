@@ -10,6 +10,13 @@ from app.application.hooks.registry import hook_registry
 async def asset_before_save(doc, ctx):
     from app.modules.asset_management.apis.asset import populate_asset_names
     doc = await populate_asset_names(doc, ctx.db)
+
+    # Validate commissioning_date >= date_purchased
+    commissioning = getattr(doc, "commissioning_date", None)
+    purchased = getattr(doc, "date_purchased", None)
+    if commissioning and purchased and commissioning < purchased:
+        raise ValueError("Commissioning Date cannot be before Date Purchased.")
+
     return doc
 
 

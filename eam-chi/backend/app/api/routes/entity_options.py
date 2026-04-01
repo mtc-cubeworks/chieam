@@ -109,10 +109,16 @@ async def get_entity_options(
     entity: str,
     search: Optional[str] = Query(None),
     limit: int = Query(5, ge=1, le=500),
+    filters: Optional[str] = Query(None),
     authorization: Optional[str] = Header(None),
     db: AsyncSession = Depends(get_db),
 ):
-    """Get options for link field (combo box/select)."""
+    """Get options for link field (combo box/select).
+    
+    filters: JSON string of {field: value} pairs to filter results, e.g. {"site": "S-00001"}
+    """
+    import json as _json
+
     meta = MetaRegistry.get(entity)
     if not meta:
         return {"status": "error", "message": f"Entity '{entity}' not found", "options": []}
@@ -132,6 +138,16 @@ async def get_entity_options(
     label_field = meta.title_field or value_field
 
     query = select(model)
+
+    # Apply filters (e.g. filter departments by site)
+    if filters:
+        try:
+            filter_dict = _json.loads(filters)
+            for fk_field, fk_value in filter_dict.items():
+                if hasattr(model, fk_field) and fk_value:
+                    query = query.where(getattr(model, fk_field) == fk_value)
+        except (_json.JSONDecodeError, TypeError):
+            pass
 
     if search:
         search_cols = []

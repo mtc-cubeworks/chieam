@@ -136,7 +136,7 @@
     },
     {
       "entity": "sub_asset",
-      "fk_field": "asset",
+      "fk_field": "main_asset",
       "label": "Sub Asset"
     },
     {
@@ -262,7 +262,8 @@
       "label": "Department",
       "field_type": "link",
       "link_entity": "department",
-      "required": false
+      "required": false,
+      "link_filters": {"site": "site"}
     },
     {
       "name": "assigned_to",
@@ -281,7 +282,8 @@
       "name": "system",
       "label": "System",
       "field_type": "link",
-      "link_entity": "system"
+      "link_entity": "system",
+      "link_filters": {"site": "site"}
     },
     {
       "name": "position",
@@ -379,7 +381,9 @@
     {
       "name": "manufacturer",
       "label": "Manufacturer",
-      "field_type": "string"
+      "field_type": "link",
+      "link_entity": "manufacturer",
+      "fetch_from": "model.manufacturer"
     },
     {
       "name": "manufacturer_part_number",

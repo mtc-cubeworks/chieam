@@ -54,6 +54,7 @@ export interface FieldMeta {
   mandatory_depends_on?: string | null
   fetch_from?: string | null
   filter_by?: string | null
+  link_filters?: Record<string, string> | null
 }
 
 export interface TabRule {
