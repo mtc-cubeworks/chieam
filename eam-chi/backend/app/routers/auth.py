@@ -118,7 +118,7 @@ def _build_sidebar_navigation(sidebar_entities: list[dict]) -> list[dict]:
                 "label": group_label,
                 "icon": module_icon,
                 "children": children,
-                "defaultOpen": True,
+                "defaultOpen": False,
             })
 
         if items:
