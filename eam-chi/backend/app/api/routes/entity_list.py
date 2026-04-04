@@ -216,7 +216,11 @@ async def get_entity_list(
         if filter_field not in selectable_columns:
             return ActionResponse(status="error", message=f"Invalid filter field '{filter_field}'")
         col = getattr(model, filter_field)
-        if isinstance(col.type, (String, Text)):
+        table_col = model.__table__.columns.get(filter_field)
+        is_fk = bool(table_col is not None and table_col.foreign_keys)
+        if is_fk:
+            clause = col == filter_value
+        elif isinstance(col.type, (String, Text)):
             clause = col.ilike(f"%{filter_value}%")
         else:
             clause = col == filter_value
@@ -309,7 +313,11 @@ async def get_entity_list_view(
         if filter_field not in selectable_columns:
             return ActionResponse(status="error", message=f"Invalid filter field '{filter_field}'")
         col = getattr(model, filter_field)
-        if isinstance(col.type, (String, Text)):
+        table_col = model.__table__.columns.get(filter_field)
+        is_fk = bool(table_col is not None and table_col.foreign_keys)
+        if is_fk:
+            clause = col == filter_value
+        elif isinstance(col.type, (String, Text)):
             clause = col.ilike(f"%{filter_value}%")
         else:
             clause = col == filter_value

@@ -128,6 +128,7 @@ const GridLinkEditor = defineComponent({
         searchable: true,
         class: "w-full",
         size: "md",
+        content: { style: 'min-width: 220px' },
         "onUpdate:open": handleOpen,
         "onUpdate:searchTerm": (t: string) => {
           searchTerm.value = t || "";
@@ -212,6 +213,7 @@ const GridSelectEditor = defineComponent({
         labelKey: "label",
         class: "w-full",
         size: "md",
+        content: { style: 'min-width: 220px' },
         "onUpdate:searchTerm": (t: string) => {
           searchTerm.value = t || "";
         },

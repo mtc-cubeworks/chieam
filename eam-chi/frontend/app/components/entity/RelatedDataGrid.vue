@@ -198,6 +198,7 @@ const GridLinkEditor = defineComponent({
         searchable: true,
         class: "w-full",
         size: "md",
+        content: { style: 'min-width: 220px' },
         "onUpdate:open": handleOpen,
         "onUpdate:searchTerm": (t: string) => {
           searchTerm.value = t || "";
@@ -278,6 +279,7 @@ const GridSelectEditor = defineComponent({
         labelKey: "label",
         class: "w-full",
         size: "md",
+        content: { style: 'min-width: 220px' },
         "onUpdate:searchTerm": (t: string) => {
           searchTerm.value = t || "";
         },
@@ -627,7 +629,12 @@ async function loadData(): Promise<void> {
     });
 
     if (res.status === "success") {
-      gridData.value = (res.data ?? []).map((r: any) => ({ ...r }));
+      let rows = (res.data ?? []).map((r: any) => ({ ...r }));
+      // Exclude the parent record itself for self-referencing entities
+      if (props.parentEntity === props.childEntity && props.parentId) {
+        rows = rows.filter((r: any) => r.id !== props.parentId);
+      }
+      gridData.value = rows;
       total.value = res.total || 0;
 
       // Extract link titles from response (API returns _link_titles per-row)
