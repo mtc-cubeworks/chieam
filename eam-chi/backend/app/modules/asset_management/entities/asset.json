@@ -135,8 +135,8 @@
       "label": "Asset Position"
     },
     {
-      "entity": "sub_asset",
-      "fk_field": "main_asset",
+      "entity": "asset",
+      "fk_field": "parent_asset",
       "label": "Sub Asset"
     },
     {
