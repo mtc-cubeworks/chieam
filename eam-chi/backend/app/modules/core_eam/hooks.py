@@ -11,6 +11,32 @@ async def organization_after_save(doc, ctx):
     return {"status": "success", "message": f"Organization '{getattr(doc, 'organization_name', doc.id)}' post-save processed"}
 
 
+@hook_registry.before_save("site")
+async def site_before_save(doc, ctx):
+    """Validate site_code uniqueness on create and update."""
+    site_code = doc.get("site_code") if isinstance(doc, dict) else getattr(doc, "site_code", None)
+    if not site_code:
+        return doc
+
+    doc_id = doc.get("id") if isinstance(doc, dict) else getattr(doc, "id", None)
+
+    from app.services.document_query import _get_model
+    from sqlalchemy import select, and_, func
+    site_model = _get_model("site")
+    if site_model:
+        stmt = select(site_model).where(
+            func.lower(site_model.site_code) == site_code.strip().lower()
+        )
+        if doc_id:
+            stmt = stmt.where(site_model.id != doc_id)
+        result = await ctx.db.execute(stmt.limit(1))
+        existing = result.scalar_one_or_none()
+        if existing:
+            raise ValueError(f"Site Code '{site_code}' already exists. Please use a different site code.")
+
+    return doc
+
+
 @hook_registry.after_save("site")
 async def site_after_save(doc, ctx):
     return {"status": "success", "message": f"Site '{getattr(doc, 'site_name', doc.id)}' post-save processed"}

@@ -8,7 +8,7 @@ class Site(BaseModel):
     __tablename__ = "site"
     
     site_name: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
-    site_code: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
+    site_code: Mapped[str] = mapped_column(String(255), nullable=True, default=None, unique=True)
     organization: Mapped[str] = mapped_column(String(50), ForeignKey("organization.id"), nullable=True, default=None)
     organization_name: Mapped[str] = mapped_column(String(255), nullable=True, default=None)
     default_cost_code: Mapped[str] = mapped_column(String(50), ForeignKey("cost_code.id"), nullable=True, default=None)
