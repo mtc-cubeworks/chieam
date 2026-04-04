@@ -18,10 +18,13 @@ async def site_before_save(doc, ctx):
     if not site_code:
         return doc
 
+    # Get record ID from doc or from ctx (ctx.record_id is set on updates)
     doc_id = doc.get("id") if isinstance(doc, dict) else getattr(doc, "id", None)
+    if not doc_id and hasattr(ctx, "record_id"):
+        doc_id = ctx.record_id
 
     from app.services.document_query import _get_model
-    from sqlalchemy import select, and_, func
+    from sqlalchemy import select, func
     site_model = _get_model("site")
     if site_model:
         stmt = select(site_model).where(
@@ -32,7 +35,7 @@ async def site_before_save(doc, ctx):
         result = await ctx.db.execute(stmt.limit(1))
         existing = result.scalar_one_or_none()
         if existing:
-            raise ValueError(f"Site Code '{site_code}' already exists. Please use a different site code.")
+            return doc, {"site_code": f"Site Code '{site_code}' already exists. Please use a different site code."}
 
     return doc
 

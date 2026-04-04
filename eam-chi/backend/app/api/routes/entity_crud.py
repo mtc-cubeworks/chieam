@@ -223,7 +223,7 @@ async def post_entity_action(
 
             data = await api.before_update(record, raw_data, ctx)
 
-            save_ctx = SaveContext(db=db, user=user, entity=entity, action="update", meta=meta)
+            save_ctx = SaveContext(db=db, user=user, entity=entity, action="update", meta=meta, record_id=request.id)
             # Execute before_save hooks via registry
             hook_result = await hook_registry.execute_before_save(entity, data, save_ctx)
             if hook_result and isinstance(hook_result, dict) and "errors" in hook_result:

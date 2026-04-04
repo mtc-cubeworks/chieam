@@ -16,6 +16,7 @@ class SaveContext:
     entity: str
     action: str  # "create" or "update"
     meta: Any = None
+    record_id: str = None
 
 
 @dataclass 
