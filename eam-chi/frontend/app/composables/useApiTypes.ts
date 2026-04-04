@@ -55,6 +55,7 @@ export interface FieldMeta {
   fetch_from?: string | null
   filter_by?: string | null
   link_filters?: Record<string, string> | null
+  exclude_self?: boolean
 }
 
 export interface TabRule {

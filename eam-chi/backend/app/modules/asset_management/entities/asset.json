@@ -342,7 +342,9 @@
       "name": "parent_asset",
       "label": "Parent Asset",
       "field_type": "link",
-      "link_entity": "asset"
+      "link_entity": "asset",
+      "link_filters": {"site": "site", "location": "location", "department": "department"},
+      "exclude_self": true
     },
     {
       "name": "functional_location",

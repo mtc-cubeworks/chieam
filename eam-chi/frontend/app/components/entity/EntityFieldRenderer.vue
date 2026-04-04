@@ -708,11 +708,15 @@ const fetchLinkOptions = async (search: string) => {
       if (Object.keys(filters).length === 0) filters = undefined;
     }
 
+    // Exclude current record from options when exclude_self is set (e.g. parent_asset can't be self)
+    const excludeId = props.field.exclude_self && props.recordId ? props.recordId : undefined;
+
     const response = await getEntityOptions(
       props.field.link_entity,
       search || undefined,
       10,
       filters,
+      excludeId,
     );
     if (response.status === "success") {
       linkSearchResults.value = (response.options || []).map((o: any) => ({

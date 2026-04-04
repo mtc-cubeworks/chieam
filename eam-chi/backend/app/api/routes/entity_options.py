@@ -110,6 +110,7 @@ async def get_entity_options(
     search: Optional[str] = Query(None),
     limit: int = Query(5, ge=1, le=500),
     filters: Optional[str] = Query(None),
+    exclude_id: Optional[str] = Query(None),
     authorization: Optional[str] = Header(None),
     db: AsyncSession = Depends(get_db),
 ):
@@ -138,6 +139,10 @@ async def get_entity_options(
     label_field = meta.title_field or value_field
 
     query = select(model)
+
+    # Exclude specific record (e.g. exclude self from parent options)
+    if exclude_id and hasattr(model, "id"):
+        query = query.where(getattr(model, "id") != exclude_id)
 
     # Apply filters (e.g. filter departments by site)
     if filters:
