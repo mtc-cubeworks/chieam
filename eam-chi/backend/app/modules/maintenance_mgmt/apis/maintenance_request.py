@@ -264,7 +264,7 @@ async def _emergency_generate_wo(doc: Any, db: AsyncSession, user: Any) -> dict:
         site=site,
         department=department,
         start_date=datetime.now(),
-        workflow_state="awaiting_resources"
+        workflow_state="ready"
     )
     await save_doc(new_wo_activity, db, commit=False)
 
@@ -306,7 +306,7 @@ async def _create_work_order_activity(doc: Any, pma_id: str, work_order: Any, db
         start_date=datetime.now(),
         site=getattr(doc, 'site', None),
         department=getattr(doc, 'department', None),
-        workflow_state="awaiting_resources"
+        workflow_state="ready"
     )
     await save_doc(wo_activity, db, commit=False)
     await db.commit()

@@ -44,12 +44,13 @@ def _ga(doc: Any, attr: str) -> Any:
 
 
 _ACTIVITY_TYPE_MAP = {
-    "inspect_asset":   ("Inspection",      "Inspect Asset"),
-    "maintain_asset":  ("Maintain Asset",  "Maintain Asset"),
-    "internal_repair": ("Internal Repair", "Internal Repair"),
-    "send_to_vendor":  ("Send to Vendor",  "Send to Vendor"),
-    "install_asset":   ("Install Asset",   "Install Asset"),
-    "remove_asset":    ("Remove Asset",    "Remove Asset"),
+    "inspect_asset":      ("Inspection",        "Inspect Asset"),
+    "maintain_asset":     ("Maintain Asset",    "Maintain Asset"),
+    "internal_repair":    ("Internal Repair",   "Internal Repair"),
+    "send_to_vendor":     ("Send to Vendor",    "Send to Vendor"),
+    "install_asset":      ("Install Asset",     "Install Asset"),
+    "remove_asset":       ("Remove Asset",      "Remove Asset"),
+    "failed_inspection":  ("Inspection",        "Inspect Asset"),
 }
 
 
@@ -85,7 +86,7 @@ async def _create_woa_and_mr(doc: Any, action_slug: str, db: AsyncSession) -> di
             site=_ga(doc, "site"),
             department=_ga(doc, "department"),
             start_date=datetime.now(),
-            workflow_state="awaiting_resources",
+            workflow_state="ready",
         )
         await save_doc(woa, db, commit=False)
 
@@ -219,13 +220,13 @@ async def check_asset_workflow(doc: Any, action: str, db: AsyncSession, user: An
     action_slug = action.lower().replace(" ", "_")
 
     simple = {
-        "failed_inspection", "complete", "finish_repair",
+        "complete", "finish_repair",
         "retire_asset", "decommission", "recommission",
     }
     if action_slug in simple:
         return {"status": "success", "message": f"Asset transition '{action}' allowed."}
 
-    if action_slug in ("inspect_asset", "maintain_asset", "internal_repair", "send_to_vendor"):
+    if action_slug in ("inspect_asset", "maintain_asset", "internal_repair", "send_to_vendor", "failed_inspection"):
         return await _create_woa_and_mr(doc, action_slug, db)
 
     if action_slug == "install_asset":

@@ -9,6 +9,8 @@
   "icon": "box",
   "group": "Assets",
   "search": true,
+  "is_tree": true,
+  "tree_parent_field": "parent_asset",
   "workflow": {
     "enabled": true,
     "initial_state": "acquired",
@@ -70,6 +72,11 @@
         "action": "Receive",
         "from_state": "under_repair",
         "to_state": "under_maintenance"
+      },
+      {
+        "action": "Send to Vendor",
+        "from_state": "active",
+        "to_state": "under_repair"
       },
       {
         "action": "Send to Vendor",

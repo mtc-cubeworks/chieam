@@ -18,6 +18,7 @@ const {
   deleteEntity,
   exportEntity,
   getEntityTree,
+  getEntityHierarchy,
 } = useApi();
 const { getWorkflowStates } = useWorkflowApi();
 const { hasParentField } = useTreeView();
@@ -38,12 +39,18 @@ const metaLoading = ref(true);
 const permissionsLoading = ref(true);
 const permissions = ref<Record<string, boolean> | null>(null);
 const treeLoading = ref(false);
+const hierarchyData = ref<any[]>([]);
+const hierarchyLoading = ref(false);
+const hierarchyRootLabel = ref("");
 const error = ref("");
-const viewMode = ref<"list" | "tree" | "diagram">("list");
+const viewMode = ref<"list" | "tree" | "diagram" | "hierarchy">("list");
 const canUseTreeView = computed(
   () => !!entityMeta.value?.is_tree && !!entityMeta.value?.tree_parent_field,
 );
 const canUseDiagramView = computed(() => !!entityMeta.value?.is_diagram);
+const canUseHierarchyView = computed(
+  () => !!entityMeta.value?.links?.length,
+);
 
 const pagination = reactive({
   pageIndex: 0,
@@ -199,6 +206,13 @@ const viewModeItems = computed(() => {
       label: "Diagram View",
       icon: "i-lucide-git-branch",
       onSelect: () => (viewMode.value = "diagram"),
+    });
+  }
+  if (canUseHierarchyView.value) {
+    items.push({
+      label: "Hierarchy View",
+      icon: "i-lucide-network",
+      onSelect: () => (viewMode.value = "hierarchy"),
     });
   }
   return [items];
@@ -505,6 +519,25 @@ const loadData = async () => {
   }
 };
 
+const loadHierarchyData = async () => {
+  if (!entityMeta.value?.links?.length) return;
+  try {
+    hierarchyLoading.value = true;
+    const response = await getEntityHierarchy(entityName.value);
+    if (response.status === "success") {
+      hierarchyData.value = response.data || [];
+      hierarchyRootLabel.value = (response as any).root_label || entityName.value;
+    } else {
+      hierarchyData.value = [];
+    }
+  } catch (err: any) {
+    console.error("Hierarchy data load error:", err);
+    hierarchyData.value = [];
+  } finally {
+    hierarchyLoading.value = false;
+  }
+};
+
 const loadTreeData = async () => {
   if (!entityMeta.value?.is_tree) return;
 
@@ -619,6 +652,9 @@ watch(
     if (newMode === "tree" && oldMode !== "tree" && entityMeta.value?.is_tree) {
       await loadTreeData();
     }
+    if (newMode === "hierarchy" && oldMode !== "hierarchy" && entityMeta.value?.links?.length) {
+      await loadHierarchyData();
+    }
   },
 );
 
@@ -643,7 +679,7 @@ definePageMeta({
       <div class="flex items-center gap-2">
         <UDropdownMenu
           v-if="
-            (canUseTreeView || canUseDiagramView) && !metaLoading && entityMeta
+            (canUseTreeView || canUseDiagramView || canUseHierarchyView) && !metaLoading && entityMeta
           "
           :items="viewModeItems"
           :content="{ align: 'end', side: 'bottom', sideOffset: 8 }"
@@ -654,14 +690,18 @@ definePageMeta({
                 ? 'i-lucide-list'
                 : viewMode === 'tree'
                   ? 'i-lucide-list-tree'
-                  : 'i-lucide-git-branch'
+                  : viewMode === 'hierarchy'
+                    ? 'i-lucide-network'
+                    : 'i-lucide-git-branch'
             "
             :label="
               viewMode === 'list'
                 ? 'List View'
                 : viewMode === 'tree'
                   ? 'Tree View'
-                  : 'Diagram View'
+                  : viewMode === 'hierarchy'
+                    ? 'Hierarchy View'
+                    : 'Diagram View'
             "
             variant="outline"
           />
@@ -741,6 +781,14 @@ definePageMeta({
         @view="handleView"
         @edit="handleEdit"
         @delete="handleDeleteClick"
+      />
+
+      <!-- Hierarchy View -->
+      <HierarchyView
+        v-if="viewMode === 'hierarchy' && canUseHierarchyView"
+        :data="hierarchyData"
+        :root-label="hierarchyRootLabel || entityMeta?.label || entityName"
+        :loading="hierarchyLoading"
       />
 
       <!-- Diagram View -->

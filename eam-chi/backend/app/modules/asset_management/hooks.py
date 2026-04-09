@@ -11,11 +11,48 @@ async def asset_before_save(doc, ctx):
     from app.modules.asset_management.apis.asset import populate_asset_names
     doc = await populate_asset_names(doc, ctx.db)
 
+    errors = {}
+
     # Validate commissioning_date >= date_purchased
-    commissioning = getattr(doc, "commissioning_date", None)
-    purchased = getattr(doc, "date_purchased", None)
-    if commissioning and purchased and commissioning < purchased:
-        raise ValueError("Commissioning Date cannot be before Date Purchased.")
+    commissioning = doc.get("commissioning_date") if isinstance(doc, dict) else getattr(doc, "commissioning_date", None)
+    purchased = doc.get("date_purchased") if isinstance(doc, dict) else getattr(doc, "date_purchased", None)
+    if commissioning and purchased:
+        from datetime import date, datetime
+        # Coerce strings to date for comparison
+        if isinstance(commissioning, str):
+            try:
+                commissioning = date.fromisoformat(commissioning[:10])
+            except (ValueError, TypeError):
+                commissioning = None
+        elif isinstance(commissioning, datetime):
+            commissioning = commissioning.date()
+        if isinstance(purchased, str):
+            try:
+                purchased = date.fromisoformat(purchased[:10])
+            except (ValueError, TypeError):
+                purchased = None
+        elif isinstance(purchased, datetime):
+            purchased = purchased.date()
+        if commissioning and purchased and commissioning < purchased:
+            errors["commissioning_date"] = "Commissioning Date cannot be before Date Purchased."
+
+    # Validate department belongs to the selected site
+    site_id = doc.get("site") if isinstance(doc, dict) else getattr(doc, "site", None)
+    dept_id = doc.get("department") if isinstance(doc, dict) else getattr(doc, "department", None)
+    if site_id and dept_id:
+        from sqlalchemy import select
+        from app.infrastructure.database.repositories.entity_repository import get_entity_model
+        dept_model = get_entity_model("department")
+        if dept_model:
+            result = await ctx.db.execute(
+                select(dept_model).where(dept_model.id == dept_id)
+            )
+            dept_record = result.scalar_one_or_none()
+            if dept_record and getattr(dept_record, "site", None) and str(dept_record.site) != str(site_id):
+                errors["department"] = "Department does not belong to the selected Site."
+
+    if errors:
+        return doc, errors
 
     return doc
 

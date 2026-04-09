@@ -221,6 +221,63 @@ const GridSelectEditor = defineComponent({
   },
 });
 
+const GridTimeEditor = defineComponent({
+  name: "GridTimeEditor",
+  props: {
+    modelValue: { type: [String, null] as any, default: null },
+    disabled: { type: Boolean, default: false },
+  },
+  emits: ["update:modelValue"],
+  setup(p, { emit }) {
+    const inputRef = ref<HTMLInputElement | null>();
+    const internal = ref(p.modelValue ?? "");
+
+    watch(() => p.modelValue, (v) => { internal.value = v ?? ""; });
+
+    function formatTimeInput(raw: string): string {
+      const digits = raw.replace(/\D/g, "").slice(0, 4);
+      if (digits.length <= 2) return digits;
+      return digits.slice(0, 2) + ":" + digits.slice(2);
+    }
+
+    function onInput(e: Event) {
+      const el = e.target as HTMLInputElement;
+      const formatted = formatTimeInput(el.value);
+      internal.value = formatted;
+      el.value = formatted;
+      // Only emit when we have a complete HH:MM
+      if (/^\d{2}:\d{2}$/.test(formatted)) {
+        emit("update:modelValue", formatted);
+      }
+    }
+
+    function onBlur() {
+      const formatted = internal.value;
+      if (/^\d{2}:\d{2}$/.test(formatted)) {
+        emit("update:modelValue", formatted);
+      } else if (formatted === "") {
+        emit("update:modelValue", null);
+      }
+    }
+
+    onMounted(() => { nextTick(() => inputRef.value?.focus()); });
+
+    return () =>
+      h("input", {
+        ref: inputRef,
+        type: "text",
+        value: internal.value,
+        disabled: p.disabled,
+        placeholder: "HH:MM",
+        maxlength: 5,
+        class:
+          "w-full h-8 px-2 text-sm rounded-md border border-accented bg-default focus:outline-none focus:ring-2 focus:ring-primary",
+        onInput,
+        onBlur,
+      });
+  },
+});
+
 async function fetchLookupOptions(entity: string): Promise<void> {
   if (linkFetchInFlight.has(entity)) return;
   if (lookupArrays[entity]?.length) return;
@@ -272,8 +329,12 @@ function getColumnSize(field: FieldMeta): number {
   switch (field.field_type) {
     case "link":
       return 280;
+    case "select":
+      return 200;
     case "text":
       return 240;
+    case "time":
+      return 160;
     case "int":
     case "integer":
       return 100;
@@ -360,6 +421,10 @@ const columns = computed<NuGridColumn<Record<string, any>>[]>(() => {
         const v = row.original[field.name];
         if (v === null || v === undefined || v === "") return "";
         return String(v);
+      };
+      col.editor = {
+        component: GridTimeEditor,
+        props: {},
       };
     } else if (ft === "link" && field.link_entity) {
       const entity = field.link_entity;

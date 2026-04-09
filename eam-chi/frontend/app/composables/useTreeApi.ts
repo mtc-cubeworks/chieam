@@ -22,7 +22,15 @@ export const useTreeApi = () => {
     return apiFetch(url)
   }
 
+  const getEntityHierarchy = async (
+    entity: string,
+  ): Promise<ActionResponse<any[]>> => {
+    const url = `${baseURL}/entity/${entity}/hierarchy`
+    return apiFetch(url)
+  }
+
   return {
     getEntityTree,
+    getEntityHierarchy,
   }
 }
