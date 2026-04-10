@@ -1,0 +1,76 @@
+{
+  "name": "TC-03-master-data-organization",
+  "description": "TC-03.1: Organization, Site, Department Hierarchy \u2014 Create and verify organizational structure",
+  "persona": "Admin",
+  "tags": [
+    "TC-03",
+    "master-data",
+    "organization",
+    "hierarchy"
+  ],
+  "steps": [
+    {
+      "id": "TC03_01_NAV_ORG",
+      "action": "goto",
+      "url": "/organization",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Organization List",
+        "caption": "Navigate to Organization in the sidebar. This page shows all registered organizations. Organizations are the top level of the hierarchy: Organization \u2192 Site \u2192 Department.",
+        "manual_hint": "Show the Organization list page."
+      }
+    },
+    {
+      "id": "TC03_02_NEW_ORG",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/organization/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Create Organization",
+        "caption": "Click 'Add New' to create a new Organization. Fill in the name and other required fields.",
+        "manual_hint": "Show the New Organization form."
+      }
+    },
+    {
+      "id": "TC03_03_FILL_ORG_NAME",
+      "action": "type",
+      "target": "input[name='organization_name']",
+      "value": "E2E Test Corporation",
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Fill Organization Name",
+        "caption": "Enter \"E2E Test Corporation\" into the Organization Name field."
+      }
+    },
+    {
+      "id": "TC03_04_SAVE_ORG",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Organization Saved",
+        "caption": "Click 'Create' to save the organization. A success notification confirms the record was created with an auto-generated ID.",
+        "manual_hint": "Show the success toast and saved organization."
+      }
+    },
+    {
+      "id": "TC03_05_VERIFY_ORG",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Organization Detail",
+        "caption": "The organization record is now saved. You can see the auto-generated ID and all fields. Navigate to Site to create sites linked to this organization."
+      }
+    }
+  ]
+}

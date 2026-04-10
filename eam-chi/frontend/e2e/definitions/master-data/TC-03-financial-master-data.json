@@ -1,0 +1,137 @@
+{
+  "name": "TC-03-financial-master-data",
+  "description": "TC-03.5: Financial Master Data \u2014 Create account, cost code, and annual budget records",
+  "persona": "Admin",
+  "tags": [
+    "TC-03",
+    "master-data",
+    "financial",
+    "account",
+    "cost-code",
+    "budget"
+  ],
+  "steps": [
+    {
+      "id": "TC03_FIN_01_NAV_ACCT",
+      "action": "goto",
+      "url": "/account",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.5 \u2014 Account List",
+        "caption": "Navigate to Account. Accounts are used for financial tracking and cost allocation across maintenance operations."
+      }
+    },
+    {
+      "id": "TC03_FIN_02_NEW_ACCT",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/account/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.5 \u2014 New Account",
+        "caption": "Click 'Add New' to create an account record. Enter the account name, type, and associated cost center."
+      }
+    },
+    {
+      "id": "TC03_FIN_03_FILL_ACCT",
+      "action": "type",
+      "target": "input[name='account_name'], textarea[name='account_name'], input[name='name'], textarea[name='name'], input[name='description'], textarea[name='description']",
+      "value": "E2E Maintenance Cost Account",
+      "doc_metadata": {
+        "title": "TC-03.5 \u2014 Fill Account Name",
+        "caption": "Enter \"E2E Maintenance Cost Account\" into the Account Name field."
+      }
+    },
+    {
+      "id": "TC03_FIN_04_SAVE_ACCT",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-03.5 \u2014 Account Created",
+        "caption": "The account is saved and can be linked to work orders and purchase requests for cost tracking."
+      }
+    },
+    {
+      "id": "TC03_FIN_05_VERIFY_ACCT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03.5 \u2014 Account Detail",
+        "caption": "The account detail page shows the account number, name, type, and associated transactions."
+      }
+    },
+    {
+      "id": "TC03_FIN_06_NAV_CC",
+      "action": "goto",
+      "url": "/cost_code",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.5 \u2014 Cost Code List",
+        "caption": "Navigate to Cost Code. Cost codes categorize expenses for detailed financial reporting on maintenance activities."
+      }
+    },
+    {
+      "id": "TC03_FIN_07_NEW_CC",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/cost_code/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.5 \u2014 New Cost Code",
+        "caption": "Click 'Add New' to create a cost code. Specify the code identifier, description, and category."
+      }
+    },
+    {
+      "id": "TC03_FIN_08_FILL_CC",
+      "action": "type",
+      "target": "input[name='cost_code_name'], textarea[name='cost_code_name'], input[name='name'], textarea[name='name'], input[name='description'], textarea[name='description']",
+      "value": "E2E Preventive Maintenance Cost",
+      "doc_metadata": {
+        "title": "TC-03.5 \u2014 Fill Cost Code Name",
+        "caption": "Enter \"E2E Preventive Maintenance Cost\" into the Cost Code Name field."
+      }
+    },
+    {
+      "id": "TC03_FIN_09_SAVE_CC",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-03.5 \u2014 Cost Code Created",
+        "caption": "The cost code is saved and can be used in work orders and maintenance requests for expense categorization."
+      }
+    },
+    {
+      "id": "TC03_FIN_10_VERIFY_CC",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03.5 \u2014 Cost Code Detail",
+        "caption": "The cost code detail page shows the code, description, and category used for financial reporting."
+      }
+    }
+  ]
+}

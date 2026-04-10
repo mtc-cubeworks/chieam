@@ -1,0 +1,135 @@
+{
+  "name": "TC-03-work-schedule-holiday",
+  "description": "TC-03.4: Work Schedule & Holiday \u2014 Create work schedule and holiday records",
+  "persona": "Admin",
+  "tags": [
+    "TC-03",
+    "master-data",
+    "work-schedule",
+    "holiday"
+  ],
+  "steps": [
+    {
+      "id": "TC03_WS_01_NAV",
+      "action": "goto",
+      "url": "/work_schedule",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.4 \u2014 Work Schedule List",
+        "caption": "Navigate to Work Schedule. Work schedules define standard working hours, shifts, and availability for maintenance planning."
+      }
+    },
+    {
+      "id": "TC03_WS_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/work_schedule/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.4 \u2014 New Work Schedule",
+        "caption": "Click 'Add New' to create a work schedule. Define the schedule name, working days, and shift hours."
+      }
+    },
+    {
+      "id": "TC03_WS_03_FILL",
+      "action": "type",
+      "target": "input[name='schedule_name'], textarea[name='schedule_name'], input[name='name'], textarea[name='name'], input[name='description'], textarea[name='description']",
+      "value": "E2E Standard 5-Day Schedule",
+      "doc_metadata": {
+        "title": "TC-03.4 \u2014 Fill Schedule Name",
+        "caption": "Enter \"E2E Standard 5-Day Schedule\" into the Schedule Name field."
+      }
+    },
+    {
+      "id": "TC03_WS_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-03.4 \u2014 Work Schedule Created",
+        "caption": "The work schedule is saved and can be linked to employees, sites, and maintenance planning calendars."
+      }
+    },
+    {
+      "id": "TC03_WS_05_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03.4 \u2014 Work Schedule Detail",
+        "caption": "The work schedule detail shows the schedule name, working days, shift times, and associated resources."
+      }
+    },
+    {
+      "id": "TC03_HOL_01_NAV",
+      "action": "goto",
+      "url": "/holiday",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.4 \u2014 Holiday List",
+        "caption": "Navigate to Holiday. Holidays define non-working days that affect SLA calculations and maintenance scheduling."
+      }
+    },
+    {
+      "id": "TC03_HOL_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/holiday/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.4 \u2014 New Holiday",
+        "caption": "Click 'Add New' to create a holiday entry. Specify the holiday name and date."
+      }
+    },
+    {
+      "id": "TC03_HOL_03_FILL",
+      "action": "type",
+      "target": "input[name='holiday_name'], textarea[name='holiday_name'], input[name='name'], textarea[name='name'], input[name='description'], textarea[name='description']",
+      "value": "E2E Test Holiday",
+      "doc_metadata": {
+        "title": "TC-03.4 \u2014 Fill Holiday Name",
+        "caption": "Enter \"E2E Test Holiday\" into the Holiday Name field."
+      }
+    },
+    {
+      "id": "TC03_HOL_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-03.4 \u2014 Holiday Created",
+        "caption": "The holiday is saved and will be excluded from SLA calculations and work day computations."
+      }
+    },
+    {
+      "id": "TC03_HOL_05_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03.4 \u2014 Holiday Detail",
+        "caption": "The holiday detail shows the name, date, and associated work schedules affected by this holiday."
+      }
+    }
+  ]
+}

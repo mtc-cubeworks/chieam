@@ -1,0 +1,96 @@
+{
+  "name": "TC-20-procurement-scenario",
+  "description": "TC-20.3: Procurement End-to-End Scenario — MR → PR → PO → Receipt → Vendor Performance",
+  "persona": "Admin",
+  "tags": ["TC-20", "e2e-scenario", "procurement", "purchasing"],
+  "steps": [
+    {
+      "id": "TC20_PROC_01_MR",
+      "action": "goto",
+      "url": "/maintenance_request",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-20.3 — Step 1: Maintenance Request (Parts Needed)",
+        "caption": "The procurement scenario starts when a maintenance request identifies parts that need to be purchased. The 'Create PR' server action initiates procurement."
+      }
+    },
+    {
+      "id": "TC20_PROC_02_SCREENSHOT_MR",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-20.3 — MR with Parts Requirements",
+        "caption": "The maintenance request identifies required parts and materials. After approval, the 'Create Purchase Request' action generates a PR with the correct items."
+      }
+    },
+    {
+      "id": "TC20_PROC_03_PR",
+      "action": "goto",
+      "url": "/purchase_request",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-20.3 — Step 2: Purchase Request",
+        "caption": "The purchase request is generated from the MR. It contains the required items, quantities, and requestor information."
+      }
+    },
+    {
+      "id": "TC20_PROC_04_SCREENSHOT_PR",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-20.3 — PR from MR",
+        "caption": "The purchase request shows items needed for the maintenance work. After approval, a purchase order is created to send to the vendor."
+      }
+    },
+    {
+      "id": "TC20_PROC_05_PO",
+      "action": "goto",
+      "url": "/purchase_order",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-20.3 — Step 3: Purchase Order",
+        "caption": "The purchase order is issued to the vendor based on the approved PR. The PO tracks delivery dates and payment terms."
+      }
+    },
+    {
+      "id": "TC20_PROC_06_SCREENSHOT_PO",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-20.3 — PO Issued to Vendor",
+        "caption": "The purchase order shows vendor details, line items, delivery schedule, and total amount. Approved POs become read-only."
+      }
+    },
+    {
+      "id": "TC20_PROC_07_RECEIPT",
+      "action": "goto",
+      "url": "/purchase_receipt",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-20.3 — Step 4: Purchase Receipt",
+        "caption": "When goods arrive, a purchase receipt is recorded against the PO. This updates inventory and triggers vendor performance recalculation."
+      }
+    },
+    {
+      "id": "TC20_PROC_08_SCREENSHOT_REC",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-20.3 — Receipt & Vendor Update",
+        "caption": "The purchase receipt records the delivery date and quantities received. Vendor performance metrics (delivery rating, on-time rate) are automatically recalculated."
+      }
+    }
+  ]
+}

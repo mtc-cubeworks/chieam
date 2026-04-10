@@ -1,0 +1,76 @@
+{
+  "name": "TC-06-maintenance-request",
+  "description": "TC-06.1: Maintenance Request Standard Approval Flow \u2014 Draft \u2192 Pending Approval \u2192 Approved \u2192 Release \u2192 Completed",
+  "persona": "Admin",
+  "tags": [
+    "TC-06",
+    "maintenance-request",
+    "workflow",
+    "lifecycle"
+  ],
+  "steps": [
+    {
+      "id": "TC06_01_NAV",
+      "action": "goto",
+      "url": "/maintenance_request",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-06.1 \u2014 Maintenance Request List",
+        "caption": "Navigate to Maintenance Request. Maintenance requests are used to report issues, request corrective maintenance, or schedule preventive maintenance tasks.",
+        "manual_hint": "Opening screenshot for the Maintenance Request chapter."
+      }
+    },
+    {
+      "id": "TC06_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/maintenance_request/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-06.1 \u2014 New Maintenance Request",
+        "caption": "Click 'Add New' to create a new maintenance request. Fill in the requestor, asset, priority, category, and description fields."
+      }
+    },
+    {
+      "id": "TC06_03_FILL_DESC",
+      "action": "type",
+      "target": "input[name='description'], textarea[name='description']",
+      "value": "E2E Test \u2014 Motor vibration excessive, requires corrective maintenance",
+      "doc_metadata": {
+        "title": "TC-06.1 \u2014 Fill Description",
+        "caption": "Enter \"E2E Test \u2014 Motor vibration excessive, re\" into the Description field."
+      }
+    },
+    {
+      "id": "TC06_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-06.1 \u2014 MR Created (Draft)",
+        "caption": "The maintenance request is created with an auto-generated ID (e.g., MTREQ-00001) and workflow state 'Draft'. From here you can submit it for approval.",
+        "manual_hint": "Show the auto-generated ID and Draft state badge."
+      }
+    },
+    {
+      "id": "TC06_05_VERIFY_DRAFT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-06.1 \u2014 Maintenance Request Detail (Draft)",
+        "caption": "The maintenance request is in Draft state. The workflow dropdown shows available transitions. Click 'Submit for Approval' to advance the request.",
+        "manual_hint": "Show the workflow dropdown with available transitions."
+      }
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "name": "TC-04-meter-reading",
+  "description": "TC-04.3: Meter & Meter Reading \u2014 Navigate to meter entities and create readings",
+  "persona": "Admin",
+  "tags": [
+    "TC-04",
+    "asset-management",
+    "meter",
+    "meter-reading"
+  ],
+  "steps": [
+    {
+      "id": "TC04_MTR_01_NAV",
+      "action": "goto",
+      "url": "/meter",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-04.3 \u2014 Meter List",
+        "caption": "Navigate to Meter. Meters track operating parameters like running hours, odometer readings, and cycle counts for assets."
+      }
+    },
+    {
+      "id": "TC04_MTR_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-04.3 \u2014 Meter Overview",
+        "caption": "The meter list shows all configured meters across assets with their current readings, types, and update frequency."
+      }
+    },
+    {
+      "id": "TC04_MTR_03_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/meter/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-04.3 \u2014 New Meter",
+        "caption": "Click 'Add New' to create a meter. Specify the meter type (Operating Hours, Odometer, Cycle Count), linked asset, and unit of measure."
+      }
+    },
+    {
+      "id": "TC04_MTR_04_FILL",
+      "action": "type",
+      "target": "input[name='meter_name'], textarea[name='meter_name'], input[name='name'], textarea[name='name'], input[name='description'], textarea[name='description']",
+      "value": "E2E Operating Hours Meter",
+      "doc_metadata": {
+        "title": "TC-04.3 \u2014 Fill Meter Name",
+        "caption": "Enter \"E2E Operating Hours Meter\" into the Meter Name field."
+      }
+    },
+    {
+      "id": "TC04_MTR_05_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-04.3 \u2014 Meter Created",
+        "caption": "The meter is created and linked to an asset. Add meter readings to track operating parameters over time."
+      }
+    },
+    {
+      "id": "TC04_MTR_06_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-04.3 \u2014 Meter Detail",
+        "caption": "The meter detail page shows the meter type, current reading, and reading history. Meter readings trigger preventive maintenance based on configured thresholds."
+      }
+    },
+    {
+      "id": "TC04_MR_01_NAV",
+      "action": "goto",
+      "url": "/meter_reading",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-04.3 \u2014 Meter Reading List",
+        "caption": "Navigate to Meter Reading. Meter readings record periodic measurements for meters linked to assets."
+      }
+    },
+    {
+      "id": "TC04_MR_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/meter_reading/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-04.3 \u2014 New Meter Reading",
+        "caption": "Click 'Add New' to record a new meter reading. Select the meter, enter the reading value, and timestamp."
+      }
+    },
+    {
+      "id": "TC04_MR_03_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-04.3 \u2014 Meter Reading Form",
+        "caption": "The meter reading form captures the current value, date, and any notes. The system calculates the delta from the previous reading automatically."
+      }
+    }
+  ]
+}

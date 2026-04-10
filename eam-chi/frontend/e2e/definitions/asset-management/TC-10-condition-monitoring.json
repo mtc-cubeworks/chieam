@@ -1,0 +1,73 @@
+{
+  "name": "TC-10-condition-monitoring",
+  "description": "TC-10.1: Condition Monitoring Full Lifecycle \u2014 Active \u2192 Warning \u2192 Critical \u2192 Resolved",
+  "persona": "Admin",
+  "tags": [
+    "TC-10",
+    "condition-monitoring",
+    "workflow"
+  ],
+  "steps": [
+    {
+      "id": "TC10_01_NAV",
+      "action": "goto",
+      "url": "/condition_monitoring",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-10.1 \u2014 Condition Monitoring List",
+        "caption": "Navigate to Condition Monitoring. This module tracks real-time sensor data and condition indicators for assets, with configurable warning and critical thresholds."
+      }
+    },
+    {
+      "id": "TC10_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/condition_monitoring/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-10.1 \u2014 New Condition Monitor",
+        "caption": "Click 'Add New' to set up condition monitoring for an asset. Define the monitoring type (Vibration, Temperature, Pressure, etc.), baseline value, and warning/critical thresholds."
+      }
+    },
+    {
+      "id": "TC10_03_FILL",
+      "action": "type",
+      "target": "input[name='analysis_notes'], textarea[name='analysis_notes']",
+      "value": "E2E Test \u2014 Vibration monitoring for Test Motor 001",
+      "doc_metadata": {
+        "title": "TC-10.1 \u2014 Fill Analysis Notes",
+        "caption": "Enter \"E2E Test \u2014 Vibration monitoring for Test\" into the Analysis Notes field."
+      }
+    },
+    {
+      "id": "TC10_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-10.1 \u2014 Condition Monitor Created",
+        "caption": "The condition monitoring record is created in 'Active' state. As readings are taken, the system automatically transitions to Warning or Critical states based on threshold values.",
+        "manual_hint": "Show the threshold fields and current reading value."
+      }
+    },
+    {
+      "id": "TC10_05_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-10.1 \u2014 Condition Monitoring Detail",
+        "caption": "The detail view shows the asset, monitoring type, baseline value, thresholds, current reading, alert status, and trend direction. The workflow state reflects the current alert level."
+      }
+    }
+  ]
+}

@@ -132,7 +132,7 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="h-full min-h-0 overflow-y-auto p-4 space-y-6">
+  <div data-testid="dashboard" class="h-full min-h-0 overflow-y-auto p-4 space-y-6">
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div>

@@ -1,0 +1,82 @@
+{
+  "name": "TC-04-asset-hierarchy",
+  "description": "TC-04.2: Asset Hierarchy \u2014 Navigate to asset list, verify parent-child asset structure",
+  "persona": "Admin",
+  "tags": [
+    "TC-04",
+    "asset-management",
+    "hierarchy"
+  ],
+  "steps": [
+    {
+      "id": "TC04_HIER_01_NAV",
+      "action": "goto",
+      "url": "/asset",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-04.2 \u2014 Asset List",
+        "caption": "Navigate to Asset Management. The asset list supports tree view to display parent-child hierarchies."
+      }
+    },
+    {
+      "id": "TC04_HIER_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-04.2 \u2014 Asset Hierarchy View",
+        "caption": "The asset list displays assets in a hierarchical structure. Parent assets can be expanded to show sub-assets (children). This enables tracking of complex equipment assemblies."
+      }
+    },
+    {
+      "id": "TC04_HIER_03_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/asset/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-04.2 \u2014 New Child Asset",
+        "caption": "Click 'Add New' to create a new asset. To establish a hierarchy, set the 'Parent Asset' field to link this asset as a sub-component."
+      }
+    },
+    {
+      "id": "TC04_HIER_04_FILL",
+      "action": "type",
+      "target": "input[name='description'], textarea[name='description']",
+      "value": "E2E Child Asset \u2014 Motor Assembly",
+      "doc_metadata": {
+        "title": "TC-04.2 \u2014 Fill Description",
+        "caption": "Enter \"E2E Child Asset \u2014 Motor Assembly\" into the Description field."
+      }
+    },
+    {
+      "id": "TC04_HIER_05_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-04.2 \u2014 Child Asset Created",
+        "caption": "The child asset is saved. Set the Parent Asset field to establish the hierarchy relationship."
+      }
+    },
+    {
+      "id": "TC04_HIER_06_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-04.2 \u2014 Asset Detail with Parent Link",
+        "caption": "The asset detail page shows the parent asset relationship. Sub-assets appear in the Parent-Child tab, enabling drill-down into equipment assemblies."
+      }
+    }
+  ]
+}

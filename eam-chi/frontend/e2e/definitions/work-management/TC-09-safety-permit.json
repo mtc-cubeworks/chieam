@@ -1,0 +1,74 @@
+{
+  "name": "TC-09-safety-permit",
+  "description": "TC-09.1: Safety Permit Full Lifecycle \u2014 Draft \u2192 Requested \u2192 Approved \u2192 Active \u2192 Expired",
+  "persona": "Admin",
+  "tags": [
+    "TC-09",
+    "safety-permit",
+    "workflow",
+    "lifecycle"
+  ],
+  "steps": [
+    {
+      "id": "TC09_01_NAV",
+      "action": "goto",
+      "url": "/safety_permit",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-09.1 \u2014 Safety Permit List",
+        "caption": "Navigate to Safety Permit. Safety permits control access to hazardous work areas and ensure proper safety procedures are followed before maintenance tasks begin."
+      }
+    },
+    {
+      "id": "TC09_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/safety_permit/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-09.1 \u2014 New Safety Permit",
+        "caption": "Click 'Add New' to create a new safety permit. Select the permit type (LOTO, Hot Work, Confined Space, etc.), link it to a work order, and specify hazards and precautions."
+      }
+    },
+    {
+      "id": "TC09_03_FILL_DESC",
+      "action": "type",
+      "target": "input[name='hazards_identified'], textarea[name='hazards_identified']",
+      "value": "E2E Test \u2014 Identify electrical hazards",
+      "doc_metadata": {
+        "title": "TC-09.1 \u2014 Fill Hazards Identified",
+        "caption": "Enter \"E2E Test \u2014 Identify electrical hazards\" into the Hazards Identified field."
+      }
+    },
+    {
+      "id": "TC09_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-09.1 \u2014 Safety Permit Created (Draft)",
+        "caption": "The safety permit is created with an auto-generated ID (e.g., SP-00001) in 'Draft' state. Submit the request for approval by the safety officer.",
+        "manual_hint": "Show the safety permit form with all safety-related fields."
+      }
+    },
+    {
+      "id": "TC09_05_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-09.1 \u2014 Safety Permit Detail",
+        "caption": "The safety permit detail page shows permit type, valid dates, hazards, precautions, and emergency procedures. The workflow tracks the permit through its approval and activation lifecycle."
+      }
+    }
+  ]
+}

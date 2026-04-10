@@ -1,0 +1,135 @@
+{
+  "name": "TC-11-purchasing-pr-po",
+  "description": "TC-11: Purchasing Workflow \u2014 Purchase Request and Purchase Order creation",
+  "persona": "Admin",
+  "tags": [
+    "TC-11",
+    "purchasing",
+    "purchase-request",
+    "purchase-order",
+    "workflow"
+  ],
+  "steps": [
+    {
+      "id": "TC11_01_NAV_PR",
+      "action": "goto",
+      "url": "/purchase_request",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-11.1 \u2014 Purchase Request List",
+        "caption": "Navigate to Purchasing \u2192 Purchase Request. Purchase requests initiate procurement for materials, spare parts, and services needed for maintenance."
+      }
+    },
+    {
+      "id": "TC11_02_NEW_PR",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/purchase_request/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-11.1 \u2014 New Purchase Request",
+        "caption": "Click 'Add New' to create a purchase request. Specify the requestor, due date, site, and department. Add line items with quantities and unit prices."
+      }
+    },
+    {
+      "id": "TC11_03_FILL_PR",
+      "action": "type",
+      "target": "input[name='pr_description'], textarea[name='pr_description']",
+      "value": "E2E Test \u2014 Spare parts for pump maintenance",
+      "doc_metadata": {
+        "title": "TC-11 \u2014 Fill Pr Description",
+        "caption": "Enter \"E2E Test \u2014 Spare parts for pump maintena\" into the Pr Description field."
+      }
+    },
+    {
+      "id": "TC11_04_SAVE_PR",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-11.1 \u2014 PR Created (Draft)",
+        "caption": "The purchase request is created with an auto-generated ID (e.g., PR-00001) in 'Draft' state. Add line items, then submit for approval."
+      }
+    },
+    {
+      "id": "TC11_05_VERIFY_PR",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-11.1 \u2014 Purchase Request Detail",
+        "caption": "The purchase request detail shows requestor, due date, and line items. The PR Lines child table allows adding items with quantities, unit prices, and calculated line totals.",
+        "manual_hint": "Show the PR with line items section."
+      }
+    },
+    {
+      "id": "TC11_06_NAV_PO",
+      "action": "goto",
+      "url": "/purchase_order",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-11.2 \u2014 Purchase Order List",
+        "caption": "Navigate to Purchasing \u2192 Purchase Order. Purchase orders are issued to vendors based on approved purchase requests. PO types include Standard, Blanket, and Contract."
+      }
+    },
+    {
+      "id": "TC11_07_NEW_PO",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/purchase_order/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-11.2 \u2014 New Purchase Order",
+        "caption": "Click 'Add New' to create a purchase order. Select the vendor, PO type, site, and department. Add line items matching the approved PR."
+      }
+    },
+    {
+      "id": "TC11_08_FILL_PO",
+      "action": "screenshot",
+      "doc_metadata": {
+        "title": "TC-11.2 \u2014 PO New Form",
+        "caption": "The new purchase order form shows fields for vendor, PO type, site, department, and financial details. Select a vendor to link the PO to approved purchase requests.",
+        "manual_hint": "Show the blank PO form with all field groups."
+      }
+    },
+    {
+      "id": "TC11_09_SAVE_PO",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-11.2 \u2014 PO Created (Draft)",
+        "caption": "The purchase order is created with an auto-generated ID (e.g., PO-00001) in 'Draft' state. The form is editable in Draft. After approval, the form becomes read-only.",
+        "manual_hint": "Show the PO with editable fields in Draft state."
+      }
+    },
+    {
+      "id": "TC11_10_VERIFY_PO",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-11.2 \u2014 Purchase Order Detail",
+        "caption": "The purchase order detail shows vendor, PO type, terms, and line items. Supported PO types: Standard (one-time), Blanket (spending limit), and Contract (date range). The workflow moves through Draft \u2192 Open \u2192 Closed."
+      }
+    }
+  ]
+}

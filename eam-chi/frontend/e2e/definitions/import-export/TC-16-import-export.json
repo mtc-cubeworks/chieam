@@ -1,0 +1,68 @@
+{
+  "name": "TC-16-import-export",
+  "description": "TC-16: Import & Export — Navigate to import/export pages and verify export/import template features",
+  "persona": "Admin",
+  "tags": ["TC-16", "import", "export", "data-management"],
+  "steps": [
+    {
+      "id": "TC16_01_NAV_ASSET",
+      "action": "goto",
+      "url": "/asset",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-16.1 — Asset List (Export)",
+        "caption": "Navigate to the Asset list. The Export function allows downloading entity data as Excel files with applied filters."
+      }
+    },
+    {
+      "id": "TC16_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-16.1 — Export Feature",
+        "caption": "The entity list toolbar includes an Export button. Apply filters (e.g., Site, Status) before exporting to get a filtered dataset. The export downloads as an Excel (.xlsx) file."
+      }
+    },
+    {
+      "id": "TC16_03_NAV_IMPORT",
+      "action": "goto",
+      "url": "/import-export",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-16.2 — Import/Export Page",
+        "caption": "Navigate to the Import/Export page. This page provides bulk data import with template download, validation, and execution."
+      }
+    },
+    {
+      "id": "TC16_04_SCREENSHOT_IMPORT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-16.2 — Import Template Download",
+        "caption": "The import page allows selecting an entity type and downloading a template with correct headers. Upload a filled template to validate and import records in bulk."
+      }
+    },
+    {
+      "id": "TC16_05_NAV_SETTINGS",
+      "action": "goto",
+      "url": "/settings",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-16 — System Settings",
+        "caption": "Navigate to Settings to configure import/export options, data validation rules, and default field mappings."
+      }
+    },
+    {
+      "id": "TC16_06_SCREENSHOT_SETTINGS",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-16 — Settings Overview",
+        "caption": "The Settings page provides system configuration including import/export preferences, naming series, and workflow configuration."
+      }
+    }
+  ]
+}

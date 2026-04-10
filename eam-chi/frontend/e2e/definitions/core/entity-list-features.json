@@ -1,0 +1,78 @@
+{
+  "name": "entity-list-features",
+  "description": "Validates entity list features: search, pagination, view modes, and empty states",
+  "persona": "Admin",
+  "tags": [
+    "core",
+    "entity-list",
+    "features"
+  ],
+  "steps": [
+    {
+      "id": "LIST_01_NAVIGATE",
+      "action": "goto",
+      "url": "/asset",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Entity List Page",
+        "caption": "Entity list pages display records in a data table. They support search, column filtering, sorting, pagination, and multiple view modes (list, tree, diagram, hierarchy).",
+        "manual_hint": "Use the asset list as the canonical example for all entity lists."
+      }
+    },
+    {
+      "id": "LIST_02_SEARCH",
+      "action": "type",
+      "target": "input[placeholder*='Search' i], [data-testid='search-input']",
+      "value": "pump",
+      "doc_metadata": {
+        "title": "Search Records",
+        "caption": "Type in the search box to filter records. The table updates in real-time as you type. You can search across the selected filter field.",
+        "manual_hint": "Show the search input and filtered results."
+      }
+    },
+    {
+      "id": "LIST_03_WAIT_RESULTS",
+      "action": "wait",
+      "timeout": 2000,
+      "doc_metadata": {
+        "title": "Wait for Page Load",
+        "caption": "Wait for all page components to finish loading and rendering."
+      }
+    },
+    {
+      "id": "LIST_04_SEARCH_RESULTS",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "Search Results",
+        "caption": "The table displays only records matching your search term. The total count badge updates to reflect the filtered result count.",
+        "manual_hint": "Show the filtered table and updated count badge."
+      }
+    },
+    {
+      "id": "LIST_05_CLEAR_SEARCH",
+      "action": "clear",
+      "target": "input[placeholder*='Search' i], [data-testid='search-input']",
+      "doc_metadata": {
+        "title": "Clear Field",
+        "caption": "Clear the search input to reset the filtered results."
+      }
+    },
+    {
+      "id": "LIST_06_CLICK_ROW",
+      "action": "click",
+      "target": "table tbody tr:first-child td:nth-child(2)",
+      "timeout": 5000,
+      "doc_metadata": {
+        "title": "Open Record Detail",
+        "caption": "Click any row in the table to open the detail view for that record. You can view and edit all fields, manage attachments, and control the workflow state.",
+        "manual_hint": "Show the clickable row and the resulting detail page."
+      }
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+export { LoginPage } from './login.page'
+export { DashboardPage } from './dashboard.page'
+export { EntityListPage } from './entity-list.page'
+export { EntityDetailPage } from './entity-detail.page'
+export { SidebarPage } from './sidebar.page'

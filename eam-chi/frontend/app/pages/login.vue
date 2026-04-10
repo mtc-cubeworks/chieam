@@ -95,6 +95,7 @@ definePageMeta({
             :disabled="isLoading"
             required
             class="w-full"
+            data-testid="login-username"
           />
         </UFormField>
 
@@ -106,6 +107,7 @@ definePageMeta({
             :disabled="isLoading"
             required
             class="w-full"
+            data-testid="login-password"
           />
         </UFormField>
 
@@ -114,6 +116,7 @@ definePageMeta({
           color="error"
           variant="subtle"
           :description="errorMessage"
+          data-testid="login-error"
         />
 
         <UButton
@@ -122,6 +125,7 @@ definePageMeta({
           size="lg"
           :loading="isLoading"
           class="w-full"
+          data-testid="login-submit"
         >
           Sign In
         </UButton>

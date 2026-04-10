@@ -1,0 +1,82 @@
+{
+  "name": "TC-10-condition-monitoring-types",
+  "description": "TC-10.2: Condition Monitoring Types \u2014 Navigate and view all monitoring types (Vibration, Temperature, Pressure, Oil Analysis, etc.)",
+  "persona": "Admin",
+  "tags": [
+    "TC-10",
+    "condition-monitoring",
+    "monitoring-types"
+  ],
+  "steps": [
+    {
+      "id": "TC10_TYPE_01_NAV",
+      "action": "goto",
+      "url": "/condition_monitoring",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-10.2 \u2014 Condition Monitoring List",
+        "caption": "Navigate to Condition Monitoring. The system supports multiple monitoring types: Vibration, Temperature, Pressure, Oil Analysis, Ultrasonic, Thermography, and Current/Voltage."
+      }
+    },
+    {
+      "id": "TC10_TYPE_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-10.2 \u2014 Monitoring Types Overview",
+        "caption": "The condition monitoring list shows all monitoring records with their type, current value, threshold levels, and status (Normal, Warning, Critical, Resolved)."
+      }
+    },
+    {
+      "id": "TC10_TYPE_03_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/condition_monitoring/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-10.2 \u2014 New Condition Monitoring",
+        "caption": "Click 'Add New' to create a condition monitoring record. Select the monitoring type, linked asset, and configure baseline, warning, and critical threshold levels."
+      }
+    },
+    {
+      "id": "TC10_TYPE_04_FILL",
+      "action": "type",
+      "target": "input[name='analysis_notes'], textarea[name='analysis_notes']",
+      "value": "E2E Temperature monitoring \u2014 Cooling system outlet",
+      "doc_metadata": {
+        "title": "TC-10.2 \u2014 Fill Analysis Notes",
+        "caption": "Enter \"E2E Temperature monitoring \u2014 Cooling sys\" into the Analysis Notes field."
+      }
+    },
+    {
+      "id": "TC10_TYPE_05_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-10.2 \u2014 Monitoring Record Created",
+        "caption": "The monitoring record is created in 'Active' state. Update the current value to trigger threshold-based status changes (Normal \u2192 Warning \u2192 Critical)."
+      }
+    },
+    {
+      "id": "TC10_TYPE_06_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-10.2 \u2014 Monitoring Detail by Type",
+        "caption": "The monitoring detail shows type-specific fields, thresholds, and current readings. Different monitoring types have different measurement units and threshold configurations."
+      }
+    }
+  ]
+}

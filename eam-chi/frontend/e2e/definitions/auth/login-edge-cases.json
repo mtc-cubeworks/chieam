@@ -1,0 +1,84 @@
+{
+  "name": "login-edge-cases",
+  "description": "Tests negative login scenarios: empty fields, wrong credentials, and validation messages",
+  "persona": "Anonymous",
+  "tags": [
+    "auth",
+    "edge-case",
+    "validation"
+  ],
+  "steps": [
+    {
+      "id": "LOGIN_ERR_00_CLEAR",
+      "action": "clearSession",
+      "doc_metadata": {
+        "title": "Clear Session",
+        "caption": "Clear browser cookies and local storage to ensure a clean test state."
+      }
+    },
+    {
+      "id": "LOGIN_ERR_01_NAVIGATE",
+      "action": "goto",
+      "url": "/login",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "input[type='password']"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Navigate",
+        "caption": "Navigate to /login."
+      }
+    },
+    {
+      "id": "LOGIN_ERR_02_EMPTY_SUBMIT",
+      "action": "click",
+      "target": "button[type='submit']",
+      "timeout": 3000,
+      "doc_metadata": {
+        "title": "Empty Credentials Error",
+        "caption": "If you attempt to sign in without entering credentials, the system displays a validation message prompting you to fill in the required fields.",
+        "is_edge_case": true,
+        "manual_hint": "Show the validation error that appears when submitting the login form with empty fields."
+      }
+    },
+    {
+      "id": "LOGIN_ERR_03_WRONG_PASSWORD",
+      "action": "type",
+      "target": "[data-testid='login-username'] input, input[placeholder*='username' i]",
+      "value": "admin",
+      "doc_metadata": {
+        "title": "Fill Form Field",
+        "caption": "Enter \"admin\" into the form field."
+      }
+    },
+    {
+      "id": "LOGIN_ERR_04_WRONG_PASSWORD_FILL",
+      "action": "type",
+      "target": "input[type='password']",
+      "value": "wrongpassword",
+      "doc_metadata": {
+        "title": "Fill Form Field",
+        "caption": "Enter \"wrongpassword\" into the form field."
+      }
+    },
+    {
+      "id": "LOGIN_ERR_05_WRONG_PASSWORD_SUBMIT",
+      "action": "click",
+      "target": "button[type='submit']",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "login"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Invalid Credentials Error",
+        "caption": "If you enter an incorrect username or password, the system displays an error message. Verify your credentials and try again. After multiple failed attempts, your account may be temporarily locked.",
+        "is_edge_case": true,
+        "manual_hint": "Capture the error message displayed after failed login. This goes in the Troubleshooting section."
+      }
+    }
+  ]
+}

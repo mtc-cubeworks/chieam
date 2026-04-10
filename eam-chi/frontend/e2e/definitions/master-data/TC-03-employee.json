@@ -1,0 +1,75 @@
+{
+  "name": "TC-03-employee-labor",
+  "description": "TC-03.2: Employee & Labor Setup \u2014 Create employees and labor records with trade assignments",
+  "persona": "Admin",
+  "tags": [
+    "TC-03",
+    "master-data",
+    "employee",
+    "labor",
+    "trade"
+  ],
+  "steps": [
+    {
+      "id": "TC03_EMP_01_NAV",
+      "action": "goto",
+      "url": "/employee",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.2 \u2014 Employee List",
+        "caption": "Navigate to Employee. Employees are linked to users, sites, and departments. They serve as requestors, approvers, and technicians across the system."
+      }
+    },
+    {
+      "id": "TC03_EMP_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/employee/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.2 \u2014 New Employee",
+        "caption": "Click 'Add New' to create an employee record. Link the employee to a user account, site, and department."
+      }
+    },
+    {
+      "id": "TC03_EMP_03_FILL",
+      "action": "type",
+      "target": "input[name='employee_name']",
+      "value": "E2E John Smith",
+      "doc_metadata": {
+        "title": "TC-03.2 \u2014 Fill Employee Name",
+        "caption": "Enter \"E2E John Smith\" into the Employee Name field."
+      }
+    },
+    {
+      "id": "TC03_EMP_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-03.2 \u2014 Employee Created",
+        "caption": "The employee record is created with an auto-generated ID (e.g., EMP-00001). The employee can now be assigned to maintenance requests, work orders, and labor records.",
+        "manual_hint": "Show the auto-generated EMP ID."
+      }
+    },
+    {
+      "id": "TC03_EMP_05_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03.2 \u2014 Employee Detail",
+        "caption": "The employee record shows name, linked user, site, department, and trade. Employees serve as the bridge between user accounts and operational entities."
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "name": "work-order-lifecycle",
+  "description": "Creates a work order and walks through workflow transitions: Requested \u2192 Approved \u2192 In Progress \u2192 Completed \u2192 Closed",
+  "persona": "Admin",
+  "tags": [
+    "work-management",
+    "workflow",
+    "lifecycle",
+    "happy-path"
+  ],
+  "steps": [
+    {
+      "id": "WO_01_NAVIGATE",
+      "action": "goto",
+      "url": "/work_order",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Work Order List",
+        "caption": "Navigate to the Work Order list page. This page displays all work orders with their current workflow status, priority, and assigned personnel.",
+        "manual_hint": "Opening screenshot for the Work Order chapter."
+      }
+    },
+    {
+      "id": "WO_02_NEW",
+      "action": "click",
+      "target": "button:has-text('Add New'), [data-testid='btn-new'], button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/work_order/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Create New Work Order",
+        "caption": "Click 'Add New' to create a new work order. The form opens with default values including the 'Requested' workflow state."
+      }
+    },
+    {
+      "id": "WO_03_FILL_DESCRIPTION",
+      "action": "type",
+      "target": "input[name='description'], textarea[name='description']",
+      "value": "E2E Test Work Order \u2014 Pump maintenance",
+      "doc_metadata": {
+        "title": "Fill Form Field",
+        "caption": "Enter \"E2E Test Work Order \u2014 Pump maintenance\" into the Description field."
+      }
+    },
+    {
+      "id": "WO_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "Save Work Order",
+        "caption": "Click 'Save' to create the work order. The system assigns a unique code and sets the initial workflow state.",
+        "manual_hint": "Show success notification."
+      }
+    },
+    {
+      "id": "WO_05_VERIFY_STATE",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "Work Order Initial State",
+        "caption": "After saving, the work order is in the initial workflow state. The workflow dropdown in the header shows available transitions.",
+        "manual_hint": "Highlight the workflow state badge and dropdown."
+      }
+    }
+  ]
+}

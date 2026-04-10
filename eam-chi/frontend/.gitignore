@@ -22,3 +22,9 @@ logs
 .env
 .env.*
 !.env.example
+
+# E2E test artifacts
+test-artifacts/
+e2e/.auth/
+/test-results/
+/playwright-report/

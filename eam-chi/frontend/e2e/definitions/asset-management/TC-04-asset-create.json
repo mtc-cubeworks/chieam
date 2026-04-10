@@ -1,0 +1,77 @@
+{
+  "name": "TC-04-asset-create",
+  "description": "TC-04.1: Create Asset with Full Details \u2014 validates CRUD and field persistence",
+  "persona": "Admin",
+  "tags": [
+    "TC-04",
+    "asset-management",
+    "create",
+    "happy-path"
+  ],
+  "steps": [
+    {
+      "id": "TC04_01_NAV",
+      "action": "goto",
+      "url": "/asset",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-04.1 \u2014 Asset List",
+        "caption": "Navigate to Asset Management \u2192 Asset. The asset list shows all registered assets with their current lifecycle state, site, and criticality.",
+        "manual_hint": "Opening screenshot for the Asset Management chapter."
+      }
+    },
+    {
+      "id": "TC04_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/asset/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-04.1 \u2014 New Asset Form",
+        "caption": "Click 'Add New' to open the asset creation form. The form includes fields for description, asset class, site, department, manufacturer, and more.",
+        "manual_hint": "Show the blank asset creation form with all field groups."
+      }
+    },
+    {
+      "id": "TC04_03_FILL_DESC",
+      "action": "type",
+      "target": "input[name='description'], textarea[name='description']",
+      "value": "Test Motor 001 \u2014 E2E Lifecycle Test",
+      "doc_metadata": {
+        "title": "TC-04.1 \u2014 Fill Description",
+        "caption": "Enter \"Test Motor 001 \u2014 E2E Lifecycle Test\" into the Description field."
+      }
+    },
+    {
+      "id": "TC04_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-04.1 \u2014 Asset Created",
+        "caption": "Click 'Create' to save the asset. The system assigns an auto-generated ID (e.g., A-00001) and sets the initial workflow state to 'Acquired'.",
+        "manual_hint": "Show the auto-generated ID and initial state badge."
+      }
+    },
+    {
+      "id": "TC04_05_VERIFY_STATE",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-04.1 \u2014 Asset Detail View",
+        "caption": "The asset detail page shows all fields organized in tabs. The workflow state badge in the header indicates the current lifecycle state. Use the workflow dropdown to transition the asset through its lifecycle.",
+        "manual_hint": "Full page showing the saved asset with all sections."
+      }
+    }
+  ]
+}

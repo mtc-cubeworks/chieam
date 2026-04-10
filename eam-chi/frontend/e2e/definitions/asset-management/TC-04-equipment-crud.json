@@ -1,0 +1,60 @@
+{
+  "name": "TC-04-equipment-crud",
+  "description": "TC-04.5: Equipment CRUD \u2014 Navigate equipment list and verify equipment detail view",
+  "persona": "Admin",
+  "tags": [
+    "TC-04",
+    "asset-management",
+    "equipment"
+  ],
+  "steps": [
+    {
+      "id": "TC04_EQ_01_NAV",
+      "action": "goto",
+      "url": "/equipment",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-04.5 \u2014 Equipment List",
+        "caption": "Navigate to Equipment. Equipment records track individual tools, vehicles, and machinery used in maintenance operations."
+      }
+    },
+    {
+      "id": "TC04_EQ_02_LIST",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-04.5 \u2014 Equipment List View",
+        "caption": "The Equipment list shows all registered equipment with IDs, descriptions, types (Owned/Rented), and status. Use filters and search to locate specific equipment."
+      }
+    },
+    {
+      "id": "TC04_EQ_03_CLICK_FIRST",
+      "action": "click",
+      "target": "table tbody tr:first-child td:first-child a, table tbody tr:first-child, [data-testid='entity-row']:first-child",
+      "timeout": 10000,
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-04.5 \u2014 Open Equipment Record",
+        "caption": "Click on an existing equipment record to view its details, including type, description, and linked work orders."
+      }
+    },
+    {
+      "id": "TC04_EQ_04_WAIT",
+      "action": "wait",
+      "timeout": 3000,
+      "doc_metadata": {
+        "title": "TC-04.5 \u2014 Wait for Page Load",
+        "caption": "Wait for all page components to finish loading and rendering."
+      }
+    },
+    {
+      "id": "TC04_EQ_05_DETAIL",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-04.5 \u2014 Equipment Detail",
+        "caption": "The equipment detail page shows the equipment ID, type (Owned or Rented), description, and association fields. Equipment can be linked to work orders for resource tracking."
+      }
+    }
+  ]
+}

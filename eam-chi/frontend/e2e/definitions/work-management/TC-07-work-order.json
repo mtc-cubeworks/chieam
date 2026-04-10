@@ -1,0 +1,76 @@
+{
+  "name": "TC-07-work-order",
+  "description": "TC-07.1: Full Work Order Lifecycle \u2014 Requested \u2192 Approved \u2192 In Progress \u2192 Closed",
+  "persona": "Admin",
+  "tags": [
+    "TC-07",
+    "work-order",
+    "workflow",
+    "lifecycle"
+  ],
+  "steps": [
+    {
+      "id": "TC07_01_NAV",
+      "action": "goto",
+      "url": "/work_order",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-07.1 \u2014 Work Order List",
+        "caption": "Navigate to Work Management \u2192 Work Order. Work orders track maintenance tasks from request through completion, including labor, parts, and costs.",
+        "manual_hint": "Opening screenshot for the Work Order chapter."
+      }
+    },
+    {
+      "id": "TC07_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/work_order/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-07.1 \u2014 New Work Order",
+        "caption": "Click 'Add New' to create a new work order. Fill in the type, description, priority, site, department, asset, and due date."
+      }
+    },
+    {
+      "id": "TC07_03_FILL_DESC",
+      "action": "type",
+      "target": "input[name='description'], textarea[name='description']",
+      "value": "E2E Test \u2014 Repair excessive vibration on Test Motor 001",
+      "doc_metadata": {
+        "title": "TC-07.1 \u2014 Fill Description",
+        "caption": "Enter \"E2E Test \u2014 Repair excessive vibration on\" into the Description field."
+      }
+    },
+    {
+      "id": "TC07_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-07.1 \u2014 WO Created (Requested)",
+        "caption": "The work order is created with an auto-generated ID (e.g., WO-00001) in the 'Requested' state. Use the workflow dropdown to approve and start the work order.",
+        "manual_hint": "Show the auto-generated ID and Requested state."
+      }
+    },
+    {
+      "id": "TC07_05_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-07.1 \u2014 Work Order Detail",
+        "caption": "The work order detail page shows all fields organized in tabs: Details, Labor, Equipment, Parts, Activities, and Attachments. The header shows the workflow state and available transitions.",
+        "manual_hint": "Full page showing the work order with tabs and workflow controls."
+      }
+    }
+  ]
+}

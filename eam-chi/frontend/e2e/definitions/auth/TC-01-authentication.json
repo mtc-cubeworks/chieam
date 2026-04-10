@@ -1,0 +1,105 @@
+{
+  "name": "TC-01-authentication",
+  "description": "TC-01: Authentication & User Management \u2014 Login, profile, and user CRUD validation",
+  "persona": "Admin",
+  "tags": [
+    "TC-01",
+    "auth",
+    "login",
+    "user-management"
+  ],
+  "steps": [
+    {
+      "id": "TC01_00_CLEAR",
+      "action": "clearSession",
+      "doc_metadata": {
+        "title": "TC-01 \u2014 Clear Session",
+        "caption": "Clear browser cookies and local storage to ensure a clean test state."
+      }
+    },
+    {
+      "id": "TC01_01_LOGIN_PAGE",
+      "action": "goto",
+      "url": "/login",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "input[type='password']"
+        },
+        {
+          "type": "visible",
+          "target": "button[type='submit']"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-01.1 \u2014 Login Page",
+        "caption": "Navigate to the login page. The login form displays with Username and Password fields, along with the organization branding (logo and name).",
+        "manual_hint": "Opening screenshot for the Authentication chapter."
+      }
+    },
+    {
+      "id": "TC01_02_ENTER_CREDS",
+      "action": "type",
+      "target": "[data-testid='login-username'] input, input[placeholder*='username' i]",
+      "value": "admin",
+      "doc_metadata": {
+        "title": "TC-01 \u2014 Fill Form Field",
+        "caption": "Enter \"admin\" into the form field."
+      }
+    },
+    {
+      "id": "TC01_03_ENTER_PASS",
+      "action": "type",
+      "target": "[data-testid='login-password'] input, input[type='password']",
+      "value": "admin123",
+      "doc_metadata": {
+        "title": "TC-01 \u2014 Fill Form Field",
+        "caption": "Enter \"admin123\" into the form field."
+      }
+    },
+    {
+      "id": "TC01_04_SUBMIT",
+      "action": "click",
+      "target": "[data-testid='login-submit'], button[type='submit']",
+      "wait_for": "aside",
+      "timeout": 15000,
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-01.1 \u2014 Successful Login",
+        "caption": "After entering valid credentials and clicking 'Sign In', you are redirected to the Home page. The sidebar displays navigation items based on your role permissions.",
+        "manual_hint": "Show the home page after successful login with sidebar visible."
+      }
+    },
+    {
+      "id": "TC01_05_VERIFY_SIDEBAR",
+      "action": "screenshot",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "[data-testid='sidebar'], aside"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-01.1 \u2014 Sidebar & Navigation",
+        "caption": "The sidebar shows all available modules based on your role. Admin users can see all entities including Settings, Admin, Workflow, and Model Editor sections.",
+        "manual_hint": "Annotate the sidebar sections: Navigation, Modules, Admin."
+      }
+    },
+    {
+      "id": "TC01_06_PROFILE",
+      "action": "click",
+      "target": "[data-testid='user-menu'] button, .p-4.border-t button",
+      "timeout": 5000,
+      "doc_metadata": {
+        "title": "TC-01.5 \u2014 User Menu",
+        "caption": "Click your name/avatar at the bottom of the sidebar to open the user menu. From here you can access your Profile or Logout.",
+        "manual_hint": "Show the user dropdown with Profile and Logout options."
+      }
+    }
+  ]
+}

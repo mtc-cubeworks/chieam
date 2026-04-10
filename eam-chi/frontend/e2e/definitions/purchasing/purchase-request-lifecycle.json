@@ -1,0 +1,74 @@
+{
+  "name": "purchase-request-lifecycle",
+  "description": "Creates a purchase request and validates save and initial workflow state",
+  "persona": "Admin",
+  "tags": [
+    "purchasing",
+    "workflow",
+    "lifecycle",
+    "happy-path"
+  ],
+  "steps": [
+    {
+      "id": "PR_01_NAVIGATE",
+      "action": "goto",
+      "url": "/purchase_request",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Purchase Request List",
+        "caption": "Navigate to the Purchase Request list page. Purchase requests initiate the procurement workflow for materials, spare parts, and services."
+      }
+    },
+    {
+      "id": "PR_02_NEW",
+      "action": "click",
+      "target": "button:has-text('Add New'), [data-testid='btn-new'], button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/purchase_request/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Create New Purchase Request",
+        "caption": "Click 'Add New' to create a new purchase request. Fill in the required fields such as description and requested items."
+      }
+    },
+    {
+      "id": "PR_03_FILL_DESCRIPTION",
+      "action": "type",
+      "target": "input[name='pr_description'], textarea[name='pr_description']",
+      "value": "E2E Test \u2014 Spare parts for pump maintenance",
+      "doc_metadata": {
+        "title": "Fill Form Field",
+        "caption": "Enter \"E2E Test \u2014 Spare parts for pump maintena\" into the Pr Description field."
+      }
+    },
+    {
+      "id": "PR_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "Save Purchase Request",
+        "caption": "Click 'Save' to create the purchase request. It will start in Draft state and can be submitted for approval.",
+        "manual_hint": "Capture the success notification and the workflow state badge."
+      }
+    },
+    {
+      "id": "PR_05_VERIFY_SAVED",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "Purchase Request Details",
+        "caption": "The purchase request is now saved. Use the workflow dropdown to submit it for approval."
+      }
+    }
+  ]
+}

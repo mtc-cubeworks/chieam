@@ -1,0 +1,82 @@
+{
+  "name": "TC-19-vendor-performance",
+  "description": "TC-19.1: Vendor Performance \u2014 View vendor metrics and delivery rating calculations",
+  "persona": "Admin",
+  "tags": [
+    "TC-19",
+    "vendor-performance",
+    "delivery-rating"
+  ],
+  "steps": [
+    {
+      "id": "TC19_01_NAV",
+      "action": "goto",
+      "url": "/vendor",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-19.1 \u2014 Vendor List",
+        "caption": "Navigate to Vendor. Vendor performance metrics are automatically calculated from purchase receipt delivery data."
+      }
+    },
+    {
+      "id": "TC19_02_SCREENSHOT_LIST",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-19.1 \u2014 Vendor Performance Overview",
+        "caption": "The vendor list shows all vendors with their delivery rating, on-time deliveries, late deliveries, quality score, and total orders processed."
+      }
+    },
+    {
+      "id": "TC19_03_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/vendor/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-19.1 \u2014 New Vendor",
+        "caption": "Click 'Add New' to create a vendor. Enter vendor name, contact details, and payment terms. Performance metrics will be calculated automatically as purchase receipts are recorded."
+      }
+    },
+    {
+      "id": "TC19_04_FILL",
+      "action": "type",
+      "target": "input[name='vendor_name'], textarea[name='vendor_name']",
+      "value": "E2E Performance Test Vendor",
+      "doc_metadata": {
+        "title": "TC-19.1 \u2014 Fill Vendor Name",
+        "caption": "Enter \"E2E Performance Test Vendor\" into the Vendor Name field."
+      }
+    },
+    {
+      "id": "TC19_05_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-19.1 \u2014 Vendor Created",
+        "caption": "The vendor is created with initial performance metrics at zero. As PO receipts are processed, delivery_rating, on_time_deliveries, late_deliveries, and quality_rating are updated automatically."
+      }
+    },
+    {
+      "id": "TC19_06_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-19.1 \u2014 Vendor Detail & Metrics",
+        "caption": "The vendor detail page shows contact information, payment terms, and the performance metrics section with delivery rating formula: on_time_deliveries / total_orders \u00d7 100."
+      }
+    }
+  ]
+}

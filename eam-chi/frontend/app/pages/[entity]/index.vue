@@ -664,7 +664,7 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="h-full min-h-0 flex flex-col gap-6 px-3 py-3">
+  <div data-testid="entity-list" class="h-full min-h-0 flex flex-col gap-6 px-3 py-3">
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
@@ -724,6 +724,7 @@ definePageMeta({
               v-else
               icon="i-lucide-plus"
               :disabled="!canCreate"
+              data-testid="btn-new"
               @click="handleCreate"
             >
               Add New
@@ -750,6 +751,7 @@ definePageMeta({
           placeholder="Search..."
           icon="i-lucide-search"
           class="flex-1 min-w-[150px] max-w-[300px]"
+          data-testid="search-input"
         />
         <UButton
           variant="outline"

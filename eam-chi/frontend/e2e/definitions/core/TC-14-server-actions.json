@@ -1,0 +1,96 @@
+{
+  "name": "TC-14-server-actions",
+  "description": "TC-14: Server Actions — Navigate to entities that support server actions (Clone Asset, Calculate RPN, Generate Templates)",
+  "persona": "Admin",
+  "tags": ["TC-14", "server-actions", "clone-asset", "rpn", "5why", "fishbone"],
+  "steps": [
+    {
+      "id": "TC14_01_NAV_ASSET",
+      "action": "goto",
+      "url": "/asset",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-14.1 — Asset List (Clone Action)",
+        "caption": "Navigate to Asset. The 'Clone Asset' server action creates a copy of an existing asset with a new ID and reset fields."
+      }
+    },
+    {
+      "id": "TC14_02_SCREENSHOT_ASSET",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-14.1 — Assets for Cloning",
+        "caption": "Select an asset from the list to access server actions. The 'Clone Asset' action is available from the asset detail page's action menu."
+      }
+    },
+    {
+      "id": "TC14_03_NAV_FA",
+      "action": "goto",
+      "url": "/failure_analysis",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-14.2 — Failure Analysis List (RPN Calculation)",
+        "caption": "Navigate to Failure Analysis. Server actions include 'Calculate RPN' (Risk Priority Number = Severity × Occurrence × Detection), 'Generate 5-Why Template', and 'Generate Fishbone Template'."
+      }
+    },
+    {
+      "id": "TC14_04_SCREENSHOT_FA",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-14.2 — Failure Analysis Overview",
+        "caption": "The failure analysis list shows all failure records with their severity, occurrence, detection ratings, and calculated RPN scores."
+      }
+    },
+    {
+      "id": "TC14_05_NAV_MR",
+      "action": "goto",
+      "url": "/maintenance_request",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-14.5 — Maintenance Request (Generate MO)",
+        "caption": "Navigate to Maintenance Request. The 'Generate Maintenance Order' server action creates a maintenance order with linked work order from an approved MR."
+      }
+    },
+    {
+      "id": "TC14_06_SCREENSHOT_MR",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-14.5 — MR Server Actions",
+        "caption": "Approved maintenance requests support server actions: 'Generate Maintenance Order' (creates MO + WO) and 'Create Purchase Request' (creates PR for required parts)."
+      }
+    },
+    {
+      "id": "TC14_07_NAV_MO",
+      "action": "goto",
+      "url": "/maintenance_order",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-14.5 — Maintenance Order List",
+        "caption": "Navigate to Maintenance Order. Maintenance orders are generated from approved maintenance requests and link to work orders for execution."
+      }
+    },
+    {
+      "id": "TC14_08_SCREENSHOT_MO",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-14.5 — Maintenance Order Overview",
+        "caption": "The maintenance order list shows all generated orders with their source MR, linked WO, status, and assigned resources."
+      }
+    }
+  ]
+}

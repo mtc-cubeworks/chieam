@@ -1,0 +1,83 @@
+{
+  "name": "TC-08-work-order-activity",
+  "description": "TC-08.1: Work Order Activity \u2014 Full activity lifecycle management",
+  "persona": "Admin",
+  "tags": [
+    "TC-08",
+    "work-management",
+    "work-order-activity",
+    "lifecycle"
+  ],
+  "steps": [
+    {
+      "id": "TC08_01_NAV",
+      "action": "goto",
+      "url": "/work_order_activity",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-08.1 \u2014 Work Order Activity List",
+        "caption": "Navigate to Work Order Activity. Activities are individual tasks within a work order that can be assigned to different technicians and tracked independently."
+      }
+    },
+    {
+      "id": "TC08_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-08.1 \u2014 Activity List Overview",
+        "caption": "The activity list shows all work order activities with their status, assigned worker, and parent work order. Activities progress through: Awaiting Resources \u2192 Ready \u2192 In Progress \u2192 On Hold \u2192 Complete \u2192 Closed."
+      }
+    },
+    {
+      "id": "TC08_03_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/work_order_activity/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-08.1 \u2014 New Activity",
+        "caption": "Click 'Add New' to create a work order activity. Link it to a parent work order, assign a worker, and specify the task description."
+      }
+    },
+    {
+      "id": "TC08_04_FILL",
+      "action": "type",
+      "target": "input[name='description'], textarea[name='description'], input[name='activity_description'], textarea[name='activity_description'], input[name='name'], textarea[name='name']",
+      "value": "E2E Bearing replacement \u2014 Motor Assembly",
+      "doc_metadata": {
+        "title": "TC-08.1 \u2014 Fill Description",
+        "caption": "Enter \"E2E Bearing replacement \u2014 Motor Assembly\" into the Description field."
+      }
+    },
+    {
+      "id": "TC08_05_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-08.1 \u2014 Activity Created",
+        "caption": "The activity is created in 'Awaiting Resources' state. Allocate resources to move it to 'Ready', then start work to move to 'In Progress'."
+      }
+    },
+    {
+      "id": "TC08_06_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-08.1 \u2014 Activity Detail",
+        "caption": "The activity detail page shows the task description, assigned worker, parent work order, estimated hours, and workflow state. Use the workflow dropdown to progress the activity through its lifecycle."
+      }
+    }
+  ]
+}

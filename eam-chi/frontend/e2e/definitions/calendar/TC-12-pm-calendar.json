@@ -1,0 +1,71 @@
+{
+  "name": "TC-12-pm-calendar",
+  "description": "TC-12.1: PM Calendar — Navigate to calendar view, verify layout, and explore scheduling features",
+  "persona": "Admin",
+  "tags": ["TC-12", "pm-calendar", "maintenance", "scheduling"],
+  "steps": [
+    {
+      "id": "TC12_01_NAV",
+      "action": "goto",
+      "url": "/calendar",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-12.1 — PM Calendar",
+        "caption": "Navigate to the PM Calendar page. The calendar provides a visual overview of all scheduled preventive maintenance activities organized by date."
+      }
+    },
+    {
+      "id": "TC12_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-12.1 — Calendar Month View",
+        "caption": "The PM Calendar displays scheduled maintenance tasks in a monthly view. Tasks are color-coded by status: Draft (slate), Pending (amber), Approved (blue), Release (violet), Completed (green)."
+      }
+    },
+    {
+      "id": "TC12_03_NAV_MA",
+      "action": "goto",
+      "url": "/maintenance_activity",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-12.3 — Maintenance Activity List",
+        "caption": "Navigate to Maintenance Activity. Activities are created from the PM Calendar and represent scheduled preventive maintenance tasks."
+      }
+    },
+    {
+      "id": "TC12_04_SCREENSHOT_MA",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-12.3 — Maintenance Activities",
+        "caption": "The maintenance activity list shows all scheduled activities with their status, due date, assigned resource, and linked work orders."
+      }
+    },
+    {
+      "id": "TC12_05_NAV_PMA",
+      "action": "goto",
+      "url": "/pm_activity",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-12.3 — PM Activity List",
+        "caption": "Navigate to PM Activity. PM Activities define reusable preventive maintenance templates with task sequences, checklists, and resource requirements."
+      }
+    },
+    {
+      "id": "TC12_06_SCREENSHOT_PMA",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-12.3 — PM Activity Templates",
+        "caption": "PM Activity templates define standard maintenance procedures that are instantiated when scheduled maintenance is triggered."
+      }
+    }
+  ]
+}

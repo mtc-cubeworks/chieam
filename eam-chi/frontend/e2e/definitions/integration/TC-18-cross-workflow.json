@@ -1,0 +1,118 @@
+{
+  "name": "TC-18-cross-workflow-integration",
+  "description": "TC-18: Cross-Workflow Integration — Navigate through MR → WO, MR → PR, and WO → Safety Permit chains",
+  "persona": "Admin",
+  "tags": ["TC-18", "integration", "cross-workflow", "chain"],
+  "steps": [
+    {
+      "id": "TC18_01_NAV_MR",
+      "action": "goto",
+      "url": "/maintenance_request",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-18.1 — Maintenance Request (Integration Source)",
+        "caption": "Navigate to Maintenance Request. MRs serve as the starting point for cross-workflow integration chains: MR → Work Order, MR → Purchase Request."
+      }
+    },
+    {
+      "id": "TC18_02_SCREENSHOT_MR",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-18.1 — MR Integration Overview",
+        "caption": "Approved maintenance requests can trigger: 'Generate Maintenance Order' (creates MO + WO) and 'Create Purchase Request' (creates PR for parts). These server actions link entities across modules."
+      }
+    },
+    {
+      "id": "TC18_03_NAV_WO",
+      "action": "goto",
+      "url": "/work_order",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-18.3 — Work Order (Integration Hub)",
+        "caption": "Navigate to Work Order. Work orders link to safety permits, labor, parts, equipment, and activities. WOs with LOTO Required = Yes should have linked safety permits."
+      }
+    },
+    {
+      "id": "TC18_04_SCREENSHOT_WO",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-18.3 — Work Order Integration Points",
+        "caption": "Work orders serve as the central hub for cross-module integration. Child records include labor, parts, equipment, activities, and safety permits."
+      }
+    },
+    {
+      "id": "TC18_05_NAV_SP",
+      "action": "goto",
+      "url": "/safety_permit",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-18.3 — Safety Permits (WO Integration)",
+        "caption": "Safety permits are linked to work orders requiring hazardous work authorization. The WO → Safety Permit chain ensures proper safety compliance."
+      }
+    },
+    {
+      "id": "TC18_06_SCREENSHOT_SP",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-18.3 — Safety Permit → Work Order Link",
+        "caption": "Safety permits show the linked work order in their detail view. Active permits must be verified before work order execution can begin."
+      }
+    },
+    {
+      "id": "TC18_07_NAV_PR",
+      "action": "goto",
+      "url": "/purchase_request",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-18.2 — Purchase Request (MR Integration)",
+        "caption": "Navigate to Purchase Request. PRs can be generated from maintenance requests to procure required parts and materials."
+      }
+    },
+    {
+      "id": "TC18_08_SCREENSHOT_PR",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-18.2 — MR → PR Integration",
+        "caption": "Purchase requests generated from maintenance requests carry the requestor, site, department, and required items from the source MR."
+      }
+    },
+    {
+      "id": "TC18_09_NAV_VENDOR",
+      "action": "goto",
+      "url": "/vendor",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-18.5 — Vendor Performance",
+        "caption": "Navigate to Vendor. Vendor performance is automatically calculated based on purchase receipt delivery data."
+      }
+    },
+    {
+      "id": "TC18_10_SCREENSHOT_VENDOR",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-18.5 — Vendor Performance Metrics",
+        "caption": "The vendor list shows delivery ratings, on-time delivery percentages, quality scores, and total orders. These metrics are auto-calculated from purchase receipt records."
+      }
+    }
+  ]
+}

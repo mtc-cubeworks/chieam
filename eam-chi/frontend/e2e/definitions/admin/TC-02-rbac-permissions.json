@@ -1,0 +1,71 @@
+{
+  "name": "TC-02-rbac-permissions",
+  "description": "TC-02.1: RBAC Permission Matrix — Navigate to permissions configuration and verify role/entity matrix",
+  "persona": "Admin",
+  "tags": ["TC-02", "rbac", "permissions", "admin"],
+  "steps": [
+    {
+      "id": "TC02_01_NAV_ADMIN",
+      "action": "goto",
+      "url": "/admin",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-02.1 — Admin Panel",
+        "caption": "Navigate to the Admin panel to access role and permission configuration."
+      }
+    },
+    {
+      "id": "TC02_02_SCREENSHOT_ADMIN",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-02.1 — Admin Overview",
+        "caption": "The Admin panel provides access to user management, role configuration, and permission matrix settings."
+      }
+    },
+    {
+      "id": "TC02_03_NAV_ROLE",
+      "action": "goto",
+      "url": "/role",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-02.1 — Role List",
+        "caption": "Navigate to the Role entity. Roles define what actions users can perform on each entity type."
+      }
+    },
+    {
+      "id": "TC02_04_SCREENSHOT_ROLES",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-02.1 — Role Configuration",
+        "caption": "The role list shows all configured roles (Admin, Manager, Technician, Viewer, etc.) with their associated permissions and data scopes."
+      }
+    },
+    {
+      "id": "TC02_05_NAV_PERMISSION",
+      "action": "goto",
+      "url": "/permission",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-02.1 — Permission Matrix",
+        "caption": "Navigate to the Permission entity. The permission matrix defines Create, Read, Update, Delete (CRUD) access per role per entity."
+      }
+    },
+    {
+      "id": "TC02_06_SCREENSHOT_PERM",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-02.1 — Permission Matrix Detail",
+        "caption": "The permission matrix shows each role-entity combination with granular CRUD controls. Admins can toggle individual permissions to restrict or grant access."
+      }
+    }
+  ]
+}

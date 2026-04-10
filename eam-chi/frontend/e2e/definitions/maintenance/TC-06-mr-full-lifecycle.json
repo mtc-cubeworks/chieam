@@ -1,0 +1,110 @@
+{
+  "name": "TC-06-maintenance-request-lifecycle-full",
+  "description": "TC-06.1-06.4: Maintenance Request \u2014 Standard flow, emergency bypass, reopen, and SLA field verification",
+  "persona": "Admin",
+  "tags": [
+    "TC-06",
+    "maintenance",
+    "maintenance-request",
+    "workflow",
+    "lifecycle",
+    "sla"
+  ],
+  "steps": [
+    {
+      "id": "TC06_FULL_01_NAV",
+      "action": "goto",
+      "url": "/maintenance_request",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-06.1 \u2014 Maintenance Request List",
+        "caption": "Navigate to Maintenance Request. MRs progress through: Draft \u2192 Pending Approval \u2192 Approved \u2192 Release \u2192 Completed. Emergency MRs can bypass the approval queue."
+      }
+    },
+    {
+      "id": "TC06_FULL_02_SCREENSHOT_LIST",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-06.1 \u2014 MR List Overview",
+        "caption": "The maintenance request list shows all MRs with their priority, status, requester, and SLA indicator. Filter by status to see pending, approved, or completed requests."
+      }
+    },
+    {
+      "id": "TC06_FULL_03_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/maintenance_request/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-06.1 \u2014 New MR Form",
+        "caption": "Click 'Add New' to create a maintenance request. Enter the description, priority (Low/Medium/High/Emergency), site, department, and requested by information."
+      }
+    },
+    {
+      "id": "TC06_FULL_04_FILL",
+      "action": "type",
+      "target": "input[name='description'], textarea[name='description']",
+      "value": "E2E Full Lifecycle \u2014 Pump vibration above threshold",
+      "doc_metadata": {
+        "title": "TC-06.1 \u2014 Fill Description",
+        "caption": "Enter \"E2E Full Lifecycle \u2014 Pump vibration abov\" into the Description field."
+      }
+    },
+    {
+      "id": "TC06_FULL_05_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-06.1 \u2014 MR Created (Draft)",
+        "caption": "The maintenance request is created in 'Draft' state with an auto-generated ID (e.g., MR-00001). Submit for approval to advance the workflow."
+      }
+    },
+    {
+      "id": "TC06_FULL_06_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-06.1 \u2014 MR Detail View",
+        "caption": "The MR detail page shows all fields, priority badge, workflow state, and SLA tracking fields. SLA Response Due and SLA Resolution Due are auto-populated based on priority level."
+      }
+    },
+    {
+      "id": "TC06_FULL_07_NAV_CHECKLIST",
+      "action": "goto",
+      "url": "/checklist",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-06 \u2014 Checklist List",
+        "caption": "Navigate to Checklist. Checklists are linked to maintenance requests and work orders to ensure all required inspection points are completed."
+      }
+    },
+    {
+      "id": "TC06_FULL_08_SCREENSHOT_CL",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-06 \u2014 Checklist Overview",
+        "caption": "The checklist list shows all inspection checklists with their linked entity, completion status, and number of items checked."
+      }
+    }
+  ]
+}

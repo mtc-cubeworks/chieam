@@ -1,0 +1,84 @@
+{
+  "name": "TC-09-safety-permit-lifecycle",
+  "description": "TC-09.1: Safety Permit Full Lifecycle \u2014 Draft \u2192 Requested \u2192 Approved \u2192 Active \u2192 Expired, plus permit types",
+  "persona": "Admin",
+  "tags": [
+    "TC-09",
+    "safety-permit",
+    "workflow",
+    "lifecycle",
+    "permit-types"
+  ],
+  "steps": [
+    {
+      "id": "TC09_LC_01_NAV",
+      "action": "goto",
+      "url": "/safety_permit",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-09.1 \u2014 Safety Permit List",
+        "caption": "Navigate to Safety Permit. Safety permits ensure proper authorization before hazardous maintenance tasks. Permit types include LOTO, Hot Work, Confined Space, Excavation, Working at Height, and Electrical."
+      }
+    },
+    {
+      "id": "TC09_LC_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-09.1 \u2014 Safety Permit Overview",
+        "caption": "The safety permit list shows all permits with their type, status, valid dates, and linked work orders. Color-coded status badges indicate the current lifecycle state."
+      }
+    },
+    {
+      "id": "TC09_LC_03_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/safety_permit/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-09.1 \u2014 New Safety Permit Form",
+        "caption": "The safety permit form includes fields for permit type, work order link, hazards identified, precautions required, PPE requirements, and emergency contact information."
+      }
+    },
+    {
+      "id": "TC09_LC_04_FILL_TYPE",
+      "action": "type",
+      "target": "input[name='hazards_identified'], textarea[name='hazards_identified']",
+      "value": "E2E Lifecycle Test \u2014 Electrical hazard, arc flash risk",
+      "doc_metadata": {
+        "title": "TC-09.1 \u2014 Fill Hazards Identified",
+        "caption": "Enter \"E2E Lifecycle Test \u2014 Electrical hazard, \" into the Hazards Identified field."
+      }
+    },
+    {
+      "id": "TC09_LC_05_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-09.1 \u2014 Permit Created (Draft)",
+        "caption": "The safety permit is created in 'Draft' state. The workflow progresses: Draft \u2192 Submit Request \u2192 Requested \u2192 Approve \u2192 Approved \u2192 Activate \u2192 Active \u2192 Expire \u2192 Expired \u2192 Renew \u2192 Draft."
+      }
+    },
+    {
+      "id": "TC09_LC_06_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-09.1 \u2014 Safety Permit Detail",
+        "caption": "The safety permit detail page shows all safety-related fields, the workflow state badge, and available transition actions. The permit must be approved by a safety officer before activation."
+      }
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "name": "TC-11-blanket-contract-po",
+  "description": "TC-11.3 & TC-11.4: Blanket & Contract Purchase Orders — Create POs with different types and verify type-specific fields",
+  "persona": "Admin",
+  "tags": ["TC-11", "purchasing", "purchase-order", "blanket", "contract"],
+  "steps": [
+    {
+      "id": "TC11_BPO_01_NAV",
+      "action": "goto",
+      "url": "/purchase_order",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-11.3 — Purchase Order List",
+        "caption": "Navigate to Purchase Order. PO types include Standard (one-time), Blanket (spending limit), and Contract (date range)."
+      }
+    },
+    {
+      "id": "TC11_BPO_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-11.3 — Purchase Order Overview",
+        "caption": "The purchase order list displays all POs with their type, vendor, status, and total amount. Filter by PO type to view specific categories."
+      }
+    },
+    {
+      "id": "TC11_BPO_03_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        { "type": "urlContains", "value": "/purchase_order/new" }
+      ],
+      "doc_metadata": {
+        "title": "TC-11.3 — New Blanket PO Form",
+        "caption": "Create a new purchase order. Select PO Type = 'Blanket' to create a blanket order with a spending limit. The Blanket Limit and Released Amount fields appear for this type."
+      }
+    },
+    {
+      "id": "TC11_BPO_04_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-11.3 — Blanket PO Form Fields",
+        "caption": "The blanket PO form shows type-specific fields: Blanket Limit (maximum spending), Released Amount (amount already released), and vendor selection. These fields control spending authorization."
+      }
+    },
+    {
+      "id": "TC11_BPO_05_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-11.3 — Blanket PO Created",
+        "caption": "The blanket purchase order is created in Draft state. Approve to make it active. Releases against this PO are tracked against the spending limit."
+      }
+    },
+    {
+      "id": "TC11_BPO_06_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-11.3 — Blanket PO Detail",
+        "caption": "The blanket PO detail shows the spending limit, released amount, remaining balance, and associated release orders."
+      }
+    },
+    {
+      "id": "TC11_CPO_01_NAV",
+      "action": "goto",
+      "url": "/purchase_order/new",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-11.4 — New Contract PO Form",
+        "caption": "Create another purchase order. Select PO Type = 'Contract' to create a contract-based order with start and end dates."
+      }
+    },
+    {
+      "id": "TC11_CPO_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-11.4 — Contract PO Form Fields",
+        "caption": "The contract PO form shows type-specific fields: Contract Start Date, Contract End Date, and terms. These control the validity period of the procurement agreement."
+      }
+    }
+  ]
+}

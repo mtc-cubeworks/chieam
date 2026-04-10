@@ -1,0 +1,120 @@
+{
+  "name": "TC-07-work-order-child-records",
+  "description": "TC-07.3: Work Order Child Records — View WO labor, parts, and equipment tabs",
+  "persona": "Admin",
+  "tags": ["TC-07", "work-management", "work-order", "labor", "parts", "equipment"],
+  "steps": [
+    {
+      "id": "TC07_CHILD_01_NAV",
+      "action": "goto",
+      "url": "/work_order",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-07.3 — Work Order List",
+        "caption": "Navigate to Work Order. Work orders contain child records for labor, parts, and equipment tracking."
+      }
+    },
+    {
+      "id": "TC07_CHILD_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-07.3 — Work Order List Overview",
+        "caption": "The work order list shows all work orders with their status, priority, type, and assigned resources."
+      }
+    },
+    {
+      "id": "TC07_LABOR_01_NAV",
+      "action": "goto",
+      "url": "/work_order_labor",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-07.3 — Work Order Labor List",
+        "caption": "Navigate to Work Order Labor. Labor records track hours spent by technicians on each work order."
+      }
+    },
+    {
+      "id": "TC07_LABOR_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        { "type": "urlContains", "value": "/work_order_labor/new" }
+      ],
+      "doc_metadata": {
+        "title": "TC-07.3 — New Labor Entry",
+        "caption": "Click 'Add New' to record labor hours. Specify the employee, hours worked, hourly rate, and trade type."
+      }
+    },
+    {
+      "id": "TC07_LABOR_03_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-07.3 — Labor Entry Form",
+        "caption": "The labor entry form captures employee, hours, rate, and total cost. The system calculates the line total (hours × rate) automatically."
+      }
+    },
+    {
+      "id": "TC07_PARTS_01_NAV",
+      "action": "goto",
+      "url": "/work_order_parts",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-07.3 — Work Order Parts List",
+        "caption": "Navigate to Work Order Parts. Parts records track materials and spare parts consumed during maintenance work."
+      }
+    },
+    {
+      "id": "TC07_PARTS_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        { "type": "urlContains", "value": "/work_order_parts/new" }
+      ],
+      "doc_metadata": {
+        "title": "TC-07.3 — New Parts Entry",
+        "caption": "Click 'Add New' to record parts consumed. Select the item, quantity, and unit price."
+      }
+    },
+    {
+      "id": "TC07_PARTS_03_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-07.3 — Parts Entry Form",
+        "caption": "The parts entry form captures item, quantity, unit price, and calculated total. Parts consumption is deducted from inventory when the work order is completed."
+      }
+    },
+    {
+      "id": "TC07_EQUIP_01_NAV",
+      "action": "goto",
+      "url": "/work_order_equipment",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-07.3 — Work Order Equipment List",
+        "caption": "Navigate to Work Order Equipment. Equipment records track tools and vehicles used during work order execution."
+      }
+    },
+    {
+      "id": "TC07_EQUIP_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-07.3 — Work Order Equipment Overview",
+        "caption": "The work order equipment list shows all equipment assigned to work orders with usage hours and associated costs."
+      }
+    }
+  ]
+}

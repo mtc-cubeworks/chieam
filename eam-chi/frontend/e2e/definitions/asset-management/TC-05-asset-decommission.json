@@ -1,0 +1,104 @@
+{
+  "name": "TC-05-asset-workflow-decommission",
+  "description": "TC-05.1 & TC-05.2: Asset Workflow \u2014 Full lifecycle including Send to Vendor path and Decommission",
+  "persona": "Admin",
+  "tags": [
+    "TC-05",
+    "asset-management",
+    "workflow",
+    "lifecycle",
+    "decommission"
+  ],
+  "steps": [
+    {
+      "id": "TC05_01_NAV",
+      "action": "goto",
+      "url": "/asset",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-05.1 \u2014 Asset Workflow States",
+        "caption": "Navigate to Asset. The complete asset lifecycle includes: Acquired \u2192 Received \u2192 Inspected \u2192 Installed \u2192 Active \u2192 various maintenance paths \u2192 Retire \u2192 Inactive \u2192 Decommissioned."
+      }
+    },
+    {
+      "id": "TC05_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-05.1 \u2014 Asset List with Workflow States",
+        "caption": "The asset list shows each asset's current workflow state. State transitions are controlled by role permissions and business rules."
+      }
+    },
+    {
+      "id": "TC05_03_NAV_NEW",
+      "action": "goto",
+      "url": "/asset/new",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "form"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-05.1 \u2014 Asset Creation for Lifecycle Test",
+        "caption": "Create a new asset to test the complete lifecycle. Fill in description and required fields."
+      }
+    },
+    {
+      "id": "TC05_04_FILL",
+      "action": "type",
+      "target": "input[name='description'], textarea[name='description']",
+      "value": "E2E Lifecycle Test \u2014 Full Decommission Path",
+      "doc_metadata": {
+        "title": "TC-05.1 \u2014 Fill Description",
+        "caption": "Enter \"E2E Lifecycle Test \u2014 Full Decommission P\" into the Description field."
+      }
+    },
+    {
+      "id": "TC05_05_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-05.1 \u2014 Asset Created (Acquired)",
+        "caption": "The asset is created in 'Acquired' state. The full lifecycle path is: Acquired \u2192 Receive \u2192 Inspected \u2192 Install \u2192 Active \u2192 Retire \u2192 Inactive \u2192 Remove \u2192 Decommissioned."
+      }
+    },
+    {
+      "id": "TC05_06_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-05.1 \u2014 Asset Lifecycle Transitions",
+        "caption": "The asset detail page shows available workflow transitions in the dropdown. Each transition moves the asset to the next lifecycle state with an audit trail entry."
+      }
+    },
+    {
+      "id": "TC05_07_NAV_WF",
+      "action": "goto",
+      "url": "/workflow",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-05 \u2014 Workflow Configuration",
+        "caption": "Navigate to Workflow management to view all configured workflow definitions. Each entity type has its own workflow with states and transitions."
+      }
+    },
+    {
+      "id": "TC05_08_SCREENSHOT_WF",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-05 \u2014 Workflow Definitions",
+        "caption": "The workflow configuration page shows all entity workflows with their states, transitions, and role restrictions. The asset workflow has the most complex state machine."
+      }
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "name": "TC-03-vendor-item",
+  "description": "TC-03: Vendor and Item (Inventory Item) Setup",
+  "persona": "Admin",
+  "tags": [
+    "TC-03",
+    "master-data",
+    "vendor",
+    "item",
+    "inventory"
+  ],
+  "steps": [
+    {
+      "id": "TC03_VENDOR_01_NAV",
+      "action": "goto",
+      "url": "/vendor",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03 \u2014 Vendor List",
+        "caption": "Navigate to Vendor. Vendors supply materials, spare parts, and services. Their performance is tracked automatically based on purchase receipts."
+      }
+    },
+    {
+      "id": "TC03_VENDOR_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/vendor/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03 \u2014 Add New",
+        "caption": "Click the Add New button to open the creation form."
+      }
+    },
+    {
+      "id": "TC03_VENDOR_03_FILL",
+      "action": "type",
+      "target": "input[name='vendor_name']",
+      "value": "E2E Vendor \u2014 Industrial Parts Co.",
+      "doc_metadata": {
+        "title": "TC-03 \u2014 Fill Vendor Name",
+        "caption": "Enter \"E2E Vendor \u2014 Industrial Parts Co.\" into the Vendor Name field."
+      }
+    },
+    {
+      "id": "TC03_VENDOR_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-03 \u2014 Vendor Created",
+        "caption": "The vendor record is created. Performance ratings (delivery, quality, overall) are auto-calculated from purchase receipts. A new vendor starts with default/zero ratings.",
+        "manual_hint": "Show the vendor with performance rating fields."
+      }
+    },
+    {
+      "id": "TC03_VENDOR_05_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03 \u2014 Vendor Detail",
+        "caption": "The vendor detail shows contact information, performance ratings, and linked purchase orders. Ratings update automatically when purchase receipts are processed."
+      }
+    },
+    {
+      "id": "TC03_ITEM_06_NAV",
+      "action": "goto",
+      "url": "/item",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03 \u2014 Item (Inventory) List",
+        "caption": "Navigate to Item. Items represent materials, spare parts, and consumables tracked in inventory. They are used in purchase requests, purchase orders, and work order parts."
+      }
+    },
+    {
+      "id": "TC03_ITEM_07_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/item/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03 \u2014 Add New",
+        "caption": "Click the Add New button to open the creation form."
+      }
+    },
+    {
+      "id": "TC03_ITEM_08_FILL",
+      "action": "type",
+      "target": "input[name='description'], textarea[name='description']",
+      "value": "E2E Bearing SKF 6206",
+      "doc_metadata": {
+        "title": "TC-03 \u2014 Fill Description",
+        "caption": "Enter \"E2E Bearing SKF 6206\" into the Description field."
+      }
+    },
+    {
+      "id": "TC03_ITEM_09_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-03 \u2014 Item Created",
+        "caption": "The item is created with its name and default properties. Items track stock levels, reorder points, and are linked to stores for inventory management.",
+        "manual_hint": "Show the item detail with inventory fields."
+      }
+    },
+    {
+      "id": "TC03_ITEM_10_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03 \u2014 Item Detail",
+        "caption": "The item detail view shows name, unit of measure, stock levels, reorder point, and storage locations. Items are referenced in PR lines, PO lines, and WO parts."
+      }
+    }
+  ]
+}

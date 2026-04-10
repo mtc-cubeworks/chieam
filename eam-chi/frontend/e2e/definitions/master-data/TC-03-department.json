@@ -1,0 +1,73 @@
+{
+  "name": "TC-03-master-data-department",
+  "description": "TC-03.1: Create Department linked to Site",
+  "persona": "Admin",
+  "tags": [
+    "TC-03",
+    "master-data",
+    "department"
+  ],
+  "steps": [
+    {
+      "id": "TC03_DEPT_01_NAV",
+      "action": "goto",
+      "url": "/department",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Department List",
+        "caption": "Navigate to Department. Departments are organizational units within a site, used for cost allocation and team-level data scoping."
+      }
+    },
+    {
+      "id": "TC03_DEPT_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/department/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Add New",
+        "caption": "Click the Add New button to open the creation form."
+      }
+    },
+    {
+      "id": "TC03_DEPT_03_FILL_NAME",
+      "action": "type",
+      "target": "input[name='department_name']",
+      "value": "E2E Department X",
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Fill Department Name",
+        "caption": "Enter \"E2E Department X\" into the Department Name field."
+      }
+    },
+    {
+      "id": "TC03_DEPT_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Department Saved",
+        "caption": "The department is created and linked to its parent site. Departments are used for team-level data scoping (scope=team) in the RBAC system.",
+        "manual_hint": "Show the department with its site linkage."
+      }
+    },
+    {
+      "id": "TC03_DEPT_05_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Hierarchy Complete",
+        "caption": "With Organization \u2192 Site \u2192 Department created, the organizational hierarchy is established. This hierarchy is used for data scoping, cost allocation, and reporting."
+      }
+    }
+  ]
+}

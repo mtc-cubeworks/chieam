@@ -1,0 +1,52 @@
+{
+  "name": "TC-15-sla-tracking",
+  "description": "TC-15.1 & TC-15.2: SLA Tracking — View SLA fields on MR and WO entities",
+  "persona": "Admin",
+  "tags": ["TC-15", "sla", "tracking", "escalation"],
+  "steps": [
+    {
+      "id": "TC15_01_NAV_MR",
+      "action": "goto",
+      "url": "/maintenance_request",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-15.1 — MR SLA Tracking",
+        "caption": "Navigate to Maintenance Request. SLA tracking fields are auto-populated when an MR is submitted based on its priority level."
+      }
+    },
+    {
+      "id": "TC15_02_SCREENSHOT_MR",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-15.1 — MR SLA Fields",
+        "caption": "The maintenance request list shows SLA status indicators. High-priority MRs have shorter response and resolution SLA targets. Fields include: SLA Response Due, SLA Resolution Due, SLA Status, Is Overdue."
+      }
+    },
+    {
+      "id": "TC15_03_NAV_WO",
+      "action": "goto",
+      "url": "/work_order",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-15.2 — WO SLA Tracking",
+        "caption": "Navigate to Work Order. Work orders have stage-based SLA targets: Requested (8h), Approved (24h), In Progress (72h). SLA status updates automatically."
+      }
+    },
+    {
+      "id": "TC15_04_SCREENSHOT_WO",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-15.2 — WO SLA Status",
+        "caption": "The work order list shows SLA tracking per stage. As work orders progress through their lifecycle, SLA timers reset for each stage with appropriate targets."
+      }
+    }
+  ]
+}

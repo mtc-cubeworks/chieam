@@ -1,1556 +1,846 @@
-# EAM-CHI User Manual
+# EAM System — User Manual
 
-**Enterprise Asset Management — CHI**
-**Version 1.1 | March 2026**
-
----
+> Auto-generated from 90 screenshots across 21 workflows.
+> Generated at: 2026-04-10T01:29:54.919Z
 
 ## Table of Contents
 
-1. [Introduction](#1-introduction)
-2. [Getting Started](#2-getting-started)
-3. [Dashboard & Navigation](#3-dashboard--navigation)
-4. [Core EAM (Master Data)](#4-core-eam-master-data)
-5. [Asset Management](#5-asset-management)
-6. [Maintenance Management](#6-maintenance-management)
-7. [Work Management](#7-work-management)
-8. [Purchasing & Stores](#8-purchasing--stores)
-9. [PM Calendar](#9-pm-calendar)
-10. [Reports & Analytics](#10-reports--analytics)
-11. [Administration](#11-administration)
-12. [Workflows & State Machines](#12-workflows--state-machines)
-13. [Import & Export](#13-import--export)
-14. [Known Limitations & Edge Cases](#14-known-limitations--edge-cases)
-15. [Appendix A — Entity Reference](#appendix-a--entity-reference)
-16. [Appendix B — Keyboard Shortcuts & Tips](#appendix-b--keyboard-shortcuts--tips)
+1. [Asset Management](#asset-management)
+   1.1. [TC 04 Asset Create](#tc-04-asset-create)
+   1.2. [Asset Lifecycle](#asset-lifecycle)
+2. [Condition Monitoring](#condition-monitoring)
+   2.1. [TC 10 Condition Monitoring](#tc-10-condition-monitoring)
+3. [Authentication](#authentication)
+   3.1. [TC 01 Authentication](#tc-01-authentication)
+   3.2. [Login Edge Cases](#login-edge-cases)
+   3.3. [Login Happy Path](#login-happy-path)
+4. [Dashboard](#dashboard)
+   4.1. [Dashboard Overview](#dashboard-overview)
+5. [General Features](#general-features)
+   5.1. [Entity List Features](#entity-list-features)
+6. [Navigation](#navigation)
+   6.1. [Sidebar Navigation](#sidebar-navigation)
+7. [Maintenance](#maintenance)
+   7.1. [TC 06 Maintenance Request](#tc-06-maintenance-request)
+   7.2. [Maintenance Request Lifecycle](#maintenance-request-lifecycle)
+8. [Master Data](#master-data)
+   8.1. [TC 03 Master Data Department](#tc-03-master-data-department)
+   8.2. [TC 03 Employee Labor](#tc-03-employee-labor)
+   8.3. [TC 03 Master Data Organization](#tc-03-master-data-organization)
+   8.4. [TC 03 Master Data Site](#tc-03-master-data-site)
+   8.5. [TC 03 Vendor Item](#tc-03-vendor-item)
+9. [Purchasing & Stores](#purchasing-&-stores)
+   9.1. [TC 11 Purchasing Pr Po](#tc-11-purchasing-pr-po)
+   9.2. [Purchase Request Lifecycle](#purchase-request-lifecycle)
+10. [Work Management](#work-management)
+   10.1. [TC 07 Work Order](#tc-07-work-order)
+   10.2. [Work Order Lifecycle](#work-order-lifecycle)
+11. [Safety Permits](#safety-permits)
+   11.1. [TC 09 Safety Permit](#tc-09-safety-permit)
+12. [Troubleshooting](#troubleshooting)
 
 ---
 
-## 1. Introduction
+## 1. Asset Management
 
-### 1.1 Purpose
+### 1.1. TC 04 Asset Create
 
-EAM-CHI is an Enterprise Asset Management system designed for CHI operations. It provides comprehensive lifecycle management of physical assets, preventive and corrective maintenance planning, work order management, inventory control, and procurement workflows.
+Navigate to Asset Management → Asset. The asset list shows all registered assets with their current lifecycle state, site, and criticality.
 
-### 1.2 System Overview
+**Step 1: TC-04.1 — Asset List**
 
-| Component | Technology |
-|-----------|-----------|
-| Frontend | Nuxt.js 3 (Vue 3) |
-| Backend | FastAPI (Python) with async SQLAlchemy 2.0 |
-| Database | PostgreSQL |
-| Real-time | Socket.IO |
-| Authentication | JWT + Refresh Tokens |
+Navigate to Asset Management → Asset. The asset list shows all registered assets with their current lifecycle state, site, and criticality.
 
-### 1.3 Modules
 
-| Module | Description |
-|--------|-------------|
-| **Core EAM** | Master data: organizations, sites, departments, employees, labor, trades, schedules, manufacturers |
-| **Asset Management** | Assets, equipment, locations, positions, meters, condition monitoring, incidents |
-| **Maintenance Management** | Maintenance requests, orders, plans, activities, PM scheduling, failure analysis, inspections |
-| **Work Management** | Work orders, activities, labor assignments, parts, checklists, job plans, safety permits |
-| **Purchasing & Stores** | Purchase requests, purchase orders, vendors, items, inventory, stock counts, goods receipts |
+![TC-04.1 — Asset List](eam-chi/frontend/test-artifacts/screenshots/TC-04-asset-create__TC04_01_NAV.png)
 
-### 1.4 Conventions Used in This Manual
+**Step 2: TC-04.1 — New Asset Form**
 
-- **Bold** — UI element names (buttons, fields, menus)
-- `Monospace` — System values, codes, or entity names
-- *Italic* — Emphasis or notes
-- 🔒 — Requires specific role/permission
-- ⚙️ — Automated by the system
+Click 'Add New' to open the asset creation form. The form includes fields for description, asset class, site, department, manufacturer, and more.
 
----
 
-## 2. Getting Started
+![TC-04.1 — New Asset Form](eam-chi/frontend/test-artifacts/screenshots/TC-04-asset-create__TC04_02_NEW.png)
 
-### 2.1 Logging In
+**Step 3: TC-04.1 — Asset Created**
 
-1. Open the application URL in your browser.
-2. Enter your **Username** and **Password**.
-3. Click **Login**.
+Click 'Create' to save the asset. The system assigns an auto-generated ID (e.g., A-00001) and sets the initial workflow state to 'Acquired'.
 
-The system authenticates via JWT tokens. Your session remains active until the token expires, at which point it is automatically refreshed.
 
-### 2.2 First Login (Setup Wizard)
+![TC-04.1 — Asset Created](eam-chi/frontend/test-artifacts/screenshots/TC-04-asset-create__TC04_04_SAVE.png)
 
-On first access to a fresh installation, the **Setup Wizard** guides you through:
+**Step 4: TC-04.1 — Asset Detail View**
 
-1. Creating the initial **Organization** record
-2. Setting up at least one **Site**
-3. Creating the first **Admin User**
-4. Configuring basic **Branding** (logo, colors)
+The asset detail page shows all fields organized in tabs. The workflow state badge in the header indicates the current lifecycle state. Use the workflow dropdown to transition the asset through its lifecycle.
 
-### 2.3 User Profile
 
-Access your profile via the user avatar in the top-right corner:
-
-- **Profile** — Update your name, email, contact number
-- **Change Password** — Update your password
-- **Logout** — End your session
-
-### 2.4 System Requirements
-
-| Requirement | Minimum |
-|-------------|---------|
-| Browser | Chrome 90+, Firefox 88+, Safari 15+, Edge 90+ |
-| Screen | 1280 × 720 minimum (1920 × 1080 recommended) |
-| Network | Stable internet connection for real-time features |
+![TC-04.1 — Asset Detail View](eam-chi/frontend/test-artifacts/screenshots/TC-04-asset-create__TC04_05_VERIFY_STATE.png)
 
 ---
 
-## 3. Dashboard & Navigation
+### 1.2. Asset Lifecycle
 
-### 3.1 Sidebar Navigation
+Navigate to the Asset list page by clicking 'Asset' in the sidebar or visiting /asset. This page shows all registered assets in a data table with search, filter, and sort capabilities.
 
-The left sidebar displays modules and entities based on your role permissions. Only entities where you have **can_read** permission and **in_sidebar** is enabled appear in the sidebar.
+**Step 1: Asset List**
 
-**Module groups:**
-- **Core EAM** — Master data entities
-- **Asset Management** — Asset-related entities
-- **Maintenance Management** — Maintenance planning entities
-- **Work Management** — Work order entities
-- **Purchasing & Stores** — Procurement and inventory entities
+Navigate to the Asset list page by clicking 'Asset' in the sidebar or visiting /asset. This page shows all registered assets in a data table with search, filter, and sort capabilities.
 
-Click any entity name to open its **List View**.
 
-### 3.2 List View
+![Asset List](eam-chi/frontend/test-artifacts/screenshots/asset-lifecycle__ASSET_01_NAVIGATE.png)
 
-Every entity opens in a tabular list view with:
+**Step 2: Create New Asset**
 
-- **Search** — Free-text search across fields
-- **Filters** — Column-specific filtering
-- **Sorting** — Click column headers to sort ascending/descending
-- **Pagination** — Navigate through records
-- **New** — Create a new record (requires `can_create` permission)
-- **Export** — Download records to Excel (requires `can_export` permission)
-- **Import** — Bulk import from Excel (requires `can_import` permission)
+Click 'Add New' in the top-right corner to open the asset creation form. You will be redirected to a blank form where you can enter the asset details.
 
-### 3.3 Detail View
 
-Click any record to open its **Detail View**:
+![Create New Asset](eam-chi/frontend/test-artifacts/screenshots/asset-lifecycle__ASSET_02_NEW.png)
 
-- **Form fields** — View and edit record data
-- **Workflow bar** — Shows current state and available transitions
-- **Child tables** — Related records shown as tabs below the form
-- **Attachments** — Upload/download files associated with the record
-- **Audit trail** — View change history
-- **Actions** — Custom server actions available for the entity
+**Step 3: Asset Form Filled**
 
-### 3.4 Notifications
+Fill in the asset details. The 'Description' field is the primary identifier. Additional fields can be filled as needed.
 
-Real-time notifications appear via Socket.IO:
-- Workflow state changes on records you own or are assigned to
-- Maintenance request approvals/rejections
-- Work order assignments
-- System alerts
+
+![Asset Form Filled](eam-chi/frontend/test-artifacts/screenshots/asset-lifecycle__ASSET_04_FILL_DESCRIPTION.png)
+
+**Step 4: Save New Asset**
+
+After filling in the required fields, click 'Save' to create the asset record. A success notification appears confirming the asset was created.
+
+
+![Save New Asset](eam-chi/frontend/test-artifacts/screenshots/asset-lifecycle__ASSET_05_SAVE.png)
+
+**Step 5: Asset Details View**
+
+After saving, you are taken to the asset detail page where you can view all fields, switch tabs, and manage workflow state.
+
+
+![Asset Details View](eam-chi/frontend/test-artifacts/screenshots/asset-lifecycle__ASSET_06_VERIFY_SAVED.png)
 
 ---
 
-## 4. Core EAM (Master Data)
+## 2. Condition Monitoring
 
-The Core EAM module manages all foundational reference data used across the system.
+### 2.1. TC 10 Condition Monitoring
 
-### 4.1 Organization
+Navigate to Condition Monitoring. This module tracks real-time sensor data and condition indicators for assets, with configurable warning and critical thresholds.
 
-The top-level entity representing the company.
+**Step 1: TC-10.1 — Condition Monitoring List**
 
-| Field | Description |
-|-------|-------------|
-| Organization Name | Legal name of the organization |
-| Description | Additional details |
+Navigate to Condition Monitoring. This module tracks real-time sensor data and condition indicators for assets, with configurable warning and critical thresholds.
 
-### 4.2 Site
 
-Physical locations or facilities.
+![TC-10.1 — Condition Monitoring List](eam-chi/frontend/test-artifacts/screenshots/TC-10-condition-monitoring__TC10_01_NAV.png)
 
-| Field | Description |
-|-------|-------------|
-| Site Name | Name of the site/facility |
-| Organization | Parent organization (link) |
-| Address | Physical address |
+**Step 2: TC-10.1 — New Condition Monitor**
 
-*Naming pattern: auto-generated*
+Click 'Add New' to set up condition monitoring for an asset. Define the monitoring type (Vibration, Temperature, Pressure, etc.), baseline value, and warning/critical thresholds.
 
-### 4.3 Department
 
-Organizational units within a site.
+![TC-10.1 — New Condition Monitor](eam-chi/frontend/test-artifacts/screenshots/TC-10-condition-monitoring__TC10_02_NEW.png)
 
-| Field | Description |
-|-------|-------------|
-| Department Name | Name of the department |
-| Site | Parent site (link) |
-| Manager | Department head (employee link) |
+**Step 3: TC-10.1 — Condition Monitor Created**
 
-### 4.4 Employee
+The condition monitoring record is created in 'Active' state. As readings are taken, the system automatically transitions to Warning or Critical states based on threshold values.
 
-Personnel records linked to user accounts.
 
-| Field | Description |
-|-------|-------------|
-| Employee Name | Full name |
-| User | Linked system user account |
-| Position | Job title/position |
-| Site | Primary work site |
-| Department | Associated department |
-| Reports To | Direct manager (employee link — used for team-based data scoping) |
+![TC-10.1 — Condition Monitor Created](eam-chi/frontend/test-artifacts/screenshots/TC-10-condition-monitoring__TC10_04_SAVE.png)
 
-*Naming pattern: EMP-{#####}*
+**Step 4: TC-10.1 — Condition Monitoring Detail**
 
-> ⚠️ **Important:** For row-level data scoping to work correctly, each employee must have EmployeeSite records linking them to their site(s) and department(s). The `Reports To` field defines the management hierarchy used by `team` scope.
+The detail view shows the asset, monitoring type, baseline value, thresholds, current reading, alert status, and trend direction. The workflow state reflects the current alert level.
 
-### 4.5 Labor
 
-Labor resources available for work orders and maintenance.
-
-| Field | Description |
-|-------|-------------|
-| Laborer | Display name |
-| Labor Type | Classification (e.g., Technician, Helper) |
-| Employee | Linked employee record |
-| Trade | Trade/skill classification |
-
-*Naming pattern: LAB-{#####}*
-
-### 4.6 Trade
-
-Skill classifications for labor resources (e.g., Electrician, Mechanic, Plumber).
-
-| Field | Description |
-|-------|-------------|
-| Trade Name | Name of the trade |
-| Description | Details about the trade |
-
-**Related entities:**
-- **Trade Labor** — Associates labor resources with trades
-- **Trade Availability** — Defines time slots a trade is available
-
-### 4.7 Work Schedule
-
-Defines working hours and shift patterns.
-
-| Field | Description |
-|-------|-------------|
-| Schedule Name | Name identifier |
-| Description | Details |
-
-**Children:**
-- **Work Schedule Details** — Individual day/time entries defining the schedule
-
-### 4.8 Holidays & Leave
-
-- **Holiday** — Company-wide holidays with date and description
-- **Leave Type** — Types of leave (Annual, Sick, etc.)
-- **Leave Application** — Individual leave requests
-
-### 4.9 Manufacturer & Model
-
-- **Manufacturer** — Equipment/asset manufacturers
-- **Model** — Specific product models linked to manufacturers
-
-### 4.10 Other Master Data
-
-| Entity | Purpose |
-|--------|---------|
-| **Series** | Document numbering series |
-| **Account** | Financial accounts |
-| **Cost Code** | Cost categorization codes |
-| **Annual Budget** | Budget allocations by department/year |
-| **Request Activity Type** | Categories for maintenance activities |
-| **Contractor** | External contractor records |
-| **Labor Group** | Groups of labor resources |
-| **Labor Availability** | Availability schedules for labor |
+![TC-10.1 — Condition Monitoring Detail](eam-chi/frontend/test-artifacts/screenshots/TC-10-condition-monitoring__TC10_05_VERIFY.png)
 
 ---
 
-## 5. Asset Management
+## 3. Authentication
 
-### 5.1 Assets
+### 3.1. TC 01 Authentication
 
-The core entity of the system — physical assets being managed.
+Navigate to the login page. The login form displays with Username and Password fields, along with the organization branding (logo and name).
 
-**Creating an Asset:**
+**Step 1: TC-01.1 — Login Page**
 
-1. Navigate to **Asset Management → Asset**
-2. Click **+ New**
-3. Fill in required fields:
-   - **Asset Tag** — Unique identifier (auto-generated: `A-{#####}`)
-   - **Description** — Asset description
-   - **Asset Class** — Classification category
-   - **Site** — Installation site
-4. Save the record
+Navigate to the login page. The login form displays with Username and Password fields, along with the organization branding (logo and name).
 
-**Key Sections:**
 
-#### Basic Information
-| Field | Description |
-|-------|-------------|
-| Asset Tag | Auto-generated unique ID (A-#####) |
-| Description | Detailed description |
-| Series | Document series |
-| Model | Manufacturer model |
-| Serial Number | OEM serial number |
-| Date Purchased | Purchase date |
-| Cost | Acquisition cost |
+![TC-01.1 — Login Page](eam-chi/frontend/test-artifacts/screenshots/TC-01-authentication__TC01_01_LOGIN_PAGE.png)
 
-#### Location & Assignment
-| Field | Description |
-|-------|-------------|
-| Block Number | Physical block/area |
-| Location | Functional location |
-| Site | Installation site |
-| Department | Owning department |
-| Assigned To | Responsible person |
+**Step 2: TC-01.1 — Successful Login**
 
-#### Lifecycle Management (AR-1)
-| Field | Description |
-|-------|-------------|
-| Lifecycle State | Current stage: Planning, Procurement, Commissioning, Active, Idle, Decommissioned, Disposed |
+After entering valid credentials and clicking 'Sign In', you are redirected to the Home page. The sidebar displays navigation items based on your role permissions.
 
-#### Asset Hierarchy (AR-2)
-| Field | Description |
-|-------|-------------|
-| Parent Asset | Parent in the asset tree |
-| Functional Location | Position in functional hierarchy |
 
-#### Criticality Classification (AR-3)
-| Field | Description |
-|-------|-------------|
-| Criticality | A-Critical, B-Important, C-General |
-| Risk Score | Numeric risk assessment (0–100) |
+![TC-01.1 — Successful Login](eam-chi/frontend/test-artifacts/screenshots/TC-01-authentication__TC01_04_SUBMIT.png)
 
-#### Warranty Information (AR-5)
-| Field | Description |
-|-------|-------------|
-| Warranty Start | Start date of warranty |
-| Warranty End | End date of warranty |
-| Warranty Vendor | Vendor providing warranty |
+**Step 3: TC-01.1 — Sidebar & Navigation**
 
-#### Nameplate / Specifications (AR-6)
-| Field | Description |
-|-------|-------------|
-| Manufacturer | OEM manufacturer |
-| Manufacturer Part Number | OEM part number |
-| Rated Capacity | Design capacity |
-| Rated Power | Power rating |
-| Weight | Physical weight |
-| Technical Specs | Free-text specifications |
+The sidebar shows all available modules based on your role. Admin users can see all entities including Settings, Admin, Workflow, and Model Editor sections.
 
-#### Depreciation (AR-7)
-| Field | Description |
-|-------|-------------|
-| Depreciation Method | Straight-Line, Declining Balance, etc. |
-| Useful Life Years | Expected lifespan in years |
-| Salvage Value | Residual value at end of life |
-| Accumulated Depreciation | Total depreciation to date (read-only) |
-| Commissioning Date | Date placed in service |
 
-**Asset Workflow:**
+![TC-01.1 — Sidebar & Navigation](eam-chi/frontend/test-artifacts/screenshots/TC-01-authentication__TC01_05_VERIFY_SIDEBAR.png)
 
-```
-Acquired → Inspected → Active → Inactive → Under Maintenance → Under Repair → Decommissioned
-```
+**Step 4: TC-01.5 — User Menu**
 
-| Transition | From | To | Description |
-|-----------|------|-----|-------------|
-| Receive | Acquired | Inspected | Asset received and ready for inspection |
-| Install Asset | Inspected | Active | Asset installed and operational |
-| Retire Asset | Active | Inactive | Temporarily taken out of service |
-| Putaway | Active | Under Maintenance | Sent for scheduled maintenance |
-| Internal Repair | Active | Under Repair | Sent for repair |
-| Send to Vendor | Active | Under Repair | Sent externally for repair |
-| Complete | Under Maintenance / Under Repair | Active | Returned to service |
-| Remove Asset | Inactive | Decommissioned | Permanently decommissioned |
-| Dispose | Decommissioned | *(terminal)* | Asset disposed of |
+Click your name/avatar at the bottom of the sidebar to open the user menu. From here you can access your Profile or Logout.
 
-**Child Records:**
-- **Asset Property** — Custom properties and their values
-- **Asset Position** — Physical positions within the asset
-- **Sub-Asset** — Child assets in the hierarchy
-- **Sensor** — Attached sensors for condition monitoring
-- **Meter** — Meters for usage tracking
-- **Warranty Claim** — Claims against warranty
-- **Maintenance History** — Historical maintenance records
 
-**Server Actions:**
-- **Clone Asset** (AR-8) — Duplicates the asset record for creating similar equipment. 🔒 *Requires create permission.*
-
-### 5.2 Equipment
-
-Movable equipment that can be assigned to work orders.
-
-| Field | Description |
-|-------|-------------|
-| Equipment Type | Owned or Rented |
-| Equipment Group | Category of equipment |
-| Custodian | Responsible employee |
-| Location / Site | Current location |
-| Equipment Cost | Value/rental cost |
-
-*Naming pattern: EQP-{####}*
-
-**Conditional Fields:**
-- *Owned*: **Inventory** link (to the inventory item record)
-- *Rented*: **PR Line No** link (to the purchase request line)
-
-### 5.3 Asset Class
-
-Classification categories for grouping assets (e.g., "Rotating Equipment", "Electrical Panel").
-
-**Children:** Asset Class Property, Asset Class Availability
-
-### 5.4 Location Types, System Types, Property Types
-
-Reference data for structuring asset locations, systems, and properties.
-
-### 5.5 Meters & Meter Readings
-
-Track usage-based metrics on assets.
-
-**Meter** — Defines what is being measured (e.g., operating hours, distance, cycles).
-
-**Meter Reading** — Individual readings over time.
-
-| Field | Description |
-|-------|-------------|
-| Meter | Parent meter |
-| Reading Value | Current reading |
-| Reading Date | Date/time of reading |
-| Delta | Change from previous reading (⚙️ auto-calculated) |
-
-### 5.6 Incidents
-
-Record unplanned events or failures.
-
-| Field | Description |
-|-------|-------------|
-| Asset | Affected asset |
-| Incident Date | When it occurred |
-| Description | What happened |
-| Severity | 1-Critical, 2-High, 3-Medium, 4-Low |
-
-**Children:** Incident Employee (people involved)
-
-### 5.7 Condition Monitoring
-
-Track real-time asset health through sensor data.
-
-| Field | Description |
-|-------|-------------|
-| Asset | Monitored asset |
-| Sensor | Data source sensor |
-| Monitoring Type | Vibration, Temperature, Pressure, Oil Analysis, Ultrasonic, Thermography, Current/Voltage |
-| Reading Value | Current sensor reading |
-| Reading Unit | Unit of measurement |
-| Baseline Value | Normal operating value |
-| Warning Threshold | Threshold for warning alert |
-| Critical Threshold | Threshold for critical alert |
-| Alert Status | Normal, Warning, Critical, Alarm |
-| Trend Direction | Stable, Increasing, Decreasing, Erratic |
-| Analysis Notes | Free-text notes |
-
-*Naming pattern: CM-{#####}*
-
-**Workflow:**
-```
-Active → Warning → Critical → Resolved
-```
-
-| Transition | Description |
-|-----------|-------------|
-| Warn | Reading exceeds warning threshold |
-| Escalate | Reading exceeds critical threshold |
-| Resolve | Issue addressed; return to monitoring |
-
-> ⚠️ **Note:** Condition Monitoring states only escalate forward (Active → Warning → Critical). There is no de-escalation path. If conditions improve, resolve the current record and create a new one.
+![TC-01.5 — User Menu](eam-chi/frontend/test-artifacts/screenshots/TC-01-authentication__TC01_06_PROFILE.png)
 
 ---
 
-## 6. Maintenance Management
+### 3.2. Login Edge Cases
 
-### 6.1 Maintenance Request
+If you attempt to sign in without entering credentials, the system displays a validation message prompting you to fill in the required fields.
 
-The primary entry point for all maintenance work — whether planned or unplanned.
+**Step 1: Empty Credentials Error**
 
-**Creating a Maintenance Request:**
+If you attempt to sign in without entering credentials, the system displays a validation message prompting you to fill in the required fields.
 
-1. Navigate to **Maintenance Management → Maintenance Request**
-2. Click **+ New**
-3. Fill in:
-   - **Requestor** — Employee making the request
-   - **Description** — What needs to be done
-   - **Asset** — Affected asset
-   - **Priority** — Low, Medium, High, or Emergency
-   - **Request Category** — Corrective, Emergency, Safety, Modification, Inspection, Condition Based, Preventive
-   - **Site / Department** — Location
-   - **Due Date** — When action is needed by
-4. Save the record
 
-*Naming pattern: MTREQ-{#####}*
+![Empty Credentials Error](eam-chi/frontend/test-artifacts/screenshots/login-edge-cases__LOGIN_ERR_02_EMPTY_SUBMIT.png)
 
-**Key Fields:**
+**Step 2: Invalid Credentials Error**
 
-| Field | Description |
-|-------|-------------|
-| Request Category | Corrective, Emergency, Safety, Modification, Inspection, Condition Based, Preventive |
-| Priority | Low, Medium, High, Emergency |
-| Planned Maintenance Activity | Link to PM activity (if this MR is PM-generated) |
-| SLA Response Due | ⚙️ Auto-calculated based on priority |
-| SLA Resolution Due | ⚙️ Auto-calculated based on priority |
-| SLA Status | On Track, At Risk, Breached (⚙️ auto-tracked) |
-| Is Overdue | ⚙️ Auto-flagged when past due date |
+If you enter an incorrect username or password, the system displays an error message. Verify your credentials and try again. After multiple failed attempts, your account may be temporarily locked.
 
-**Workflow:**
-```
-Draft → Pending Approval → Approved → Release → Completed
-```
 
-| Transition | From | To | Description |
-|-----------|------|-----|-------------|
-| Submit for Approval | Draft | Pending Approval | Submit for management review |
-| Submit for Emergency | Draft | Approved | Bypass approval for emergencies |
-| Approve | Pending Approval | Approved | Manager approves the request |
-| Submit for Resolution | Approved | Release | Release work to technicians |
-| Complete | Release | Completed | Work finished |
-| Reopen | Completed | Draft | Reopen if issue persists |
-
-**SLA Thresholds:**
-- Pending Approval: 4 hours
-- Approved: 24 hours
-- In Progress: 48 hours
-
-⚙️ **Notifications:** When a maintenance request changes state, the system automatically notifies:
-- Approvers (on submission)
-- Requestor (on approval/rejection)
-- Team leads (on escalation)
-
-**Server Actions:**
-- **Generate Maintenance Order** — Creates a maintenance order from this request
-- **Create Purchase Request** — Auto-creates a PR for parts needed
-
-### 6.2 Maintenance Order
-
-Groups maintenance activities generated from maintenance requests.
-
-| Field | Description |
-|-------|-------------|
-| Created Date | Date order was created |
-| Work Order | Linked work order (read-only) |
-
-*Naming pattern: MTORD-{#####}*
-
-**Children:** Maintenance Order Detail
-
-### 6.3 Maintenance Plan
-
-Defines long-term maintenance strategies for asset classes.
-
-| Field | Description |
-|-------|-------------|
-| Description | Plan description |
-| Asset Class | Target asset classification |
-| Manufacturer | Equipment manufacturer |
-| Model | Equipment model |
-
-*Naming pattern: MTPLAN-{#####}*
-
-**Children:** Planned Maintenance Activity
-
-### 6.4 Planned Maintenance Activity
-
-Individual maintenance tasks within a plan, defining when and how maintenance occurs.
-
-| Field | Description |
-|-------|-------------|
-| Maintenance Plan | Parent plan |
-| Maintenance Activity | Activity to perform |
-| Checklist | Associated checklist |
-| Maintenance Schedule | Calendar Based, Interval Based, or Condition Based |
-| Maintenance Type | Activity type classification |
-
-*Naming pattern: PMA-{#####}*
-
-**Children:**
-- Maintenance Interval — Defines frequency (e.g., every 30 days, every 500 operating hours)
-- Maintenance Condition — Defines condition triggers
-- Maintenance Calendar — Calendar-specific scheduling
-- Maintenance Equipment — Equipment needed
-- Maintenance Parts — Parts required
-- Maintenance Trade — Trades/skills required
-
-### 6.5 Maintenance Activity
-
-Reusable activity definitions — the actual work to be done.
-
-| Field | Description |
-|-------|-------------|
-| Activity Name | Name of the activity |
-| Description | Detailed description |
-
-*Naming pattern: MTACT-{#####}*
-
-**Children:** Maintenance Parts, Maintenance Trade, Maintenance Equipment
-
-### 6.6 Checklist
-
-Standard checklists for inspection and verification.
-
-| Field | Description |
-|-------|-------------|
-| Checklist Name | Name |
-| Description | Details |
-
-**Children:** Checklist Details (individual check items)
-
-### 6.7 Maintenance Interval
-
-Defines time-based or usage-based intervals for planned maintenance.
-
-| Field | Description |
-|-------|-------------|
-| Planned Maintenance Activity | Parent PMA |
-| Lead Interval | Advance notice period |
-| Interval | Frequency value |
-| Interval Unit of Measure | Days, weeks, months, hours, etc. |
-| Running Interval Property | Meter/property for usage-based |
-
-### 6.8 Failure Analysis
-
-Root cause analysis for asset failures using structured methodologies.
-
-| Field | Description |
-|-------|-------------|
-| Asset | Failed asset |
-| Work Order | Related work order |
-| Failure Code | Classification code |
-| Failure Mode | How the failure manifested |
-| Severity Score | 1–10 severity rating |
-| Occurrence Score | 1–10 frequency rating |
-| Detection Score | 1–10 detectability rating |
-| RPN | Risk Priority Number (⚙️ auto-calculated: Severity × Occurrence × Detection) |
-| Risk Level | Low, Medium, High, Critical |
-
-**Server Actions:**
-- **Calculate RPN** — Computes Risk Priority Number from severity, occurrence, and detection scores
-- **Generate 5-Why Template** — Creates a structured 5-Why analysis template
-- **Generate Fishbone Template** — Creates an Ishikawa diagram template
-
-### 6.9 Sensor
-
-IoT/OT sensor definitions for condition monitoring.
-
-| Field | Description |
-|-------|-------------|
-| Sensor Name | Identifier |
-| Asset | Attached asset |
-| Sensor Type | Type classification |
-
-### 6.10 Inspection Point
-
-Individual points on an inspection route.
-
-| Field | Description |
-|-------|-------------|
-| Description | What to inspect |
-| Asset | Target asset |
-| Inspection Criteria | Pass/fail criteria |
+![Invalid Credentials Error](eam-chi/frontend/test-artifacts/screenshots/login-edge-cases__LOGIN_ERR_05_WRONG_PASSWORD_SUBMIT.png)
 
 ---
 
-## 7. Work Management
+### 3.3. Login Happy Path
 
-### 7.1 Work Order
+Open the EAM application in your web browser. You will be presented with the login screen showing the organization branding and credential fields.
 
-The central execution entity — all maintenance work is tracked through work orders.
+**Step 1: Login Page**
 
-**Creating a Work Order:**
+Open the EAM application in your web browser. You will be presented with the login screen showing the organization branding and credential fields.
 
-1. Navigate to **Work Management → Work Order**
-2. Click **+ New**
-3. Fill in:
-   - **Work Order Type** — Preventive Maintenance or Corrective Maintenance
-   - **Description** — Scope of work
-   - **Priority** — Low, Medium, High, Emergency
-   - **Due Date** — Required completion date
-   - **Site / Department** — Location
-   - **Asset** — Target asset (if applicable)
-4. Save the record
 
-*Naming pattern: WO-{#####}*
+![Login Page](eam-chi/frontend/test-artifacts/screenshots/login-happy-path__LOGIN_01_NAVIGATE.png)
 
-**Key Sections:**
+**Step 2: Enter Username**
 
-#### Scheduling
-| Field | Description |
-|-------|-------------|
-| Scheduled Start / End | Planned timeframe |
-| Actual Start / End | Actual timeframe (filled on execution) |
-| Due Date | Deadline |
+Enter your username in the Username field. This is the account name provided by your system administrator.
 
-#### Cost Tracking (WO-5)
-| Field | Description |
-|-------|-------------|
-| Estimated Cost | Budget estimate |
-| Total Labor Cost | ⚙️ Rolled up from WO Labor |
-| Total Equipment Cost | ⚙️ Rolled up from WO Equipment |
-| Total Parts Cost | ⚙️ Rolled up from WO Parts |
-| Total Cost | ⚙️ Sum of all cost components |
-| Cost Code | Cost center allocation |
 
-#### Downtime Tracking (WO-6)
-| Field | Description |
-|-------|-------------|
-| Downtime Start | When asset went offline |
-| Downtime End | When asset returned to service |
-| Downtime Hours | ⚙️ Auto-calculated duration |
+![Enter Username](eam-chi/frontend/test-artifacts/screenshots/login-happy-path__LOGIN_02_ENTER_USERNAME.png)
 
-#### Failure Reporting (WO-7)
-| Field | Description |
-|-------|-------------|
-| Cause Code | Root cause classification |
-| Remedy Code | Repair classification |
-| Failure Notes | Detailed failure description |
+**Step 3: Enter Password**
 
-#### Close-out
-| Field | Description |
-|-------|-------------|
-| Technician Findings | What the technician found |
-| Work Performed | What was done |
-| Recommendations | Follow-up recommendations |
-| Follow-up Work Order | Link to follow-up WO if needed |
+Enter your password in the Password field. Passwords are case-sensitive.
 
-#### Safety (WO-8)
-| Field | Description |
-|-------|-------------|
-| LOTO Required | Is lockout/tagout needed? |
-| Safety Permit | Associated safety permit |
 
-#### Approval
-| Field | Description |
-|-------|-------------|
-| Approval Level | Required approval tier |
-| Approved By | Who approved |
+![Enter Password](eam-chi/frontend/test-artifacts/screenshots/login-happy-path__LOGIN_03_ENTER_PASSWORD.png)
 
-**SLA Thresholds:**
-- Requested: 8 hours
-- Approved: 24 hours
-- In Progress: 72 hours
+**Step 4: Submit Login**
 
-**Workflow:**
-```
-Requested → Approved → In Progress → Closed
-```
+Click the 'Sign in' button. Upon successful authentication, you will be redirected to the home page.
 
-| Transition | From | To | Description |
-|-----------|------|-----|-------------|
-| Approve | Requested | Approved | Work order approved |
-| Start | Approved | In Progress | Work begins |
-| Complete | In Progress | Closed | Work completed |
-| Reopen | Closed | Requested | Reopen if needed |
 
-⚙️ **Notifications:** When a work order state changes, assigned labor is automatically notified.
+![Submit Login](eam-chi/frontend/test-artifacts/screenshots/login-happy-path__LOGIN_04_SUBMIT.png)
 
-**Child Records:**
-- Work Order Activity (tasks)
-- Work Order Labor (labor hours/cost)
-- Work Order Equipment (equipment used)
-- Work Order Parts (materials consumed)
-- Work Order Checklist (checklists completed)
-- Safety Permit (associated permits)
-- Tool Checkout (tools issued)
+**Step 5: Home Page After Login**
 
-### 7.2 Work Order Activity
+After successful login, the main application loads with the sidebar navigation showing all available modules.
 
-Individual tasks within a work order.
 
-*Naming pattern: WOACT-{#####}*
-
-**Workflow:**
-```
-Awaiting Resources → Ready → In Progress → On Hold → Completed → Closed
-```
-
-| Transition | From | To | Description |
-|-----------|------|-----|-------------|
-| Allocate | Awaiting Resources | Ready | Resources confirmed |
-| Start Activity | Ready | In Progress | Work begins |
-| Put On Hold | In Progress | On Hold | Paused (waiting for parts, etc.) |
-| Resume | On Hold | In Progress | Continue work |
-| Complete | In Progress | Completed | Task finished |
-| Close | Completed | Closed | Formally closed |
-| Reopen | Completed | Ready | Reopen if needed |
-
-**Key Fields:**
-| Field | Description |
-|-------|-------------|
-| Work Order | Parent work order |
-| Description | Task description |
-| Work Item Type | Asset or Non-Asset |
-| Work Item | Target asset |
-| Activity Type | Type of activity |
-
-**Server Actions:**
-- **Generate Templated PMA** — Creates a Planned Maintenance Activity template from a completed activity for future reuse.
-
-### 7.3 Work Order Labor
-
-Tracks labor resources assigned to a work order.
-
-| Field | Description |
-|-------|-------------|
-| Labor | Labor resource |
-| Hours | Hours worked |
-| Rate | Hourly rate |
-| Total | ⚙️ Hours × Rate |
-
-### 7.4 Work Order Equipment
-
-Tracks equipment used during work execution.
-
-| Field | Description |
-|-------|-------------|
-| Equipment | Equipment resource |
-| Hours | Hours used |
-
-### 7.5 Work Order Parts
-
-Tracks materials/parts consumed.
-
-| Field | Description |
-|-------|-------------|
-| Item | Inventory item |
-| Quantity | Quantity used |
-| Unit Price | Price per unit |
-| Total | ⚙️ Quantity × Unit Price |
-
-### 7.6 Job Plan
-
-Predefined templates for standard maintenance jobs. Contains pre-configured tasks, labor, parts, and tools so work orders can be created from proven procedures.
-
-| Field | Description |
-|-------|-------------|
-| Job Plan Name | Name |
-| Description | Detailed procedures |
-
-**Children:** Job Plan Task (individual steps with labor, parts, tools)
-
-### 7.7 Safety Permit
-
-Permits required before hazardous work can begin.
-
-*Naming pattern: SP-{#####}*
-
-**Permit Types:**
-- **LOTO** — Lockout/Tagout
-- **Hot Work** — Welding, cutting, grinding
-- **Confined Space** — Tanks, vessels, pits
-- **Excavation** — Digging, trenching
-- **Working at Height** — Scaffolding, ladders
-- **Electrical** — Electrical isolation work
-
-**Key Fields:**
-| Field | Description |
-|-------|-------------|
-| Permit Type | Type of permit (required) |
-| Work Order | Associated work order |
-| Asset | Target asset |
-| Location | Work location |
-| Requested By | Employee requesting |
-| Approved By | Approving authority |
-| Valid From / To | Permit validity window |
-| Hazards Identified | List of identified hazards |
-| Precautions | Safety precautions to follow |
-| Emergency Procedures | Emergency response plan |
-
-**Workflow:**
-```
-Draft → Requested → Approved → Active → Expired/Cancelled
-```
-
-| Transition | From | To | Description |
-|-----------|------|-----|-------------|
-| Submit Request | Draft | Requested | Permit submitted for review |
-| Approve | Requested | Approved | Safety officer approves |
-| Activate | Approved | Active | Permit activated for work |
-| Expire | Active | Expired | Validity period ended |
-| Cancel | Any | Cancelled | Permit cancelled |
-| Renew | Expired | Draft | Create renewal |
-
-### 7.8 Work Order Checklist
-
-Links checklist templates to work orders for completion tracking.
-
-**Children:** Work Order Checklist Details (individual check items with completion status)
+![Home Page After Login](eam-chi/frontend/test-artifacts/screenshots/login-happy-path__LOGIN_05_HOME_LOADED.png)
 
 ---
 
-## 8. Purchasing & Stores
+## 4. Dashboard
 
-### 8.1 Item
+### 4.1. Dashboard Overview
 
-Master catalog of all items (parts, materials, assets, services).
+The Dashboard provides a real-time overview of your asset management system. Navigate to the Dashboard by clicking 'Dashboard' in the left sidebar or by visiting /dashboard.
 
-*Naming pattern: ITM-{#####}*
+**Step 1: Dashboard Overview**
 
-**Item Types:**
-- **Fixed Asset Item** — Capital equipment
-- **Asset Item** — Trackable asset components
-- **Inventory Item** — Stocked materials
-- **Non Inventory Item** — Non-stocked purchases
-- **Service Item** — Services
+The Dashboard provides a real-time overview of your asset management system. Navigate to the Dashboard by clicking 'Dashboard' in the left sidebar or by visiting /dashboard.
 
-**Key Fields:**
-| Field | Description |
-|-------|-------------|
-| Item Name | Name (required) |
-| Description | Details (required) |
-| Item Class | Category classification |
-| Item Type | Classification (required) |
-| ABC Code | A, B, or C classification |
-| UOM | Unit of measure (required) |
-| Unit Cost | Standard cost |
-| Primary Vendor | Default supplier |
-| Is Serialized | Track by serial number |
-| Inspection Required | Incoming inspection needed |
 
-### 8.2 Vendor
+![Dashboard Overview](eam-chi/frontend/test-artifacts/screenshots/dashboard-overview__DASH_01_NAVIGATE.png)
 
-Supplier/contractor records with performance tracking.
+**Step 2: Key Performance Indicators**
 
-*Naming pattern: VND-{#####}*
+Six KPI cards are displayed at the top: Total Assets, Work Orders, Overdue WOs, Inventory, Purchase Requests, and Incidents. Each card shows the current total and a secondary metric such as the count from the last 30 days.
 
-**Vendor Types:**
-- Supplier
-- Contractor
-- Service Provider
-- OEM
 
-**Performance Metrics (read-only, ⚙️ auto-calculated):**
-| Field | Description |
-|-------|-------------|
-| Delivery Rating | On-time delivery score (0–5) |
-| Quality Rating | Quality/rejection score (0–5) |
-| Overall Rating | Composite performance (0–5) |
-| Total Orders | Lifetime order count |
-| On-Time Deliveries | Count of timely deliveries |
-| Rejected Deliveries | Count of rejected receipts |
+![Key Performance Indicators](eam-chi/frontend/test-artifacts/screenshots/dashboard-overview__DASH_02_KPI_CARDS.png)
 
-⚙️ Vendor ratings are automatically recalculated when purchase receipts are processed.
+**Step 3: Refreshing Dashboard Data**
 
-### 8.3 Purchase Request
+Click the 'Refresh' button in the top-right corner to reload all dashboard data from the server.
 
-Internal requests for procurement.
 
-*Naming pattern: PR-{#####}*
-
-**Key Fields:**
-| Field | Description |
-|-------|-------------|
-| Requestor | Employee requesting |
-| Due Date | When items are needed |
-| Site / Department | Location and department |
-| Cost Code | Budget allocation |
-
-**Children:** Purchase Request Line (items, quantities, estimated prices)
-
-**Workflow:**
-```
-Draft → Open → Closed/Rejected/Cancelled
-```
-
-### 8.4 Purchase Order
-
-Formal orders placed with vendors.
-
-*Naming pattern: PO-{#####}*
-
-**PO Types:**
-- **Standard** — One-time purchase
-- **Blanket** — Framework agreement with limit
-- **Contract** — Long-term contract with period
-
-**Key Fields:**
-| Field | Description |
-|-------|-------------|
-| Vendor | Supplier (required) |
-| Date Ordered | Order date |
-| Total Amount | ⚙️ Rolled up from PO lines |
-| Site / Department | Location (required) |
-| Cost Code | Budget allocation |
-| PO Type | Standard, Blanket, Contract |
-| Blanket Limit | Maximum for blanket POs |
-| Released Amount | Amount used against blanket (read-only) |
-| Contract Start / End | Period for contract POs |
-| Payment Terms | Agreed payment terms |
-| Delivery Terms | Agreed delivery terms |
-| Amendment Number | Change order number |
-| Amendment Reason | Reason for amendment |
-| Original PO | Link to original (for amendments) |
-
-**Workflow:**
-```
-Draft → Open → Closed/Rejected/Cancelled
-```
-
-| Transition | From | To | Description |
-|-----------|------|-----|-------------|
-| Approve | Draft | Open | PO approved and sent to vendor |
-| Reject | Draft | Rejected | PO rejected |
-| Complete | Open | Closed | All items received |
-| Cancel | Any | Cancelled | PO cancelled |
-
-*Note: The form is only editable in Draft state.*
-
-**Children:** Purchase Order Line (items, quantities, agreed prices)
-
-### 8.5 Purchase Receipt
-
-Records goods received against purchase orders.
-
-| Field | Description |
-|-------|-------------|
-| Purchase Order | Source PO |
-| Received Date | Date of receipt |
-| Received Quantity | Qty received |
-
-⚙️ On saving a purchase receipt, vendor performance metrics are automatically recalculated.
-
-### 8.6 Inventory
-
-Tracks stock levels at store locations.
-
-| Field | Description |
-|-------|-------------|
-| Item | Inventory item |
-| Quantity on Hand | Current stock |
-| Reorder Point | Minimum before reorder |
-| Reorder Quantity | Qty to order |
-| Store | Storage location |
-
-### 8.7 Store
-
-Physical storage locations for inventory.
-
-| Field | Description |
-|-------|-------------|
-| Store Name | Name |
-| Location | Physical location |
-| Site | Facility |
-
-### 8.8 Stock Count
-
-Periodic physical inventory verification.
-
-| Field | Description |
-|-------|-------------|
-| Count Date | Scheduled date |
-| Store | Target store |
-| Status | Planned, In Progress, Completed |
-
-### 8.9 Inventory Adjustment
-
-Records corrections to inventory quantities.
-
-| Field | Description |
-|-------|-------------|
-| Item | Adjusted item |
-| Quantity | Adjustment amount (+/-) |
-| Reason | Reason code |
-
-### 8.10 Parts Issue & Parts Return
-
-- **Parts Issue** — Materials issued from stores against work orders
-- **Parts Return** — Materials returned to stores with reason tracking
+![Refreshing Dashboard Data](eam-chi/frontend/test-artifacts/screenshots/dashboard-overview__DASH_03_REFRESH.png)
 
 ---
 
-## 9. PM Calendar
+## 5. General Features
 
-### 9.1 Overview
+### 5.1. Entity List Features
 
-The **Preventive Maintenance Calendar** provides a monthly calendar view for scheduling, visualizing, and managing PM tasks. It integrates with maintenance activities, work orders, and maintenance requests.
+Entity list pages display records in a data table. They support search, column filtering, sorting, pagination, and multiple view modes (list, tree, diagram, hierarchy).
 
-### 9.2 Accessing the Calendar
+**Step 1: Entity List Page**
 
-Navigate to the **Calendar** page from the main navigation. The calendar displays PM tasks color-coded by workflow state:
+Entity list pages display records in a data table. They support search, column filtering, sorting, pagination, and multiple view modes (list, tree, diagram, hierarchy).
 
-| State | Color | Description |
-|-------|-------|-------------|
-| Draft | Slate gray | Newly created, not yet submitted |
-| Pending Approval | Amber | Awaiting management approval |
-| Approved | Blue | Approved, ready for execution |
-| Release | Violet | Released to technicians |
-| Completed | Green | Work finished |
 
-### 9.3 Viewing Tasks
+![Entity List Page](eam-chi/frontend/test-artifacts/screenshots/entity-list-features__LIST_01_NAVIGATE.png)
 
-- Select **Year** and **Month** from the dropdowns
-- Filter by **Site** and **Department** as needed
-- Each day shows scheduled PM tasks with their color indicators
-- Click a task to view full details
+**Step 2: Search Records**
 
-### 9.4 Creating a PM Task
+Type in the search box to filter records. The table updates in real-time as you type. You can search across the selected filter field.
 
-1. Click on a day or click **+ New Task**
-2. Fill in:
-   - **Activity Name** — The maintenance activity
-   - **Due Date** — Scheduled date
-   - **Start Time** — Scheduled time
-   - **Assigned To** — Labor resource
-   - **Site / Department** — Location
-   - **Notes** — Additional instructions
-3. Save
 
-⚙️ The system automatically creates:
-- A **Maintenance Activity** (if it doesn't already exist)
-- A **Planned Maintenance Activity** (Calendar Based schedule)
-- A **Work Order** (type: Preventive Maintenance)
-- A **Work Order Activity** (30-minute default duration)
-- A **Maintenance Request** linking all above
+![Search Records](eam-chi/frontend/test-artifacts/screenshots/entity-list-features__LIST_02_SEARCH.png)
 
-### 9.5 Rescheduling Tasks
+**Step 3: Search Results**
 
-Drag and drop a task to a new date. The system updates the due date while preserving the scheduled time.
+The table displays only records matching your search term. The total count badge updates to reflect the filtered result count.
 
-### 9.6 Updating Task Status
 
-Click a task and update its **Workflow State** to progress it through the approval and execution cycle.
+![Search Results](eam-chi/frontend/test-artifacts/screenshots/entity-list-features__LIST_04_SEARCH_RESULTS.png)
 
-### 9.7 Seed Data
+**Step 4: Open Record Detail**
 
-🔒 *Admin only.* Use the **Seed** function to populate the calendar with predefined activities and team members for initial setup. This creates 32 standard activities, 6 team members, 31 holidays, and a full month of PM tasks.
+Click any row in the table to open the detail view for that record. You can view and edit all fields, manage attachments, and control the workflow state.
 
-**Standard Activities Include:**
-Engine Area Cleaning, Biogrinder Inspection, Hopper Inspections, Hose Pump Inspection, Mixer Inspection, Air Blower, Membrane Checking, Recirculation Pump, Gas Blowers, Chiller, Carbon Filter, Separator, Truck Units Greasing, Boiler, Flare System, Air Compressors, Gas Pipes Draining, General Cleaning, VFD Inspection, Aircon Checking, Faults Checking HMI, Chiller Servicing, Sensor Checking, Genset Inspection, Valves Inspection, Panel Fans Inspection, Analyzer Calibration, Flowmeter Inspection, Greasing All Components, Fire Extinguisher Inspection, Warehouse Inspection.
 
-### 9.8 Auto-Generation
-
-⚙️ **Scheduled Job — PM Calendar Auto-Generation** runs daily at 1:00 AM:
-
-1. Scans all `maintenance_calendar` entries with frequency set
-2. Checks the last `maintenance_request` for each planned maintenance activity
-3. Calculates the next due date based on frequency (Weekly/7d, Monthly/30d, Quarterly/90d, Annually/365d)
-4. If next due ≤ today + 7 days, auto-generates:
-   - New maintenance request
-   - Linked work order (type: Preventive Maintenance, state: Requested)
-5. Logs execution details to `scheduled_job_log`
+![Open Record Detail](eam-chi/frontend/test-artifacts/screenshots/entity-list-features__LIST_06_CLICK_ROW.png)
 
 ---
 
-## 10. Reports & Analytics
+## 6. Navigation
 
-### 10.1 Accessing Reports
+### 6.1. Sidebar Navigation
 
-Navigate to **Reports** from the sidebar. Available reports are listed based on your role permissions.
+The sidebar is always visible on the left side of the screen. It contains the organization logo, navigation links grouped by module, and user account controls at the bottom.
 
-### 10.2 Generating a Report
+**Step 1: Application Sidebar**
 
-1. Select a report from the list
-2. Configure parameters (date range, site, department, filters)
-3. Click **Generate**
-4. View the report on-screen
-5. Optionally **Export to PDF** for offline use
+The sidebar is always visible on the left side of the screen. It contains the organization logo, navigation links grouped by module, and user account controls at the bottom.
 
-### 10.3 Exporting Data
 
-Every list view supports **Export to Excel**:
-1. Navigate to any entity list view
-2. Apply desired filters
-3. Click the **Export** button
-4. An Excel file downloads with all visible records
+![Application Sidebar](eam-chi/frontend/test-artifacts/screenshots/sidebar-navigation__NAV_01_HOME.png)
 
----
+**Step 2: Navigate to Dashboard**
 
-## 11. Administration
+Click 'Dashboard' in the sidebar to view the system-wide KPI overview.
 
-### 11.1 User Management
 
-🔒 *SystemManager role required.*
+![Navigate to Dashboard](eam-chi/frontend/test-artifacts/screenshots/sidebar-navigation__NAV_02_DASHBOARD.png)
 
-**Managing Users:**
+**Step 3: Navigate to Assets**
 
-1. Navigate to **Admin → Users**
-2. View all users with pagination
-3. **Create User**: Username, email, full name, password, department, site
-4. **Edit User**: Update details, activate/deactivate
-5. **Assign Roles**: Add/remove roles from a user
+Click 'Asset' under the Asset Management module to view the full list of registered assets.
 
-### 11.2 Role Management
 
-🔒 *SystemManager role required.*
+![Navigate to Assets](eam-chi/frontend/test-artifacts/screenshots/sidebar-navigation__NAV_03_ASSET.png)
 
-**Default Roles:**
+**Step 4: Navigate to Work Orders**
 
-| Role | Data Scope | Description |
-|------|------------|-------------|
-| SystemManager | all | Full access to all entities and admin functions |
-| Executive | all | Executive-level access across all sites |
-| SiteManager | site | Full access within assigned site(s) |
-| Supervisor | team | Access to records within own department(s) |
-| Technician | own | Access limited to self-created records |
-| Viewer | site | Read-only access within assigned site(s) |
-| AssetManager | site | Asset module management within site(s) |
-| PurchaseManager | site | Procurement management within site(s) |
-| Buyer | site | Purchase order creation/approval within site(s) |
-| Requisitioner | own | Purchase request creation — own records only |
-| StoresManager | site | Stores and inventory management within site(s) |
-| Storekeeper | site | Stores receiving and issuing within site(s) |
+Click 'Work Order' under the Work Management module to view and manage work orders. Expand the module group if it is collapsed.
 
-**Data Scope** controls row-level visibility (see §11.9 below).
 
-**Managing Roles:**
+![Navigate to Work Orders](eam-chi/frontend/test-artifacts/screenshots/sidebar-navigation__NAV_04_WORK_ORDER.png)
 
-1. Navigate to **Admin → Roles**
-2. Create custom roles with descriptive names
-3. Set the **Data Scope** (own, team, site, or all)
-4. Assign permissions per entity (see below)
+**Step 5: Collapse Sidebar**
 
-### 11.3 Permission Management
+Click the hamburger menu icon in the header to collapse the sidebar. This gives you more horizontal space for data tables and forms. Click again to expand.
 
-🔒 *SystemManager role required.*
 
-The **Permission Matrix** provides a visual grid of Role × Entity with toggleable permissions:
-
-| Permission | Description |
-|-----------|-------------|
-| **Can Read** | View records and see entity in sidebar |
-| **Can Create** | Create new records |
-| **Can Update** | Edit existing records |
-| **Can Delete** | Delete records |
-| **Can Select** | Appear in link field dropdowns |
-| **Can Export** | Export records to Excel |
-| **Can Import** | Import records from Excel templates |
-| **In Sidebar** | Show entity in navigation sidebar |
-
-**Accessing the matrix:**
-1. Navigate to **Admin → Permissions**
-2. View entities organized by module
-3. Toggle permissions per role per entity
-4. Save changes
-
-### 11.4 Workflow Management
-
-🔒 *SystemManager role required.*
-
-**Managing Workflows:**
-
-1. Navigate to **Admin → Workflow**
-2. View all workflow definitions
-3. For each workflow:
-   - View/edit states and their colors
-   - View/edit transitions (from state → action → to state)
-   - Configure allowed roles per transition (restrict who can perform state changes)
-
-**Workflow Transition Role Restrictions:**
-Each transition can optionally restrict which roles can execute it. If `allowed_roles` is set on a transition, only users with those roles can trigger that state change.
-
-### 11.5 Model Editor
-
-🔒 *SystemManager role required.*
-
-The **Model Editor** allows dynamic entity management:
-
-1. **View Entities** — List all entity definitions
-2. **Edit Entity** — Modify fields, labels, types, and relationships
-3. **Sync** — Apply changes to the database (migrations)
-4. **Backups** — Create/restore entity configuration backups
-5. **Migrations** — Apply, rollback, or check migration status
-
-> ⚠️ **Caution:** Changes in the Model Editor directly affect the database schema. Always create a backup before making structural changes.
-
-### 11.6 Sidebar Ordering
-
-🔒 *SystemManager role required.*
-
-Customize the display order of modules and entities in the sidebar navigation:
-
-1. Navigate to **Admin → Ordering**
-2. Drag modules to reorder
-3. Drag entities within each module
-4. Save the new order
-
-### 11.7 Branding & Settings
-
-Customize application appearance:
-- **Logo** — Upload company logo
-- **Colors** — Primary, secondary, accent colors
-- **Application Name** — Custom title
-
-### 11.9 Row-Level Data Scoping
-
-🔒 *SystemManager role required to configure.*
-
-Beyond entity-level permissions (can_read, can_create, etc.), each role has a **Data Scope** that controls which *rows* a user can see and modify:
-
-| Scope | Visibility |
-|-------|------------|
-| **own** | Only records where `created_by` = current user |
-| **team** | Records in user's department(s) + own records |
-| **site** | Records in user's assigned site(s) + own records |
-| **all** | All records — no row-level filtering |
-
-**How it works:**
-- Every record is stamped with `created_by` (the creating user) and `modified_by` (the last editor). These are set automatically.
-- When listing, viewing, updating, or deleting records, the system applies a scope filter based on the user's role.
-- If a user has multiple roles with different scopes, the **most permissive** scope wins.
-
-**Employee Linkage:**
-For `site` and `team` scopes to work correctly, the user must be linked to an **Employee** record, and that Employee must have **EmployeeSite** assignments. Without this linkage, `site`/`team` scopes degrade to `own` behavior.
-
-> ⚠️ **Note:** Records with `created_by = NULL` (e.g., migrated data) are invisible to `own`-scoped users. An admin should backfill `created_by` on legacy records.
+![Collapse Sidebar](eam-chi/frontend/test-artifacts/screenshots/sidebar-navigation__NAV_05_COLLAPSE.png)
 
 ---
 
-### 11.8 Scheduled Jobs
+## 7. Maintenance
 
-The system runs automated background jobs:
+### 7.1. TC 06 Maintenance Request
 
-| Job | Schedule | Purpose |
-|-----|----------|---------|
-| PM Calendar Auto-Generation | Daily at 1:00 AM | Generate PM work orders based on maintenance schedules |
+Navigate to Maintenance Request. Maintenance requests are used to report issues, request corrective maintenance, or schedule preventive maintenance tasks.
 
-All job executions are logged in the **Scheduled Job Log** entity with status, duration, records created/updated, and any error details.
+**Step 1: TC-06.1 — Maintenance Request List**
 
----
+Navigate to Maintenance Request. Maintenance requests are used to report issues, request corrective maintenance, or schedule preventive maintenance tasks.
 
-## 12. Workflows & State Machines
 
-### 12.1 How Workflows Work
+![TC-06.1 — Maintenance Request List](eam-chi/frontend/test-artifacts/screenshots/TC-06-maintenance-request__TC06_01_NAV.png)
 
-Every workflowed entity has a `workflow_state` field that tracks its current state. State transitions are the only way to move between states — you cannot manually type a state value.
+**Step 2: TC-06.1 — New Maintenance Request**
 
-**To transition a record:**
-1. Open the record's detail view
-2. The workflow bar at the top shows the current state and available actions
-3. Click an available action button (e.g., "Approve", "Start", "Complete")
-4. The record transitions to the new state
-5. An audit log entry is created
+Click 'Add New' to create a new maintenance request. Fill in the requestor, asset, priority, category, and description fields.
 
-### 12.2 State-Based Field Permissions (SM-1)
 
-Certain fields become **read-only** based on the current workflow state. For example:
-- Maintenance Request in "Pending Approval": description, asset, and requestor cannot be changed
-- Purchase Order in "Open": all form fields are read-only
+![TC-06.1 — New Maintenance Request](eam-chi/frontend/test-artifacts/screenshots/TC-06-maintenance-request__TC06_02_NEW.png)
 
-### 12.3 Required Fields Per State (SM-2)
+**Step 3: TC-06.1 — MR Created (Draft)**
 
-Some state transitions require specific fields to be filled. The system validates these requirements before allowing the transition.
+The maintenance request is created with an auto-generated ID (e.g., MTREQ-00001) and workflow state 'Draft'. From here you can submit it for approval.
 
-### 12.4 SLA Tracking (SM-5)
 
-Each entity/state combination has an SLA threshold in hours. The system tracks:
-- **SLA Status** — On Track, At Risk, Breached
-- **Is Overdue** — Boolean flag automatically set when SLA is exceeded
+![TC-06.1 — MR Created (Draft)](eam-chi/frontend/test-artifacts/screenshots/TC-06-maintenance-request__TC06_04_SAVE.png)
 
-**SLA thresholds:**
+**Step 4: TC-06.1 — Maintenance Request Detail (Draft)**
 
-| Entity | State | Hours |
-|--------|-------|-------|
-| Maintenance Request | Pending Approval | 4h |
-| Maintenance Request | Approved | 24h |
-| Maintenance Request | In Progress | 48h |
-| Work Order | Requested | 8h |
-| Work Order | Approved | 24h |
-| Work Order | In Progress | 72h |
+The maintenance request is in Draft state. The workflow dropdown shows available transitions. Click 'Submit for Approval' to advance the request.
 
-### 12.5 Audit Logging (SM-6)
 
-Every state transition is logged with:
-- Previous state and new state
-- User who performed the transition
-- Timestamp
-- Entity and record ID
+![TC-06.1 — Maintenance Request Detail (Draft)](eam-chi/frontend/test-artifacts/screenshots/TC-06-maintenance-request__TC06_05_VERIFY_DRAFT.png)
 
 ---
 
-## 13. Import & Export
+### 7.2. Maintenance Request Lifecycle
 
-### 13.1 Exporting Data
+Navigate to the Maintenance Request list page. Maintenance requests are used to report issues and request corrective or preventive maintenance.
 
-1. Open any entity list view
-2. Apply filters (optional)
-3. Click **Export**
-4. An Excel file downloads containing all matching records
+**Step 1: Maintenance Request List**
 
-> ⚠️ **Known Limitation:** The export function checks `can_read` permission but does **not** apply row-level data scoping. A user with `site` scope may receive all records in the export, not just their site's records. Restrict export access via the `can_export` permission on sensitive entities.
+Navigate to the Maintenance Request list page. Maintenance requests are used to report issues and request corrective or preventive maintenance.
 
-### 13.2 Importing Data
 
-1. Open any entity list view
-2. Click **Import**
-3. **Download Template** — Get an Excel template with correct column headers
-4. Fill in data following the template format
-5. **Upload** the completed file
-6. **Validate** — System checks for errors (missing required fields, invalid links, data type mismatches)
-7. Review validation results
-8. **Execute** — Import validated records
+![Maintenance Request List](eam-chi/frontend/test-artifacts/screenshots/maintenance-request-lifecycle__MR_01_NAVIGATE.png)
 
-> 💡 **Tip:** Always download a fresh template before importing to ensure column headers match the current entity configuration.
+**Step 2: Create New Maintenance Request**
 
-> ⚠️ **Known Limitations:**
-> - Imported records may not have `created_by` set automatically. Run a backfill query if ownership tracking is critical.
-> - Import bypasses workflow hooks, naming validation, and auto-calculations. Manually verify computed fields after bulk import.
-> - Import update mode does not enforce row-level scoping — ensure spreadsheets contain only records the user should modify.
+Click 'Add New' to open the maintenance request form.
 
----
 
-## 14. Known Limitations & Edge Cases
+![Create New Maintenance Request](eam-chi/frontend/test-artifacts/screenshots/maintenance-request-lifecycle__MR_02_NEW.png)
 
-This section documents known system behaviors and edge cases that users and administrators should be aware of.
+**Step 3: Save Maintenance Request**
 
-### 14.1 Workflow Dead-End States
+Click 'Save' to submit the maintenance request. The system creates a draft record that can be moved through the approval workflow.
 
-Some workflow states have no outgoing transitions. Records reaching these states cannot be progressed further without admin intervention:
 
-| Entity | Dead-End State | Impact |
-|--------|---------------|--------|
-| Asset | Inactive | No transition to Decommissioned or back to Active. Create a new transfer or contact admin. |
-| Condition Monitoring | Resolved | Cannot be reactivated. Create a new CM record if the condition recurs. |
-| Purchase Order | Rejected | Cannot be revised or resubmitted. Create a new PO. |
-| Safety Permit | Active (no cancel) | Cannot be cancelled while active. Must wait for expiry, then renew if needed. |
-| RFQ | Review (no cancel) | Cannot cancel from Review state. Must award or leave in Review. |
-| Sales Order | Approved | No completion or close transition. Contact admin to close. |
+![Save Maintenance Request](eam-chi/frontend/test-artifacts/screenshots/maintenance-request-lifecycle__MR_04_SAVE.png)
 
-### 14.2 Workflow Backward Transitions
+**Step 4: Maintenance Request Details**
 
-When records are **reopened** (e.g., Work Order Closed → In Progress), some computed fields may retain stale values from the prior completion:
+The maintenance request has been created. Review the details and use the workflow dropdown to advance the request through its lifecycle.
 
-| Entity | Fields That May Not Reset |
-|--------|--------------------------|
-| Work Order | `downtime_end`, `downtime_hours`, `actual_end_date` |
-| Maintenance Request | WO Activity `end_date` (MR `closed_date` does reset) |
-| WO Activity | Asset state may not revert to Under Maintenance |
-| Purchase Request | Rejected line items remain permanently rejected after PR revision |
-| Safety Permit | `valid_from` and `valid_to` dates may retain expired values after renewal |
 
-**Recommendation:** After reopening a record, manually verify and clear any stale date or cost fields.
-
-### 14.3 Concurrent Access
-
-The system does not use pessimistic locking (SELECT FOR UPDATE) or optimistic locking (version columns) on workflow transitions. If two users attempt the same transition simultaneously:
-
-- The first user's transition succeeds.
-- The second user may see a stale state; their transition could fail gracefully or — in rare cases — create duplicate side-effect records (e.g., duplicate Work Orders from a Maintenance Request approval).
-
-**Recommendation:** Use the real-time Socket.IO notifications to stay aware of state changes by other users. Refresh the page before performing critical transitions.
-
-### 14.4 Hierarchy Circular References
-
-Self-referential hierarchies (Asset parent, Location parent, Employee reports_to, Asset Class parent, Item Class parent, System parent) do **not** have built-in circular reference detection. Setting `A.parent = B` and `B.parent = A` will be accepted by the system and may cause infinite loops in tree displays.
-
-**Recommendation:** Avoid setting parent references that create cycles. Administrators should periodically audit hierarchies for accidental loops.
-
-### 14.5 Naming Series
-
-- IDs are auto-generated using a prefix + incrementing number (e.g., `AST-00001`).
-- If the series counter exceeds the digit padding (e.g., > 9999 for 4-digit padding), IDs will have inconsistent lengths (e.g., `AST-10000`). This is cosmetic and does not cause data loss.
-- Under very high concurrent load, there is a theoretical risk of duplicate ID generation. The database unique constraint will catch this as an error.
-
-### 14.6 Financial Data Precision
-
-Monetary fields (costs, rates, amounts, budgets) use floating-point storage. In rare cases, this can produce rounding artifacts (e.g., a total of `$10.000000001` instead of `$10.00`). This does not affect business operations but may appear in exports or reports.
-
-### 14.7 Parent-Child State Synchronization
-
-When a parent record changes state, child records may not automatically follow:
-
-| Parent Action | Child Impact |
-|--------------|-------------|
-| Work Order cancelled | WO Activities remain in their current state (not auto-cancelled) |
-| PO cancelled | PO Lines are cancelled, but linked PR Lines are not updated |
-| PR revised (Rejected → Draft) | PR Lines stay Rejected (permanently locked) |
-| Asset decommissioned | Open MRs and WOs for the asset remain active |
-
-**Recommendation:** After cancelling or decommissioning a parent, manually verify and close any orphaned child records.
-
-### 14.8 Server Actions
-
-Server actions (Clone Asset, Generate Maintenance Order, Create Purchase Request, Calculate RPN) have these known behaviors:
-
-- **No idempotency**: Executing an action twice may create duplicate records (e.g., two Maintenance Orders from one MR).
-- **No scope check**: Server actions do not enforce row-level data scoping on the source record.
-- **Partial failures**: If an action fails mid-execution, partial data may be committed.
-
-**Recommendation:** Use server actions deliberately and verify results. Do not double-click action buttons.
-
-### 14.9 Data Scoping Edge Cases
-
-| Scenario | Behavior |
-|----------|----------|
-| User has no role | All entity access denied |
-| Role with `data_scope = NULL` in DB | Treated as `"all"` (unrestricted) — admin should fix |
-| Role with invalid scope value | Degrades to `"own"` behavior |
-| User with no Employee linkage | `site`/`team` scopes degrade to `"own"` |
-| Legacy record with `created_by = NULL` | Invisible to `own`-scoped users; visible to `all`-scoped users |
-| Multiple roles with different scopes | Most permissive scope wins |
+![Maintenance Request Details](eam-chi/frontend/test-artifacts/screenshots/maintenance-request-lifecycle__MR_05_VERIFY_SAVED.png)
 
 ---
 
-## Appendix A — Entity Reference
+## 8. Master Data
 
-### Auto-Generated ID Patterns
+### 8.1. TC 03 Master Data Department
 
-| Entity | Prefix | Pattern |
-|--------|--------|---------|
-| Asset | A | A-{#####} |
-| Equipment | EQP | EQP-{####} |
-| Condition Monitoring | CM | CM-{#####} |
-| Employee | EMP | EMP-{#####} |
-| Labor | LAB | LAB-{#####} |
-| Maintenance Request | MTREQ | MTREQ-{#####} |
-| Maintenance Order | MTORD | MTORD-{#####} |
-| Maintenance Plan | MTPLAN | MTPLAN-{#####} |
-| Planned Maintenance Activity | PMA | PMA-{#####} |
-| Maintenance Activity | MTACT | MTACT-{#####} |
-| Maintenance Interval | MTINT | MTINT-{#####} |
-| Work Order | WO | WO-{#####} |
-| Work Order Activity | WOACT | WOACT-{#####} |
-| Safety Permit | SP | SP-{#####} |
-| Item | ITM | ITM-{#####} |
-| Vendor | VND | VND-{#####} |
-| Purchase Request | PR | PR-{#####} |
-| Purchase Order | PO | PO-{#####} |
+Navigate to Department. Departments are organizational units within a site, used for cost allocation and team-level data scoping.
 
-### Workflow Summary
+**Step 1: TC-03.1 — Department List**
 
-| Entity | States | Key Transitions |
-|--------|--------|-----------------|
-| Asset | Acquired → Inspected → Active → Inactive → Under Maintenance → Under Repair → Decommissioned | Receive, Install, Retire, Putaway, Repair, Complete, Remove, Dispose |
-| Maintenance Request | Draft → Pending Approval → Approved → Release → Completed | Submit, Emergency, Approve, Release, Complete, Reopen |
-| Work Order | Requested → Approved → In Progress → Closed | Approve, Start, Complete, Reopen |
-| Work Order Activity | Awaiting Resources → Ready → In Progress → On Hold → Completed → Closed | Allocate, Start, Hold, Resume, Complete, Close, Reopen |
-| Safety Permit | Draft → Requested → Approved → Active → Expired/Cancelled | Submit, Approve, Activate, Expire, Cancel, Renew |
-| Condition Monitoring | Active → Warning → Critical → Resolved | Warn, Escalate, Resolve |
-| Purchase Order | Draft → Open → Closed/Rejected/Cancelled | Approve, Reject, Complete, Cancel |
-| Purchase Request | Draft → Pending Review → Pending Approval → Approved → Closed/Rejected | Submit, Review, Approve, Reject, Complete, Revise |
+Navigate to Department. Departments are organizational units within a site, used for cost allocation and team-level data scoping.
 
-> ⚠️ See **Chapter 14 — Known Limitations** for dead-end states, backward transition field resets, and concurrent access considerations.
+
+![TC-03.1 — Department List](eam-chi/frontend/test-artifacts/screenshots/TC-03-master-data-department__TC03_DEPT_01_NAV.png)
+
+**Step 2: TC-03.1 — Department Saved**
+
+The department is created and linked to its parent site. Departments are used for team-level data scoping (scope=team) in the RBAC system.
+
+
+![TC-03.1 — Department Saved](eam-chi/frontend/test-artifacts/screenshots/TC-03-master-data-department__TC03_DEPT_04_SAVE.png)
+
+**Step 3: TC-03.1 — Hierarchy Complete**
+
+With Organization → Site → Department created, the organizational hierarchy is established. This hierarchy is used for data scoping, cost allocation, and reporting.
+
+
+![TC-03.1 — Hierarchy Complete](eam-chi/frontend/test-artifacts/screenshots/TC-03-master-data-department__TC03_DEPT_05_VERIFY.png)
 
 ---
 
-## Appendix B — Keyboard Shortcuts & Tips
+### 8.2. TC 03 Employee Labor
 
-### General Tips
+Navigate to Employee. Employees are linked to users, sites, and departments. They serve as requestors, approvers, and technicians across the system.
 
-- Use **Search** in the list view to quickly find records by any visible field
-- **Link fields** (dropdown selectors) can be filtered by typing — start typing to narrow options
-- **Child tables** support inline editing — add/edit/delete child records directly from the parent form
-- **Attachments** can be uploaded by drag-and-drop onto the attachment area
-- **Bulk actions** — Select multiple records in list view for bulk operations
-- Use **Ctrl+S** / **Cmd+S** to save the current record
-- **Tree views** — Entities like Location and Asset Class support hierarchical tree display when configured
+**Step 1: TC-03.2 — Employee List**
 
-### Troubleshooting
+Navigate to Employee. Employees are linked to users, sites, and departments. They serve as requestors, approvers, and technicians across the system.
 
-| Issue | Resolution |
-|-------|-----------|
-| Cannot see an entity in sidebar | Contact admin to verify your role has `can_read` and `in_sidebar` for that entity |
-| Cannot create/edit records | Verify your role has `can_create`/`can_update` permission |
-| Workflow action not available | The transition may be role-restricted — check with admin |
-| SLA showing "Breached" | The record has exceeded its time limit in the current state |
-| Import failing | Download a fresh template and verify all required fields are filled |
-| Real-time notifications not appearing | Check browser notifications are allowed for the application |
+
+![TC-03.2 — Employee List](eam-chi/frontend/test-artifacts/screenshots/TC-03-employee-labor__TC03_EMP_01_NAV.png)
+
+**Step 2: TC-03.2 — New Employee**
+
+Click 'Add New' to create an employee record. Link the employee to a user account, site, and department.
+
+
+![TC-03.2 — New Employee](eam-chi/frontend/test-artifacts/screenshots/TC-03-employee-labor__TC03_EMP_02_NEW.png)
+
+**Step 3: TC-03.2 — Employee Created**
+
+The employee record is created with an auto-generated ID (e.g., EMP-00001). The employee can now be assigned to maintenance requests, work orders, and labor records.
+
+
+![TC-03.2 — Employee Created](eam-chi/frontend/test-artifacts/screenshots/TC-03-employee-labor__TC03_EMP_04_SAVE.png)
+
+**Step 4: TC-03.2 — Employee Detail**
+
+The employee record shows name, linked user, site, department, and trade. Employees serve as the bridge between user accounts and operational entities.
+
+
+![TC-03.2 — Employee Detail](eam-chi/frontend/test-artifacts/screenshots/TC-03-employee-labor__TC03_EMP_05_VERIFY.png)
 
 ---
 
-*End of User Manual — EAM-CHI v1.1*
+### 8.3. TC 03 Master Data Organization
+
+Navigate to Organization in the sidebar. This page shows all registered organizations. Organizations are the top level of the hierarchy: Organization → Site → Department.
+
+**Step 1: TC-03.1 — Organization List**
+
+Navigate to Organization in the sidebar. This page shows all registered organizations. Organizations are the top level of the hierarchy: Organization → Site → Department.
+
+
+![TC-03.1 — Organization List](eam-chi/frontend/test-artifacts/screenshots/TC-03-master-data-organization__TC03_01_NAV_ORG.png)
+
+**Step 2: TC-03.1 — Create Organization**
+
+Click 'Add New' to create a new Organization. Fill in the name and other required fields.
+
+
+![TC-03.1 — Create Organization](eam-chi/frontend/test-artifacts/screenshots/TC-03-master-data-organization__TC03_02_NEW_ORG.png)
+
+**Step 3: TC-03.1 — Organization Saved**
+
+Click 'Create' to save the organization. A success notification confirms the record was created with an auto-generated ID.
+
+
+![TC-03.1 — Organization Saved](eam-chi/frontend/test-artifacts/screenshots/TC-03-master-data-organization__TC03_04_SAVE_ORG.png)
+
+**Step 4: TC-03.1 — Organization Detail**
+
+The organization record is now saved. You can see the auto-generated ID and all fields. Navigate to Site to create sites linked to this organization.
+
+
+![TC-03.1 — Organization Detail](eam-chi/frontend/test-artifacts/screenshots/TC-03-master-data-organization__TC03_05_VERIFY_ORG.png)
+
+---
+
+### 8.4. TC 03 Master Data Site
+
+Navigate to Site. Sites represent physical locations within an organization. Each site can have multiple departments.
+
+**Step 1: TC-03.1 — Site List**
+
+Navigate to Site. Sites represent physical locations within an organization. Each site can have multiple departments.
+
+
+![TC-03.1 — Site List](eam-chi/frontend/test-artifacts/screenshots/TC-03-master-data-site__TC03_SITE_01_NAV.png)
+
+**Step 2: TC-03.1 — Create Site**
+
+Click 'Add New' to create a new site. Link the site to the organization created in the previous step.
+
+
+![TC-03.1 — Create Site](eam-chi/frontend/test-artifacts/screenshots/TC-03-master-data-site__TC03_SITE_02_NEW.png)
+
+**Step 3: TC-03.1 — Site Saved**
+
+The site is created with an auto-generated ID and linked to the organization. Repeat this process to create additional sites.
+
+
+![TC-03.1 — Site Saved](eam-chi/frontend/test-artifacts/screenshots/TC-03-master-data-site__TC03_SITE_04_SAVE.png)
+
+**Step 4: TC-03.1 — Site Detail View**
+
+The site record shows the name, organization link, and any child departments. Each site serves as a scope boundary for role-based access control.
+
+
+![TC-03.1 — Site Detail View](eam-chi/frontend/test-artifacts/screenshots/TC-03-master-data-site__TC03_SITE_05_VERIFY.png)
+
+---
+
+### 8.5. TC 03 Vendor Item
+
+Navigate to Vendor. Vendors supply materials, spare parts, and services. Their performance is tracked automatically based on purchase receipts.
+
+**Step 1: TC-03 — Vendor List**
+
+Navigate to Vendor. Vendors supply materials, spare parts, and services. Their performance is tracked automatically based on purchase receipts.
+
+
+![TC-03 — Vendor List](eam-chi/frontend/test-artifacts/screenshots/TC-03-vendor-item__TC03_VENDOR_01_NAV.png)
+
+**Step 2: TC-03 — Vendor Created**
+
+The vendor record is created. Performance ratings (delivery, quality, overall) are auto-calculated from purchase receipts. A new vendor starts with default/zero ratings.
+
+
+![TC-03 — Vendor Created](eam-chi/frontend/test-artifacts/screenshots/TC-03-vendor-item__TC03_VENDOR_04_SAVE.png)
+
+**Step 3: TC-03 — Vendor Detail**
+
+The vendor detail shows contact information, performance ratings, and linked purchase orders. Ratings update automatically when purchase receipts are processed.
+
+
+![TC-03 — Vendor Detail](eam-chi/frontend/test-artifacts/screenshots/TC-03-vendor-item__TC03_VENDOR_05_VERIFY.png)
+
+**Step 4: TC-03 — Item (Inventory) List**
+
+Navigate to Item. Items represent materials, spare parts, and consumables tracked in inventory. They are used in purchase requests, purchase orders, and work order parts.
+
+
+![TC-03 — Item (Inventory) List](eam-chi/frontend/test-artifacts/screenshots/TC-03-vendor-item__TC03_ITEM_06_NAV.png)
+
+**Step 5: TC-03 — Item Created**
+
+The item is created with its name and default properties. Items track stock levels, reorder points, and are linked to stores for inventory management.
+
+
+![TC-03 — Item Created](eam-chi/frontend/test-artifacts/screenshots/TC-03-vendor-item__TC03_ITEM_09_SAVE.png)
+
+**Step 6: TC-03 — Item Detail**
+
+The item detail view shows name, unit of measure, stock levels, reorder point, and storage locations. Items are referenced in PR lines, PO lines, and WO parts.
+
+
+![TC-03 — Item Detail](eam-chi/frontend/test-artifacts/screenshots/TC-03-vendor-item__TC03_ITEM_10_VERIFY.png)
+
+---
+
+## 9. Purchasing & Stores
+
+### 9.1. TC 11 Purchasing Pr Po
+
+Navigate to Purchasing → Purchase Request. Purchase requests initiate procurement for materials, spare parts, and services needed for maintenance.
+
+**Step 1: TC-11.1 — Purchase Request List**
+
+Navigate to Purchasing → Purchase Request. Purchase requests initiate procurement for materials, spare parts, and services needed for maintenance.
+
+
+![TC-11.1 — Purchase Request List](eam-chi/frontend/test-artifacts/screenshots/TC-11-purchasing-pr-po__TC11_01_NAV_PR.png)
+
+**Step 2: TC-11.1 — New Purchase Request**
+
+Click 'Add New' to create a purchase request. Specify the requestor, due date, site, and department. Add line items with quantities and unit prices.
+
+
+![TC-11.1 — New Purchase Request](eam-chi/frontend/test-artifacts/screenshots/TC-11-purchasing-pr-po__TC11_02_NEW_PR.png)
+
+**Step 3: TC-11.1 — PR Created (Draft)**
+
+The purchase request is created with an auto-generated ID (e.g., PR-00001) in 'Draft' state. Add line items, then submit for approval.
+
+
+![TC-11.1 — PR Created (Draft)](eam-chi/frontend/test-artifacts/screenshots/TC-11-purchasing-pr-po__TC11_04_SAVE_PR.png)
+
+**Step 4: TC-11.1 — Purchase Request Detail**
+
+The purchase request detail shows requestor, due date, and line items. The PR Lines child table allows adding items with quantities, unit prices, and calculated line totals.
+
+
+![TC-11.1 — Purchase Request Detail](eam-chi/frontend/test-artifacts/screenshots/TC-11-purchasing-pr-po__TC11_05_VERIFY_PR.png)
+
+**Step 5: TC-11.2 — Purchase Order List**
+
+Navigate to Purchasing → Purchase Order. Purchase orders are issued to vendors based on approved purchase requests. PO types include Standard, Blanket, and Contract.
+
+
+![TC-11.2 — Purchase Order List](eam-chi/frontend/test-artifacts/screenshots/TC-11-purchasing-pr-po__TC11_06_NAV_PO.png)
+
+**Step 6: TC-11.2 — New Purchase Order**
+
+Click 'Add New' to create a purchase order. Select the vendor, PO type, site, and department. Add line items matching the approved PR.
+
+
+![TC-11.2 — New Purchase Order](eam-chi/frontend/test-artifacts/screenshots/TC-11-purchasing-pr-po__TC11_07_NEW_PO.png)
+
+**Step 7: TC-11.2 — PO New Form**
+
+The new purchase order form shows fields for vendor, PO type, site, department, and financial details. Select a vendor to link the PO to approved purchase requests.
+
+
+![TC-11.2 — PO New Form](eam-chi/frontend/test-artifacts/screenshots/TC-11-purchasing-pr-po__TC11_08_FILL_PO.png)
+
+**Step 8: TC-11.2 — PO Created (Draft)**
+
+The purchase order is created with an auto-generated ID (e.g., PO-00001) in 'Draft' state. The form is editable in Draft. After approval, the form becomes read-only.
+
+
+![TC-11.2 — PO Created (Draft)](eam-chi/frontend/test-artifacts/screenshots/TC-11-purchasing-pr-po__TC11_09_SAVE_PO.png)
+
+**Step 9: TC-11.2 — Purchase Order Detail**
+
+The purchase order detail shows vendor, PO type, terms, and line items. Supported PO types: Standard (one-time), Blanket (spending limit), and Contract (date range). The workflow moves through Draft → Open → Closed.
+
+
+![TC-11.2 — Purchase Order Detail](eam-chi/frontend/test-artifacts/screenshots/TC-11-purchasing-pr-po__TC11_10_VERIFY_PO.png)
+
+---
+
+### 9.2. Purchase Request Lifecycle
+
+Navigate to the Purchase Request list page. Purchase requests initiate the procurement workflow for materials, spare parts, and services.
+
+**Step 1: Purchase Request List**
+
+Navigate to the Purchase Request list page. Purchase requests initiate the procurement workflow for materials, spare parts, and services.
+
+
+![Purchase Request List](eam-chi/frontend/test-artifacts/screenshots/purchase-request-lifecycle__PR_01_NAVIGATE.png)
+
+**Step 2: Create New Purchase Request**
+
+Click 'Add New' to create a new purchase request. Fill in the required fields such as description and requested items.
+
+
+![Create New Purchase Request](eam-chi/frontend/test-artifacts/screenshots/purchase-request-lifecycle__PR_02_NEW.png)
+
+**Step 3: Save Purchase Request**
+
+Click 'Save' to create the purchase request. It will start in Draft state and can be submitted for approval.
+
+
+![Save Purchase Request](eam-chi/frontend/test-artifacts/screenshots/purchase-request-lifecycle__PR_04_SAVE.png)
+
+**Step 4: Purchase Request Details**
+
+The purchase request is now saved. Use the workflow dropdown to submit it for approval.
+
+
+![Purchase Request Details](eam-chi/frontend/test-artifacts/screenshots/purchase-request-lifecycle__PR_05_VERIFY_SAVED.png)
+
+---
+
+## 10. Work Management
+
+### 10.1. TC 07 Work Order
+
+Navigate to Work Management → Work Order. Work orders track maintenance tasks from request through completion, including labor, parts, and costs.
+
+**Step 1: TC-07.1 — Work Order List**
+
+Navigate to Work Management → Work Order. Work orders track maintenance tasks from request through completion, including labor, parts, and costs.
+
+
+![TC-07.1 — Work Order List](eam-chi/frontend/test-artifacts/screenshots/TC-07-work-order__TC07_01_NAV.png)
+
+**Step 2: TC-07.1 — New Work Order**
+
+Click 'Add New' to create a new work order. Fill in the type, description, priority, site, department, asset, and due date.
+
+
+![TC-07.1 — New Work Order](eam-chi/frontend/test-artifacts/screenshots/TC-07-work-order__TC07_02_NEW.png)
+
+**Step 3: TC-07.1 — WO Created (Requested)**
+
+The work order is created with an auto-generated ID (e.g., WO-00001) in the 'Requested' state. Use the workflow dropdown to approve and start the work order.
+
+
+![TC-07.1 — WO Created (Requested)](eam-chi/frontend/test-artifacts/screenshots/TC-07-work-order__TC07_04_SAVE.png)
+
+**Step 4: TC-07.1 — Work Order Detail**
+
+The work order detail page shows all fields organized in tabs: Details, Labor, Equipment, Parts, Activities, and Attachments. The header shows the workflow state and available transitions.
+
+
+![TC-07.1 — Work Order Detail](eam-chi/frontend/test-artifacts/screenshots/TC-07-work-order__TC07_05_VERIFY.png)
+
+---
+
+### 10.2. Work Order Lifecycle
+
+Navigate to the Work Order list page. This page displays all work orders with their current workflow status, priority, and assigned personnel.
+
+**Step 1: Work Order List**
+
+Navigate to the Work Order list page. This page displays all work orders with their current workflow status, priority, and assigned personnel.
+
+
+![Work Order List](eam-chi/frontend/test-artifacts/screenshots/work-order-lifecycle__WO_01_NAVIGATE.png)
+
+**Step 2: Create New Work Order**
+
+Click 'Add New' to create a new work order. The form opens with default values including the 'Requested' workflow state.
+
+
+![Create New Work Order](eam-chi/frontend/test-artifacts/screenshots/work-order-lifecycle__WO_02_NEW.png)
+
+**Step 3: Save Work Order**
+
+Click 'Save' to create the work order. The system assigns a unique code and sets the initial workflow state.
+
+
+![Save Work Order](eam-chi/frontend/test-artifacts/screenshots/work-order-lifecycle__WO_04_SAVE.png)
+
+**Step 4: Work Order Initial State**
+
+After saving, the work order is in the initial workflow state. The workflow dropdown in the header shows available transitions.
+
+
+![Work Order Initial State](eam-chi/frontend/test-artifacts/screenshots/work-order-lifecycle__WO_05_VERIFY_STATE.png)
+
+---
+
+## 11. Safety Permits
+
+### 11.1. TC 09 Safety Permit
+
+Navigate to Safety Permit. Safety permits control access to hazardous work areas and ensure proper safety procedures are followed before maintenance tasks begin.
+
+**Step 1: TC-09.1 — Safety Permit List**
+
+Navigate to Safety Permit. Safety permits control access to hazardous work areas and ensure proper safety procedures are followed before maintenance tasks begin.
+
+
+![TC-09.1 — Safety Permit List](eam-chi/frontend/test-artifacts/screenshots/TC-09-safety-permit__TC09_01_NAV.png)
+
+**Step 2: TC-09.1 — New Safety Permit**
+
+Click 'Add New' to create a new safety permit. Select the permit type (LOTO, Hot Work, Confined Space, etc.), link it to a work order, and specify hazards and precautions.
+
+
+![TC-09.1 — New Safety Permit](eam-chi/frontend/test-artifacts/screenshots/TC-09-safety-permit__TC09_02_NEW.png)
+
+**Step 3: TC-09.1 — Safety Permit Created (Draft)**
+
+The safety permit is created with an auto-generated ID (e.g., SP-00001) in 'Draft' state. Submit the request for approval by the safety officer.
+
+
+![TC-09.1 — Safety Permit Created (Draft)](eam-chi/frontend/test-artifacts/screenshots/TC-09-safety-permit__TC09_04_SAVE.png)
+
+**Step 4: TC-09.1 — Safety Permit Detail**
+
+The safety permit detail page shows permit type, valid dates, hazards, precautions, and emergency procedures. The workflow tracks the permit through its approval and activation lifecycle.
+
+
+![TC-09.1 — Safety Permit Detail](eam-chi/frontend/test-artifacts/screenshots/TC-09-safety-permit__TC09_05_VERIFY.png)
+
+---
+
+## 12. Troubleshooting
+
+This section covers common issues observed during testing.
+
+### Empty Credentials Error
+
+If you attempt to sign in without entering credentials, the system displays a validation message prompting you to fill in the required fields.
+
+
+![Empty Credentials Error](eam-chi/frontend/test-artifacts/screenshots/login-edge-cases__LOGIN_ERR_02_EMPTY_SUBMIT.png)
+
+> *Show the validation error that appears when submitting the login form with empty fields.*
+
+### Invalid Credentials Error
+
+If you enter an incorrect username or password, the system displays an error message. Verify your credentials and try again. After multiple failed attempts, your account may be temporarily locked.
+
+
+![Invalid Credentials Error](eam-chi/frontend/test-artifacts/screenshots/login-edge-cases__LOGIN_ERR_05_WRONG_PASSWORD_SUBMIT.png)
+
+> *Capture the error message displayed after failed login. This goes in the Troubleshooting section.*
+
+
+---
+*This manual was auto-generated by the Dual-Purpose Automation Framework.*

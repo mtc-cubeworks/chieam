@@ -1,0 +1,109 @@
+{
+  "name": "TC-03-manufacturer-model",
+  "description": "TC-03.3: Manufacturer & Model \u2014 Navigate manufacturer and model lists, view detail pages",
+  "persona": "Admin",
+  "tags": [
+    "TC-03",
+    "master-data",
+    "manufacturer",
+    "model"
+  ],
+  "steps": [
+    {
+      "id": "TC03_MFR_01_NAV",
+      "action": "goto",
+      "url": "/manufacturer",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-03.3 \u2014 Manufacturer List",
+        "caption": "Navigate to Manufacturer. Manufacturers are linked to assets and equipment to track the make and model of each item."
+      }
+    },
+    {
+      "id": "TC03_MFR_02_LIST",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03.3 \u2014 Manufacturer List View",
+        "caption": "The Manufacturer list shows all registered manufacturers with names, countries, and contact information. Use filters to locate specific manufacturers."
+      }
+    },
+    {
+      "id": "TC03_MFR_03_CLICK_FIRST",
+      "action": "click",
+      "target": "table tbody tr:first-child td:first-child a, table tbody tr:first-child, [data-testid='entity-row']:first-child",
+      "timeout": 10000,
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-03.3 \u2014 Open Manufacturer Record",
+        "caption": "Click on a manufacturer record to view its details and associated models."
+      }
+    },
+    {
+      "id": "TC03_MFR_04_WAIT",
+      "action": "wait",
+      "timeout": 3000,
+      "doc_metadata": {
+        "title": "TC-03.3 \u2014 Wait for Page Load",
+        "caption": "Wait for all page components to finish loading and rendering."
+      }
+    },
+    {
+      "id": "TC03_MFR_05_DETAIL",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03.3 \u2014 Manufacturer Detail",
+        "caption": "The manufacturer detail page shows the company name, country, and associated models. Models link a manufacturer to specific product lines used in asset tracking."
+      }
+    },
+    {
+      "id": "TC03_MODEL_01_NAV",
+      "action": "goto",
+      "url": "/model",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-03.3 \u2014 Model List",
+        "caption": "Navigate to Model. Models represent specific product lines from manufacturers and are linked to assets for detailed equipment tracking."
+      }
+    },
+    {
+      "id": "TC03_MODEL_02_LIST",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03.3 \u2014 Model List View",
+        "caption": "The Model list shows all registered product models with names, linked manufacturers, and associated asset counts."
+      }
+    },
+    {
+      "id": "TC03_MODEL_03_CLICK_FIRST",
+      "action": "click",
+      "target": "table tbody tr:first-child td:first-child a, table tbody tr:first-child, [data-testid='entity-row']:first-child",
+      "timeout": 10000,
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-03.3 \u2014 Open Model Record",
+        "caption": "Click on a model record to view its details and the linked manufacturer."
+      }
+    },
+    {
+      "id": "TC03_MODEL_04_WAIT",
+      "action": "wait",
+      "timeout": 3000,
+      "doc_metadata": {
+        "title": "TC-03.3 \u2014 Wait for Page Load",
+        "caption": "Wait for all page components to finish loading and rendering."
+      }
+    },
+    {
+      "id": "TC03_MODEL_05_DETAIL",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03.3 \u2014 Model Detail",
+        "caption": "The model detail page shows the model name, linked manufacturer, and any associated assets."
+      }
+    }
+  ]
+}

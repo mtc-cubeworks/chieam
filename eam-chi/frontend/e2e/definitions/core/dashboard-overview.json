@@ -1,0 +1,43 @@
+{
+  "name": "dashboard-overview",
+  "description": "Navigates to the Dashboard and validates that KPI cards and chart sections render correctly",
+  "persona": "Admin",
+  "tags": ["core", "dashboard", "happy-path"],
+  "steps": [
+    {
+      "id": "DASH_01_NAVIGATE",
+      "action": "goto",
+      "url": "/dashboard",
+      "assertions": [
+        { "type": "visible", "target": "h1:has-text('Dashboard')" }
+      ],
+      "doc_metadata": {
+        "title": "Dashboard Overview",
+        "caption": "The Dashboard provides a real-time overview of your asset management system. Navigate to the Dashboard by clicking 'Dashboard' in the left sidebar or by visiting /dashboard.",
+        "manual_hint": "This is the opening screenshot for the Dashboard chapter."
+      }
+    },
+    {
+      "id": "DASH_02_KPI_CARDS",
+      "action": "screenshot",
+      "assertions": [
+        { "type": "visible", "target": ".grid .border.border-accented" }
+      ],
+      "doc_metadata": {
+        "title": "Key Performance Indicators",
+        "caption": "Six KPI cards are displayed at the top: Total Assets, Work Orders, Overdue WOs, Inventory, Purchase Requests, and Incidents. Each card shows the current total and a secondary metric such as the count from the last 30 days.",
+        "manual_hint": "Annotate each KPI card."
+      }
+    },
+    {
+      "id": "DASH_03_REFRESH",
+      "action": "click",
+      "target": "button:has-text('Refresh')",
+      "doc_metadata": {
+        "title": "Refreshing Dashboard Data",
+        "caption": "Click the 'Refresh' button in the top-right corner to reload all dashboard data from the server.",
+        "manual_hint": "Show the Refresh button location."
+      }
+    }
+  ]
+}

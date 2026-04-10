@@ -1,0 +1,86 @@
+{
+  "name": "asset-lifecycle",
+  "description": "Creates a new asset, saves it, and transitions through workflow states: Draft \u2192 Active \u2192 Inactive",
+  "persona": "Admin",
+  "tags": [
+    "asset-management",
+    "workflow",
+    "lifecycle",
+    "happy-path"
+  ],
+  "steps": [
+    {
+      "id": "ASSET_01_NAVIGATE",
+      "action": "goto",
+      "url": "/asset",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Asset List",
+        "caption": "Navigate to the Asset list page by clicking 'Asset' in the sidebar or visiting /asset. This page shows all registered assets in a data table with search, filter, and sort capabilities.",
+        "manual_hint": "Opening screenshot for the Asset Management chapter."
+      }
+    },
+    {
+      "id": "ASSET_02_NEW",
+      "action": "click",
+      "target": "button:has-text('Add New'), [data-testid='btn-new'], button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/asset/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Create New Asset",
+        "caption": "Click 'Add New' in the top-right corner to open the asset creation form. You will be redirected to a blank form where you can enter the asset details.",
+        "manual_hint": "Show the Add New button before clicking."
+      }
+    },
+    {
+      "id": "ASSET_03_FILL_NAME",
+      "action": "type",
+      "target": "input[name='description'], textarea[name='description']",
+      "value": "Test Pump Assembly E2E",
+      "doc_metadata": {
+        "title": "Fill Form Field",
+        "caption": "Enter \"Test Pump Assembly E2E\" into the Description field."
+      }
+    },
+    {
+      "id": "ASSET_04_FILL_DESCRIPTION",
+      "action": "screenshot",
+      "doc_metadata": {
+        "title": "Asset Form Filled",
+        "caption": "Fill in the asset details. The 'Description' field is the primary identifier. Additional fields can be filled as needed.",
+        "is_edge_case": false
+      }
+    },
+    {
+      "id": "ASSET_05_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "Save New Asset",
+        "caption": "After filling in the required fields, click 'Save' to create the asset record. A success notification appears confirming the asset was created.",
+        "manual_hint": "Show the save button and the success toast."
+      }
+    },
+    {
+      "id": "ASSET_06_VERIFY_SAVED",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "Asset Details View",
+        "caption": "After saving, you are taken to the asset detail page where you can view all fields, switch tabs, and manage workflow state.",
+        "manual_hint": "Full page showing the saved asset with workflow state badge."
+      }
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "name": "TC-20-corrective-maintenance-scenario",
+  "description": "TC-20.1: Corrective Maintenance End-to-End Scenario — Condition detection → MR → WO → Safety Permit → Completion chain",
+  "persona": "Admin",
+  "tags": ["TC-20", "e2e-scenario", "corrective-maintenance"],
+  "steps": [
+    {
+      "id": "TC20_01_NAV_CM",
+      "action": "goto",
+      "url": "/condition_monitoring",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-20.1 — Step 1: Condition Detection",
+        "caption": "The corrective maintenance scenario begins with condition monitoring detecting an anomaly. A vibration reading exceeds the critical threshold, triggering the maintenance chain."
+      }
+    },
+    {
+      "id": "TC20_02_SCREENSHOT_CM",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-20.1 — Condition Monitoring Alert",
+        "caption": "Condition monitoring records show the escalation from Normal → Warning → Critical. Critical conditions trigger maintenance request creation."
+      }
+    },
+    {
+      "id": "TC20_03_NAV_MR",
+      "action": "goto",
+      "url": "/maintenance_request",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-20.1 — Step 2: Maintenance Request",
+        "caption": "A high-priority maintenance request is created to address the critical condition. The MR includes the asset reference and failure description."
+      }
+    },
+    {
+      "id": "TC20_04_SCREENSHOT_MR",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-20.1 — MR Linked to Condition",
+        "caption": "The maintenance request references the condition monitoring alert. After approval, a maintenance order and work order are generated."
+      }
+    },
+    {
+      "id": "TC20_05_NAV_WO",
+      "action": "goto",
+      "url": "/work_order",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-20.1 — Step 3: Work Order Execution",
+        "caption": "A corrective work order is generated from the maintenance order. The WO tracks labor, parts, equipment, and safety permit requirements."
+      }
+    },
+    {
+      "id": "TC20_06_SCREENSHOT_WO",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-20.1 — Work Order with Resources",
+        "caption": "The work order shows assigned resources (labor, parts, equipment), linked safety permit, and workflow progression through Requested → Approved → In Progress → Closed."
+      }
+    },
+    {
+      "id": "TC20_07_NAV_SP",
+      "action": "goto",
+      "url": "/safety_permit",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-20.1 — Step 4: Safety Permit",
+        "caption": "A safety permit is issued for the corrective work order. The permit ensures proper safety protocols (LOTO, PPE) are followed during repairs."
+      }
+    },
+    {
+      "id": "TC20_08_SCREENSHOT_SP",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-20.1 — Safety Permit for Corrective Work",
+        "caption": "The safety permit detail shows hazards, precautions, and the linked work order. Active permits must be verified before work begins."
+      }
+    },
+    {
+      "id": "TC20_09_NAV_FA",
+      "action": "goto",
+      "url": "/failure_analysis",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-20.1 — Step 5: Failure Analysis",
+        "caption": "After completing the corrective work, a failure analysis is created to document root cause, remedy, and prevention measures."
+      }
+    },
+    {
+      "id": "TC20_10_SCREENSHOT_FA",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-20.1 — Root Cause Analysis",
+        "caption": "The failure analysis records severity, occurrence, and detection ratings. The RPN (Risk Priority Number) score prioritizes corrective actions. 5-Why and Fishbone templates support structured root cause analysis."
+      }
+    }
+  ]
+}

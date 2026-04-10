@@ -1,0 +1,65 @@
+{
+  "name": "TC-02-workflow-management",
+  "description": "TC-02.4: Workflow Transition Role Restriction — View workflow configuration and state management",
+  "persona": "Admin",
+  "tags": ["TC-02", "rbac", "workflow", "transitions"],
+  "steps": [
+    {
+      "id": "TC02_WF_01_NAV",
+      "action": "goto",
+      "url": "/workflow",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-02.4 — Workflow Management",
+        "caption": "Navigate to Workflow. This page shows all configured workflow definitions with their states, transitions, and role-based restrictions."
+      }
+    },
+    {
+      "id": "TC02_WF_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-02.4 — Workflow Definitions",
+        "caption": "The workflow management page lists all entity workflows. Each workflow defines states, allowed transitions, and which roles can trigger each transition."
+      }
+    },
+    {
+      "id": "TC02_WF_03_NAV_REPORTS",
+      "action": "goto",
+      "url": "/reports",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-02 — Reports Dashboard",
+        "caption": "Navigate to Reports. The reporting dashboard shows operational metrics, KPIs, and analytics across all EAM modules."
+      }
+    },
+    {
+      "id": "TC02_WF_04_SCREENSHOT_REPORTS",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-02 — Reports Overview",
+        "caption": "The reports page provides analytics and operational insights including asset health, maintenance backlog, work order completion rates, and vendor performance summaries."
+      }
+    },
+    {
+      "id": "TC02_WF_05_NAV_MODEL",
+      "action": "goto",
+      "url": "/model-editor",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-02 — Model Editor",
+        "caption": "Navigate to Model Editor. This admin tool allows configuring entity models, fields, and relationships."
+      }
+    },
+    {
+      "id": "TC02_WF_06_SCREENSHOT_MODEL",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-02 — Model Editor Interface",
+        "caption": "The Model Editor provides a visual interface for configuring entity models, field types, validation rules, and cross-entity relationships."
+      }
+    }
+  ]
+}

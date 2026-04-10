@@ -226,6 +226,7 @@ onMounted(() => {
     <!-- App Layout with Sidebar -->
     <!-- Sidebar -->
     <aside
+      data-testid="sidebar"
       :class="[
         'bg-card h-screen flex flex-col flex-shrink-0 sticky border-r border-accented top-0 transition-[width] duration-300 ease-in-out overflow-hidden',
         isCollapsed ? 'w-18' : 'w-64',
@@ -271,6 +272,7 @@ onMounted(() => {
       <!-- Navigation -->
       <div class="flex-1 overflow-y-auto p-2">
         <UNavigationMenu
+          data-testid="nav-menu"
           :collapsed="isCollapsed"
           orientation="vertical"
           :items="navigationItems"
@@ -303,6 +305,7 @@ onMounted(() => {
       <!-- User section -->
       <div class="p-4 border-t border-accented">
         <UDropdownMenu
+          data-testid="user-menu"
           :items="[
             [
               {
@@ -349,6 +352,7 @@ onMounted(() => {
         <!-- Breadcrumbs with collapse button -->
         <div class="flex items-center space-x-2">
           <UButton
+            data-testid="sidebar-toggle"
             variant="ghost"
             size="sm"
             icon="i-lucide-menu"
@@ -356,6 +360,7 @@ onMounted(() => {
             class="mr-2"
           />
           <UBreadcrumb
+            data-testid="breadcrumb"
             :items="[
               { label: 'Home', to: '/' },
               ...crumbs.map((c) => ({ label: c.label, to: c.href })),
@@ -367,7 +372,7 @@ onMounted(() => {
         <!-- Notifications -->
         <UPopover>
           <div class="relative">
-            <UButton variant="outline" icon="i-lucide-bell" size="sm" />
+            <UButton data-testid="notifications-btn" variant="outline" icon="i-lucide-bell" size="sm" />
             <span
               v-if="unreadCount > 0"
               class="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"

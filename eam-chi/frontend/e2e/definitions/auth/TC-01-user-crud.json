@@ -1,0 +1,80 @@
+{
+  "name": "TC-01-user-crud",
+  "description": "TC-01.4: User CRUD \u2014 Navigate to Admin panel, view users list, verify user management interface",
+  "persona": "Admin",
+  "tags": [
+    "TC-01",
+    "auth",
+    "user-management",
+    "admin"
+  ],
+  "steps": [
+    {
+      "id": "TC01_USER_01_NAV",
+      "action": "goto",
+      "url": "/admin",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-01.4 \u2014 Admin Panel",
+        "caption": "Navigate to the Admin panel. This page provides user management, role configuration, and system settings."
+      }
+    },
+    {
+      "id": "TC01_USER_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-01.4 \u2014 Admin Dashboard",
+        "caption": "The Admin panel shows user accounts, roles, and system configuration. Administrators can create, edit, and deactivate user accounts."
+      }
+    },
+    {
+      "id": "TC01_USER_03_NAV_USERS",
+      "action": "goto",
+      "url": "/user",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-01.4 \u2014 User List",
+        "caption": "Navigate to the User entity list. This shows all registered users with their roles, status, and last login information."
+      }
+    },
+    {
+      "id": "TC01_USER_04_LIST",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-01.4 \u2014 User List View",
+        "caption": "The user list shows all registered user accounts with their username, role assignment, status, and employee linkage. Administrators can manage users from this view."
+      }
+    },
+    {
+      "id": "TC01_USER_05_CLICK_FIRST",
+      "action": "click",
+      "target": "table tbody tr:first-child td:first-child a, table tbody tr:first-child, [data-testid='entity-row']:first-child",
+      "timeout": 10000,
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-01.4 \u2014 User Detail",
+        "caption": "Click on a user record to view details including username, email, role assignment, and employee linkage."
+      }
+    },
+    {
+      "id": "TC01_USER_06_WAIT",
+      "action": "wait",
+      "timeout": 3000,
+      "doc_metadata": {
+        "title": "TC-01.4 \u2014 Wait for Page Load",
+        "caption": "Wait for all page components to finish loading and rendering."
+      }
+    },
+    {
+      "id": "TC01_USER_07_DETAIL",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-01.4 \u2014 User Detail View",
+        "caption": "The user detail page shows username, email, password fields, role assignment, and employee linkage. The role determines which entities and actions the user can access."
+      }
+    }
+  ]
+}

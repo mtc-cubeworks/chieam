@@ -1,0 +1,61 @@
+{
+  "name": "TC-07-wo-failure-reporting",
+  "description": "TC-07.5: Work Order Failure Reporting \u2014 Navigate to failure analysis and view failure records",
+  "persona": "Admin",
+  "tags": [
+    "TC-07",
+    "work-management",
+    "failure-analysis",
+    "failure-reporting"
+  ],
+  "steps": [
+    {
+      "id": "TC07_FAIL_01_NAV",
+      "action": "goto",
+      "url": "/failure_analysis",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-07.5 \u2014 Failure Analysis List",
+        "caption": "Navigate to Failure Analysis. Failure analysis records document root causes, remedies, and risk priority numbers (RPN) for equipment failures."
+      }
+    },
+    {
+      "id": "TC07_FAIL_02_LIST",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-07.5 \u2014 Failure Analysis List View",
+        "caption": "The Failure Analysis list shows all failure records with failure modes, cause codes, severity ratings, and RPN scores. Filter by asset or date range."
+      }
+    },
+    {
+      "id": "TC07_FAIL_03_CLICK_FIRST",
+      "action": "click",
+      "target": "table tbody tr:first-child td:first-child a, table tbody tr:first-child, [data-testid='entity-row']:first-child",
+      "timeout": 10000,
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-07.5 \u2014 Open Failure Analysis",
+        "caption": "Click on a failure analysis record to view its details including failure mode, cause, severity, occurrence, and detection ratings."
+      }
+    },
+    {
+      "id": "TC07_FAIL_04_WAIT",
+      "action": "wait",
+      "timeout": 3000,
+      "doc_metadata": {
+        "title": "TC-07.5 \u2014 Wait for Page Load",
+        "caption": "Wait for all page components to finish loading and rendering."
+      }
+    },
+    {
+      "id": "TC07_FAIL_05_DETAIL",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-07.5 \u2014 Failure Analysis Detail",
+        "caption": "The failure analysis detail shows failure mode, cause code, remedy code, severity/occurrence/detection ratings, and RPN score. Server actions enable 5-Why and Fishbone templates."
+      }
+    }
+  ]
+}

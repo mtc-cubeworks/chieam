@@ -1,0 +1,70 @@
+{
+  "name": "sidebar-navigation",
+  "description": "Validates sidebar navigation between key modules: Home, Dashboard, entity pages, and admin sections",
+  "persona": "Admin",
+  "tags": ["core", "navigation", "sidebar"],
+  "steps": [
+    {
+      "id": "NAV_01_HOME",
+      "action": "goto",
+      "url": "/",
+      "assertions": [
+        { "type": "visible", "target": "aside" }
+      ],
+      "doc_metadata": {
+        "title": "Application Sidebar",
+        "caption": "The sidebar is always visible on the left side of the screen. It contains the organization logo, navigation links grouped by module, and user account controls at the bottom.",
+        "manual_hint": "Full-page screenshot showing sidebar layout with all sections."
+      }
+    },
+    {
+      "id": "NAV_02_DASHBOARD",
+      "action": "click",
+      "target": "nav a[href='/dashboard'], a[href='/dashboard']",
+      "assertions": [
+        { "type": "urlContains", "value": "/dashboard" }
+      ],
+      "doc_metadata": {
+        "title": "Navigate to Dashboard",
+        "caption": "Click 'Dashboard' in the sidebar to view the system-wide KPI overview.",
+        "manual_hint": "Highlight the Dashboard menu item."
+      }
+    },
+    {
+      "id": "NAV_03_ASSET",
+      "action": "click",
+      "target": "nav a[href='/asset'], a[href='/asset']",
+      "assertions": [
+        { "type": "urlContains", "value": "/asset" }
+      ],
+      "doc_metadata": {
+        "title": "Navigate to Assets",
+        "caption": "Click 'Asset' under the Asset Management module to view the full list of registered assets.",
+        "manual_hint": "Show module group expansion."
+      }
+    },
+    {
+      "id": "NAV_04_WORK_ORDER",
+      "action": "goto",
+      "url": "/work_order",
+      "assertions": [
+        { "type": "urlContains", "value": "/work_order" }
+      ],
+      "doc_metadata": {
+        "title": "Navigate to Work Orders",
+        "caption": "Click 'Work Order' under the Work Management module to view and manage work orders. Expand the module group if it is collapsed.",
+        "manual_hint": "Show navigation to work order list."
+      }
+    },
+    {
+      "id": "NAV_05_COLLAPSE",
+      "action": "click",
+      "target": "[data-testid='sidebar-toggle'], aside button:first-child, aside > div > button",
+      "doc_metadata": {
+        "title": "Collapse Sidebar",
+        "caption": "Click the hamburger menu icon in the header to collapse the sidebar. This gives you more horizontal space for data tables and forms. Click again to expand.",
+        "manual_hint": "Show the collapsed vs expanded sidebar states."
+      }
+    }
+  ]
+}

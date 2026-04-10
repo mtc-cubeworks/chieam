@@ -1,0 +1,75 @@
+{
+  "name": "maintenance-request-lifecycle",
+  "description": "Creates a maintenance request and validates initial save and workflow state",
+  "persona": "Admin",
+  "tags": [
+    "maintenance",
+    "workflow",
+    "lifecycle",
+    "happy-path"
+  ],
+  "steps": [
+    {
+      "id": "MR_01_NAVIGATE",
+      "action": "goto",
+      "url": "/maintenance_request",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Maintenance Request List",
+        "caption": "Navigate to the Maintenance Request list page. Maintenance requests are used to report issues and request corrective or preventive maintenance."
+      }
+    },
+    {
+      "id": "MR_02_NEW",
+      "action": "click",
+      "target": "button:has-text('Add New'), [data-testid='btn-new'], button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/maintenance_request/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Create New Maintenance Request",
+        "caption": "Click 'Add New' to open the maintenance request form."
+      }
+    },
+    {
+      "id": "MR_03_FILL_DESCRIPTION",
+      "action": "type",
+      "target": "input[name='description'], textarea[name='description']",
+      "value": "E2E Test \u2014 Leaking pipe in Building A",
+      "doc_metadata": {
+        "title": "Fill Form Field",
+        "caption": "Enter \"E2E Test \u2014 Leaking pipe in Building A\" into the Description field."
+      }
+    },
+    {
+      "id": "MR_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "Save Maintenance Request",
+        "caption": "Click 'Save' to submit the maintenance request. The system creates a draft record that can be moved through the approval workflow.",
+        "manual_hint": "Show the success toast notification."
+      }
+    },
+    {
+      "id": "MR_05_VERIFY_SAVED",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "Maintenance Request Details",
+        "caption": "The maintenance request has been created. Review the details and use the workflow dropdown to advance the request through its lifecycle.",
+        "manual_hint": "Full page screenshot showing the saved record."
+      }
+    }
+  ]
+}

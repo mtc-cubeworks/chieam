@@ -12,7 +12,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:capture": "playwright test --project=yaml-runner",
+    "test:e2e:visual": "playwright test --project=visual-regression",
+    "test:e2e:update-snapshots": "playwright test --project=visual-regression --update-snapshots",
+    "generate:manual": "npx tsx e2e/scripts/generate-manual.ts"
   },
   "dependencies": {
     "@dayflow/core": "^3.1.2",

@@ -1,0 +1,92 @@
+{
+  "name": "login-happy-path",
+  "description": "User logs in with valid credentials and is redirected to the home page",
+  "persona": "Admin",
+  "tags": [
+    "auth",
+    "happy-path"
+  ],
+  "steps": [
+    {
+      "id": "LOGIN_00_CLEAR",
+      "action": "clearSession",
+      "doc_metadata": {
+        "title": "Clear Session",
+        "caption": "Clear browser cookies and local storage to ensure a clean test state."
+      }
+    },
+    {
+      "id": "LOGIN_01_NAVIGATE",
+      "action": "goto",
+      "url": "/login",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "input[type='password']"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Login Page",
+        "caption": "Open the EAM application in your web browser. You will be presented with the login screen showing the organization branding and credential fields.",
+        "is_edge_case": false,
+        "manual_hint": "Show the full login page with branding. This is the first screen a user sees."
+      }
+    },
+    {
+      "id": "LOGIN_02_ENTER_USERNAME",
+      "action": "type",
+      "target": "[data-testid='login-username'] input, input[placeholder*='username' i]",
+      "value": "admin",
+      "doc_metadata": {
+        "title": "Enter Username",
+        "caption": "Enter your username in the Username field. This is the account name provided by your system administrator.",
+        "is_edge_case": false
+      }
+    },
+    {
+      "id": "LOGIN_03_ENTER_PASSWORD",
+      "action": "type",
+      "target": "input[type='password']",
+      "value": "admin123",
+      "doc_metadata": {
+        "title": "Enter Password",
+        "caption": "Enter your password in the Password field. Passwords are case-sensitive.",
+        "is_edge_case": false,
+        "manual_hint": "Do not reveal actual passwords in the manual. Use placeholder text."
+      }
+    },
+    {
+      "id": "LOGIN_04_SUBMIT",
+      "action": "click",
+      "target": "button[type='submit']",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "^(?!.*login)"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Submit Login",
+        "caption": "Click the 'Sign in' button. Upon successful authentication, you will be redirected to the home page.",
+        "is_edge_case": false
+      }
+    },
+    {
+      "id": "LOGIN_05_HOME_LOADED",
+      "action": "screenshot",
+      "wait_for": "networkidle",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "[data-testid='sidebar'], aside"
+        }
+      ],
+      "doc_metadata": {
+        "title": "Home Page After Login",
+        "caption": "After successful login, the main application loads with the sidebar navigation showing all available modules.",
+        "is_edge_case": false,
+        "manual_hint": "This screenshot shows the default landing page with sidebar navigation."
+      }
+    }
+  ]
+}

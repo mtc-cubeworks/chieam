@@ -1,0 +1,27 @@
+{
+  "name": "TC-01-profile-update",
+  "description": "TC-01.5: Profile Update — Navigate to profile page and verify profile information",
+  "persona": "Admin",
+  "tags": ["TC-01", "auth", "profile"],
+  "steps": [
+    {
+      "id": "TC01_PROF_01_NAV",
+      "action": "goto",
+      "url": "/profile",
+      "wait_for": "networkidle",
+      "doc_metadata": {
+        "title": "TC-01.5 — User Profile",
+        "caption": "Navigate to the Profile page by clicking on the avatar or visiting /profile. The profile page shows user details and allows editing contact information."
+      }
+    },
+    {
+      "id": "TC01_PROF_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-01.5 — Profile Details",
+        "caption": "The profile page displays the current user's information including username, email, role, and employee linkage. Users can update their contact details and password."
+      }
+    }
+  ]
+}

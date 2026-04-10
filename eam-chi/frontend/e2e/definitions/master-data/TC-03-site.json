@@ -1,0 +1,73 @@
+{
+  "name": "TC-03-master-data-site",
+  "description": "TC-03.1: Create Sites linked to Organization",
+  "persona": "Admin",
+  "tags": [
+    "TC-03",
+    "master-data",
+    "site"
+  ],
+  "steps": [
+    {
+      "id": "TC03_SITE_01_NAV",
+      "action": "goto",
+      "url": "/site",
+      "assertions": [
+        {
+          "type": "visible",
+          "target": "h1"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Site List",
+        "caption": "Navigate to Site. Sites represent physical locations within an organization. Each site can have multiple departments."
+      }
+    },
+    {
+      "id": "TC03_SITE_02_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        {
+          "type": "urlContains",
+          "value": "/site/new"
+        }
+      ],
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Create Site",
+        "caption": "Click 'Add New' to create a new site. Link the site to the organization created in the previous step."
+      }
+    },
+    {
+      "id": "TC03_SITE_03_FILL_NAME",
+      "action": "type",
+      "target": "input[name='site_name']",
+      "value": "E2E Site A",
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Fill Site Name",
+        "caption": "Enter \"E2E Site A\" into the Site Name field."
+      }
+    },
+    {
+      "id": "TC03_SITE_04_SAVE",
+      "action": "click",
+      "target": "[data-testid='btn-save'], button:has-text('Create'), button:has-text('Save'), button:has-text('Create')",
+      "wait_for": "networkidle",
+      "timeout": 10000,
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Site Saved",
+        "caption": "The site is created with an auto-generated ID and linked to the organization. Repeat this process to create additional sites.",
+        "manual_hint": "Show the saved site record."
+      }
+    },
+    {
+      "id": "TC03_SITE_05_VERIFY",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-03.1 \u2014 Site Detail View",
+        "caption": "The site record shows the name, organization link, and any child departments. Each site serves as a scope boundary for role-based access control."
+      }
+    }
+  ]
+}

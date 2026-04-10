@@ -1,0 +1,51 @@
+{
+  "name": "TC-11-purchase-receipt",
+  "description": "TC-11.6: Purchase Receipt — Create and verify purchase receipt records",
+  "persona": "Admin",
+  "tags": ["TC-11", "purchasing", "purchase-receipt", "receiving"],
+  "steps": [
+    {
+      "id": "TC11_REC_01_NAV",
+      "action": "goto",
+      "url": "/purchase_receipt",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-11.6 — Purchase Receipt List",
+        "caption": "Navigate to Purchase Receipt. Receipts record the delivery of goods against purchase orders and trigger vendor performance calculations."
+      }
+    },
+    {
+      "id": "TC11_REC_02_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-11.6 — Receipt List Overview",
+        "caption": "The purchase receipt list shows all received deliveries with their PO reference, vendor, received date, and status."
+      }
+    },
+    {
+      "id": "TC11_REC_03_NEW",
+      "action": "click",
+      "target": "[data-testid='btn-new'], button:has-text('Add New'), button:has-text('Add New')",
+      "assertions": [
+        { "type": "urlContains", "value": "/purchase_receipt/new" }
+      ],
+      "doc_metadata": {
+        "title": "TC-11.6 — New Purchase Receipt",
+        "caption": "Click 'Add New' to record a receipt. Link it to a purchase order, enter received quantities, and note any discrepancies."
+      }
+    },
+    {
+      "id": "TC11_REC_04_SCREENSHOT",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-11.6 — Receipt Form",
+        "caption": "The purchase receipt form includes PO reference, vendor, delivery date, received items, quantities, and condition notes. Complete receipts update inventory and vendor performance metrics."
+      }
+    }
+  ]
+}

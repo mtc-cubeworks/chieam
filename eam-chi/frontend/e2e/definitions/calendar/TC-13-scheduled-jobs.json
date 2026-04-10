@@ -1,0 +1,52 @@
+{
+  "name": "TC-13-scheduled-jobs",
+  "description": "TC-13.1 & TC-13.2: Scheduled Jobs & Logging — View scheduled job log and auto-generation records",
+  "persona": "Admin",
+  "tags": ["TC-13", "scheduled-jobs", "auto-generation", "logging"],
+  "steps": [
+    {
+      "id": "TC13_01_NAV_MC",
+      "action": "goto",
+      "url": "/maintenance_calendar",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-13.1 — Maintenance Calendar Configuration",
+        "caption": "Navigate to Maintenance Calendar. This defines the PM schedules that trigger automatic generation of maintenance requests and work orders."
+      }
+    },
+    {
+      "id": "TC13_02_SCREENSHOT_MC",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-13.1 — PM Schedule Configuration",
+        "caption": "The maintenance calendar list shows all configured PM schedules with their frequency, last run date, next due date, and linked assets."
+      }
+    },
+    {
+      "id": "TC13_03_NAV_SJL",
+      "action": "goto",
+      "url": "/scheduled_job_log",
+      "wait_for": "networkidle",
+      "assertions": [
+        { "type": "visible", "target": "h1" }
+      ],
+      "doc_metadata": {
+        "title": "TC-13.2 — Scheduled Job Log",
+        "caption": "Navigate to Scheduled Job Log. The log records all automated job executions including PM auto-generation runs."
+      }
+    },
+    {
+      "id": "TC13_04_SCREENSHOT_SJL",
+      "action": "screenshot",
+      "visual_test": true,
+      "doc_metadata": {
+        "title": "TC-13.2 — Job Log Entries",
+        "caption": "The scheduled job log shows each execution with job ID, status (Success/Failed), duration, records created/updated, and error details. Jobs run at 1:00 AM daily or can be triggered manually."
+      }
+    }
+  ]
+}

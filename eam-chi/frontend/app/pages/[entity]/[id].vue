@@ -1268,7 +1268,7 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="h-full min-h-0 flex flex-col gap-6 px-3 py-3">
+  <div data-testid="entity-detail" class="h-full min-h-0 flex flex-col gap-6 px-3 py-3">
     <!-- Header -->
     <div class="flex items-center gap-2">
       <UButton
@@ -1295,12 +1295,14 @@ definePageMeta({
           <UDropdownMenu
             v-else-if="showWorkflowButton && workflowMenuItems.length"
             :items="workflowMenuItems"
+            data-testid="workflow-actions"
           >
             <UButton
               variant="outline"
               size="md"
               :disabled="saving"
               :loading="workflowLoading"
+              data-testid="workflow-state"
             >
               {{ currentWorkflowStateLabel || "Workflow" }}
             </UButton>
@@ -1311,11 +1313,12 @@ definePageMeta({
             size="md"
             :disabled="saving"
             :loading="workflowLoading"
+            data-testid="workflow-state"
           >
             {{ currentWorkflowStateLabel || "Workflow" }}
           </UButton>
           <!-- Read-only state badge for entities where show_actions is false -->
-          <UBadge v-else-if="showWorkflowBadge" variant="subtle" size="md">
+          <UBadge v-else-if="showWorkflowBadge" variant="subtle" size="md" data-testid="workflow-state">
             {{
               currentWorkflowStateLabel ||
               String(formData.workflow_state)
@@ -1350,7 +1353,7 @@ definePageMeta({
 
         <template v-if="isEditMode">
           <UFieldGroup>
-            <UButton :loading="saving" @click="handleSave">
+            <UButton data-testid="btn-save" :loading="saving" @click="handleSave">
               {{ isNew ? "Create" : "Save" }}
             </UButton>
             <UButton
@@ -1371,6 +1374,7 @@ definePageMeta({
                 @click="isEditMode = true"
                 size="md"
                 :disabled="!canEdit"
+                data-testid="btn-edit"
               >
                 Edit
               </UButton>
@@ -1396,6 +1400,7 @@ definePageMeta({
       v-if="error"
       color="error"
       icon="i-lucide-alert-circle"
+      data-testid="error-alert"
       :close-button="{ icon: 'i-lucide-x', onClick: () => (error = '') }"
     >
       <template #title>Error</template>
