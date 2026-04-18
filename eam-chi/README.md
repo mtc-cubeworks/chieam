@@ -179,6 +179,155 @@ See [docs/SEEDING_GUIDE.md](docs/SEEDING_GUIDE.md) for the full seeding order.
 
 See [`.env.example`](.env.example) for the full list. The only required variable is `DATABASE_URL`.
 
+## Server Connection & Deployment
+
+### Server Access (Contabo VPS)
+
+| Item | Value |
+|------|-------|
+| **Host** | `194.233.77.65` |
+| **SSH Port** | `2228` |
+| **Username** | `cwadmin` |
+| **Password** | `Cw@dm1n!2026Sec` |
+
+```bash
+# Connect via SSH
+ssh -p 2228 cwadmin@194.233.77.65
+
+# Or using sshpass (for scripts)
+sshpass -p 'Cw@dm1n!2026Sec' ssh -p 2228 cwadmin@194.233.77.65
+```
+
+### Instance Configurations
+
+#### CHI Instance
+
+| Item | Value |
+|------|-------|
+| **Domain** | `chieam.cubeworksinnovation.com` |
+| **Server Path** | `/home/cwadmin/eam-tests/eam-chi` |
+| **Frontend Port** | `3015` |
+| **Backend Port** | `8015` |
+| **Frontend Service** | `eam-chi-frontend` |
+| **Backend Service** | `eam-chi-backend` |
+
+**CHI Database:**
+
+| Item | Value |
+|------|-------|
+| **Database** | `eam-chi` |
+| **Username** | `eam_chi_user` |
+| **Password** | `CwChiSec2026xP9` |
+| **Secret Key** | `5DTosvnyl9QrCx7U-Xp_Lcc8RPR3OOzhXTOijP0A_0FxsT0suTB2zk2iwZHuxBuf` |
+| **Async URL** | `postgresql+asyncpg://eam_chi_user:CwChiSec2026xP9@localhost:5432/eam-chi` |
+
+#### ITBA Instance
+
+| Item | Value |
+|------|-------|
+| **Domain** | `itbaeam.cubeworksinnovation.com` |
+| **Server Path** | `/home/cwadmin/eam-tests/eam-itba` |
+| **Frontend Port** | `3014` |
+| **Backend Port** | `8014` |
+| **Frontend Service** | `eam-itba-backend` |
+| **Backend Service** | `eam-itba-frontend` |
+
+**ITBA Database:**
+
+| Item | Value |
+|------|-------|
+| **Database** | `eam-itba` |
+| **Username** | `eam_itba_user` |
+| **Password** | `CwItbaSec2026mR7` |
+| **Async URL** | `postgresql+asyncpg://eam_itba_user:CwItbaSec2026mR7@localhost:5432/eam-itba` |
+
+### Updating Instances
+
+#### Quick Deploy (sync local code to both instances)
+
+Run from the project root (`EAM-CHI/`):
+
+```bash
+# Sync CHI and ITBA instances from local code
+./sync_chi_to_itba.sh
+```
+
+This script:
+1. Backs up `.env` files on the server
+2. Uploads local `eam-chi/` code to the server's CHI instance via rsync
+3. Copies code from CHI to ITBA on the server (preserving each instance's `.env`)
+4. Restores `.env` files
+5. Stops all services
+6. Runs Alembic database migrations on both databases
+7. Rebuilds both frontends
+8. Restarts all services
+
+#### Manual Deploy (single instance)
+
+```bash
+# SSH into server
+ssh -p 2228 cwadmin@194.233.77.65
+
+# --- CHI Instance ---
+cd /home/cwadmin/eam-tests/eam-chi
+
+# Pull latest changes (if using git on server)
+git stash && git pull origin main
+
+# Rebuild frontend
+cd frontend
+export NVM_DIR=/home/cwadmin/.nvm && source "$NVM_DIR/nvm.sh" && nvm use 20
+npx nuxt build
+
+# Restart services
+sudo systemctl restart eam-chi-backend
+sudo systemctl restart eam-chi-frontend
+
+# --- ITBA Instance (same steps, different paths/services) ---
+cd /home/cwadmin/eam-tests/eam-itba
+# ... same build steps ...
+sudo systemctl restart eam-itba-backend
+sudo systemctl restart eam-itba-frontend
+```
+
+#### Useful Server Commands
+
+```bash
+# Check service status
+sudo systemctl status eam-chi-backend --no-pager
+sudo systemctl status eam-chi-frontend --no-pager
+sudo systemctl status eam-itba-backend --no-pager
+sudo systemctl status eam-itba-frontend --no-pager
+
+# View logs
+sudo journalctl -u eam-chi-backend --since "10 min ago"
+sudo journalctl -u eam-chi-frontend --since "10 min ago"
+
+# Restart nginx
+sudo systemctl reload nginx
+
+# Connect to CHI database
+PGPASSWORD=CwChiSec2026xP9 psql -U eam_chi_user -h localhost -d eam-chi
+
+# Connect to ITBA database
+PGPASSWORD=CwItbaSec2026mR7 psql -U eam_itba_user -h localhost -d eam-itba
+
+# Full restart (both instances)
+sudo systemctl restart eam-chi-backend eam-chi-frontend eam-itba-backend eam-itba-frontend
+```
+
+### Prerequisites for Sync Script
+
+The `sync_chi_to_itba.sh` script requires `sshpass` and `rsync` on the local machine:
+
+```bash
+# macOS
+brew install sshpass rsync
+
+# Ubuntu/Debian
+sudo apt install sshpass rsync
+```
+
 ## Tech Stack
 
 **Backend:** Python 3.10+, FastAPI, SQLAlchemy 2.0, Alembic, Pydantic, Socket.IO, Jinja2, aiosmtplib
